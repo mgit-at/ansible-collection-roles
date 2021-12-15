@@ -1,0 +1,3 @@
+---
+kubernetes_primary_master: true
+kubernetes_secondary_master: false

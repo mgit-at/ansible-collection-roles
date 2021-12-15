@@ -1,0 +1,5 @@
+---
+- name: roles present on every host
+  hosts: "{{ hostlist | default('all') }}"
+  roles:
+    - role: mgit_at.roles.base
