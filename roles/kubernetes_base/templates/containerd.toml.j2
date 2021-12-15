@@ -1,0 +1,11 @@
+[metrics]
+  address = "127.0.0.1:9701"
+
+{% if kubernetes_dockerhub_auth is defined %}
+[plugins]
+  [plugins.cri]
+    [plugins.cri.registry]
+      [plugins.cri.registry.auths]
+        [plugins.cri.registry.auths."https://registry-1.docker.io"]
+          auth = "{{ kubernetes_dockerhub_auth }}"
+{% endif %}

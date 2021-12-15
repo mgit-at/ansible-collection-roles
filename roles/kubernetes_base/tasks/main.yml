@@ -1,0 +1,91 @@
+---
+- name: create kubernetes data directory
+  file:
+    name: /srv/kubernetes
+    state: directory
+
+- name: prepare logs directory
+  file:
+    name: /srv/kubernetes/logs/pods
+    state: directory
+
+- name: create bind mount for /var/log/pods
+  mount:
+    src: /srv/kubernetes/logs/pods
+    path: /var/log/pods
+    fstype: none
+    opts: bind,defaults
+    state: mounted
+
+- name: install container runtime
+  include_tasks: "cri_containerd.yml"
+
+- name: create kubelet root directory
+  file:
+    name: /srv/kubernetes/kubelet
+    state: directory
+
+- name: create bind mount for /var/lib/kubelet
+  mount:
+    src: /srv/kubernetes/kubelet
+    path: /var/lib/kubelet
+    fstype: none
+    opts: bind,defaults
+    state: mounted
+
+- name: install kubelet and common packages
+  apt:
+    name:
+      # - nfs-common ## TODO: this is not needed on all hosts and is a security risk...
+      - bridge-utils
+      - cri-tools
+      - "kubelet={{ kubernetes_version }}-00"
+      - open-iscsi
+    state: present
+    force: yes
+
+- name: disable automatic upgrades for kubelet
+  dpkg_selections:
+    name: kubelet
+    selection: hold
+
+- name: add crictl config for shells
+  loop:
+    - zsh
+    - bash
+  blockinfile:
+    path: "/root/.{{ item }}rc"
+    create: yes
+    marker: "### {mark} ANSIBLE MANAGED BLOCK for crictl ###"
+    content: |
+      {% if kubernetes_cri_socket %}
+      alias crictl="crictl --runtime-endpoint {{ kubernetes_cri_socket }}"
+      {% endif %}
+      {% if item == 'zsh' %}
+      ## TODO: see https://github.com/kubernetes-sigs/cri-tools/issues/435
+      autoload -U +X bashcompinit && bashcompinit
+      {% endif %}
+      source <(crictl completion)
+    mode: "0644"
+
+## most containers will likely run as 1000:1000 - let's create a local user with those ids
+- name: create app user and group
+  when: kubernetes_node_create_app_user
+  block:
+    - name: create app group
+      group:
+        name: app
+        gid: "{{ kubernetes_node_app_user_id }}"
+
+    - name: create app user
+      user:
+        name: app
+        uid: "{{ kubernetes_node_app_user_id }}"
+        group: app
+        password: "!"
+
+# kubernetes nodes will most probably need to run elasticsearch
+- name: increase vm.max_map_count
+  sysctl:
+    name: vm.max_map_count
+    value: '262144'
