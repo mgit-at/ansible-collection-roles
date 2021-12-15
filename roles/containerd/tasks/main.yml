@@ -1,0 +1,13 @@
+---
+- name: check for supported platform
+  assert:
+    that:
+      - ansible_distribution == "Ubuntu"
+      - (ansible_distribution_major_version | int) >= 20
+    fail_msg: "This must be used on Ubuntu 20.04 or newer"
+
+- name: install containerd
+  apt:
+    name: containerd
+    state: present
+    force: yes
