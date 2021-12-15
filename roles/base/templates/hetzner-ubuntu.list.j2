@@ -1,3 +1,8 @@
+# Hetzner internal mirrors
 deb https://mirror.hetzner.com/ubuntu/packages {{ ansible_distribution_release }} {{ base_apt_repo_ubuntu_components | join (' ') }}
 deb https://mirror.hetzner.com/ubuntu/packages {{ ansible_distribution_release }}-updates {{ base_apt_repo_ubuntu_components | join (' ') }}
 deb https://mirror.hetzner.com/ubuntu/security {{ ansible_distribution_release }}-security {{ base_apt_repo_ubuntu_components | join (' ') }}
+# Upstream mirrors for redundancy
+deb http://de.archive.ubuntu.com/ubuntu/ {{ ansible_distribution_release }} {{ base_apt_repo_ubuntu_components | join (' ') }}
+deb http://de.archive.ubuntu.com/ubuntu/ {{ ansible_distribution_release }}-updates {{ base_apt_repo_ubuntu_components | join (' ') }}
+deb http://security.ubuntu.com/ubuntu {{ ansible_distribution_release }}-security {{ base_apt_repo_ubuntu_components | join (' ') }}
