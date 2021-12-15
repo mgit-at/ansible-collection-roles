@@ -1,0 +1,12 @@
+[Unit]
+Description=Set Ring Parameters for Network Intefaces
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/true
+ExecReload=/bin/true
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target

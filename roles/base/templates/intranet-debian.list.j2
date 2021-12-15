@@ -1,0 +1,8 @@
+deb http://{{ base_customer_mirror }}/debian {{ ansible_distribution_release }} {{ base_apt_repo_debian_components | join (' ') }}
+{% if ansible_distribution_release != "jessie" %}deb http://{{ base_customer_mirror }}/debian {{ ansible_distribution_release }}-updates {{ base_apt_repo_debian_components | join (' ') }}
+{% endif %}
+{% if ansible_distribution_release == "bullseye" %}
+deb http://{{ base_customer_mirror }}/debian-security {{ ansible_distribution_release }}-security {{ base_apt_repo_debian_components | join (' ') }}
+{% else %}
+deb http://{{ base_customer_mirror }}/debian-security {{ ansible_distribution_release }}/updates {{ base_apt_repo_debian_components | join (' ') }}
+{% endif %}

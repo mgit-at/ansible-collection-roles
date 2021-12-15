@@ -1,0 +1,4 @@
+{% if base_sunrpc_tcp_slot_table_entries is defined %}
+options sunrpc tcp_slot_table_entries="{{ base_sunrpc_tcp_slot_table_entries }}"
+{% endif %}
+options sunrpc tcp_max_slot_table_entries="{{ base_sunrpc_tcp_max_slot_table_entries }}"

@@ -1,0 +1,10 @@
+[Unit]
+Description=Set CPU govenor to {{ base_cpu_governor }}
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/cpupower -c all frequency-set -g {{ base_cpu_governor }}
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target

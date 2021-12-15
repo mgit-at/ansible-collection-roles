@@ -1,0 +1,19 @@
+#!/bin/sh
+
+if [ -z "$1" ]; then
+  echo "Usage $0 <interface>"
+  exit 1
+fi
+
+et_out=$(ethtool -g "$1")
+et_code=$?
+echo "ethtool output:"
+echo "-------------------------------------"
+echo "$et_out"
+echo "-----------------------------"
+if [ $et_code -ne 0 ]; then
+  echo "ethtool exited with code: $et_code"
+  exit $et_code
+fi
+echo "$et_out" | /usr/local/lib/ethtool-setringmax.awk
+echo "-------------------------------------"

@@ -1,0 +1,9 @@
+# {{ ansible_managed }}
+network:
+  version: 2
+  ethernets:
+   {{ ansible_default_ipv4.interface }}:
+     addresses:
+{% for ip in base_floating_ips %}
+     - {{ ip.ip }}/{{ ip.netmask }}
+{% endfor %}

@@ -1,0 +1,7 @@
+# {{ ansible_managed }}
+{% for ip in base_floating_ips %}
+auto {{ ip.interface | default(ansible_default_ipv4.interface) }}:{{ loop.index }}
+iface {{ ip.interface | default(ansible_default_ipv4.interface) }}:{{ loop.index }} inet{% if ip.netmask == 64 %}6{% endif %} static
+    address {{ ip.ip }}
+    netmask {{ ip.netmask }}
+{% endfor %}

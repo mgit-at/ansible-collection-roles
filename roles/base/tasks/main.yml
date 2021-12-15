@@ -1,0 +1,266 @@
+---
+- name: Check if OS is Debian-based (we do not support others)
+  debug:
+    msg: "Check OS family"
+  failed_when: ansible_os_family != "Debian"
+
+## apt
+- name: apt - install zone and distro specific apt sources.list
+  template:
+    src: "{{ base_apt_repo_zone }}-{{ ansible_distribution | lower }}.list.j2"
+    dest: /etc/apt/sources.list
+  register: base_sources_list
+
+- name: apt - set /etc/hosts when no dns is available
+  blockinfile:
+    path: /etc/hosts
+    marker_begin: "### APT REPO NO DNS HACK - BEGIN ###"
+    content: "{{ base_customer_mirror_ip }} {{ base_customer_mirror }}"
+    marker_end: "### APT REPO NO DNS HACK - END ###"
+  when:
+    - base_apt_repo_no_dns_hack | bool
+    - base_apt_repo_zone == "intranet"
+
+- name: apt - update apt cache
+  apt:
+    update_cache: yes
+  when: base_sources_list.changed  # noqa 503 - this needs to run right at this point to use the new mirrors
+
+- name: apt - disable recommends and suggests
+  copy:
+    content: "APT::Install-Recommends \"false\";\n"
+    dest: /etc/apt/apt.conf.d/99norecommends
+
+- name: apt - Install base system tools
+  apt:
+    name:
+      - htop
+      - curl
+      - dstat
+      - lsof
+      - ethtool
+      - gawk
+      - psmisc
+      - less
+      - debian-goodies
+      - vim-tiny
+      - screen
+      - mtr-tiny
+      - tcpdump
+      - unp
+      - aptitude
+      - ncurses-term
+      - man-db
+      - manpages
+      - netcat-openbsd
+      - dnsutils
+      - ioping
+    state: present
+
+- name: apt - Install base system tools (ubuntu)
+  apt:
+    name:
+      - linux-tools-common   ## contains cpupower (see below)
+      - "{% if base_ubuntu_linux_hwe | bool %}linux-tools-generic-hwe-{{ ansible_distribution_version }}{% else %}linux-tools-generic{% endif %}"
+      - rng-tools
+    state: present
+  when: ansible_distribution == "Ubuntu"
+
+- name: apt - (Un)install base system tools (debian stretch and beyond)
+  when:
+    - ansible_distribution == "Debian"
+    - (ansible_distribution_major_version | int) >= 9
+  block:
+    - name: apt - Uninstall base system tools (debian stretch and beyond)
+      apt:
+        name:
+          - rngd-rdrand
+          - linux-tools
+        state: absent
+
+    - name: apt - Install base system tools (debian stretch and beyond)
+      apt:
+        name:
+          - linux-perf
+          - linux-cpupower
+          - rng-tools5
+          - acl
+        state: present
+
+- name: apt - Install base system tools (debian buster and ubuntu focal)
+  when: ansible_distribution == "Debian" and ansible_distribution_major_version | int >= 10 or ansible_distribution == "Ubuntu" and (ansible_distribution_major_version | int) >= 20
+  apt:
+    name:
+      - ripgrep
+      - fd-find
+    state: present
+
+# screen
+- name: Remove startup message from screen
+  lineinfile:
+    regexp: "^startup_message"
+    line: "startup_message off"
+    dest: /etc/screenrc
+    mode: 0644
+    create: yes
+  tags:
+    - screen
+
+## sshd
+- include_tasks: sshd.yml
+  when: not base_sshd_extended_conf
+  tags:
+    sshd
+
+- name: ensure ssh is always restarted
+  loop:
+    - ["Service", "Restart", "always"]
+    - ["Service", "RestartSec", "1"]
+    - ["Service", "RestartPreventExitStatus", " "]
+    - ["Unit", "StartLimitIntervalSec", "0"]
+  ini_file:
+    path: /etc/systemd/system/ssh.service.d/override.conf
+    owner: root
+    group: root
+    mode: 0644
+    section: "{{ item[0] }}"
+    option: "{{ item[1] }}"
+    value: "{{ item[2] }}"
+    no_extra_spaces: yes
+  notify: restart sshd with systemd reload
+  tags:
+    sshd
+
+- name: Set authorized keys for root user
+  authorized_key:
+    user: root
+    state: present
+    exclusive: true
+    key: "{{ base_ssh_root_keys | join('\n') }}"
+  when: "base_ssh_root_keys | length > 0"
+  tags:
+    sshd
+
+- name: ssh - seed initial global known_hosts
+  loop:
+    # https://gitlab.com/gitlab-org/gitlab-foss/-/blob/master/doc/user/gitlab_com/index.md#ssh-host-keys-fingerprints
+    - ["gitlab.com", "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf"]
+    # https://github.blog/2021-09-01-improving-git-protocol-security-github/#new-host-keys
+    - ["github.com", "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl"]
+  known_hosts:
+    path: /etc/ssh/ssh_known_hosts
+    name: "{{ item[0] }}"
+    key: "{{ item[0] }} {{ item[1] }}"
+    state: present
+
+- name: Ensure /root is not world accessible
+  file:
+    path: /root
+    mode: 0700
+    owner: root
+    group: root
+    state: directory
+
+## blacklist_modules
+- name: disable net/fs/misc kernel modules
+  lineinfile:
+    dest: /etc/modprobe.d/disablemod.conf
+    line: "install {{ item }} /bin/true"
+    create: true
+    owner: root
+    group: root
+    mode: 0644
+  with_items: "{{ modules_blacklist.net | union(modules_blacklist.fs) | union(modules_blacklist.misc) | union(modules_blacklist_host) | union(modules_blacklist_group) }}"
+
+
+## cron
+- name: allow cron and at for root-only
+  copy:
+    dest: "{{ item }}"
+    content: ""  # similar to touch, but doesn't log a change for existing files
+  with_items:
+    - /etc/cron.allow
+    - /etc/at.allow
+
+# this task can fail under debian, because atd is not installed by default
+- name: mask atd
+  systemd:
+    name: atd.service
+    masked: true
+    enabled: false
+  ignore_errors: true
+
+## sysctl
+- name: Change various sysctl-settings, look at the sysctl-vars file for documentation
+  sysctl:
+    name: '{{ item.key }}'
+    value: '{{ item.value }}'
+    sysctl_set: true
+    state: present
+    reload: true
+    ignoreerrors: true
+  with_dict: '{{ sysctl_config | combine(sysctl_config_user) }}'
+  loop_control:
+    label: "{{ item.key }} = {{ item.value }}"
+
+  ## the options could be set using sysctl as well but only if the sunrpc module
+  ## has been loaded which is not the case for all machines. Doing it via sysctl
+  ## would therefore mark the host changed on every run.
+  ## Also mind that we do neither reload the module nor do we remount all
+  ## NFS volumes here. Both of which would need to be done in order for the settings
+  ## to take effect. The next reboot will take care of it!
+- name: configure default options for sunrpc module
+  template:
+    src: modprobe-sunrpc.conf.j2
+    dest: /etc/modprobe.d/sunrpc.conf
+
+## systemd
+- name: Make systemd journal persistent (ubuntu)
+  file:
+    path: /var/log/journal
+    state: directory
+  notify: Initialise persistent systemd journal (ubuntu)
+  when: ansible_distribution == "Ubuntu"
+
+- name: Make systemd journal persistent (debian)
+  file:
+    path: /var/log/journal
+    state: directory
+    group: systemd-journal
+  notify: Initialise persistent systemd journal (debian)
+  when: ansible_distribution == "Debian"
+
+
+## misc
+- name: install ethtool-setringmax
+  import_tasks: ethtool-setringmax.yml
+  when: base_install_ethtool_setringmax | bool
+
+- name: deal with cpu governor
+  when:
+    - ansible_distribution != "Debian" or (ansible_distribution_major_version | int) >= 9
+    - base_cpu_governor is defined
+  block:
+    - name: install CPU governor helper
+      template:
+        src: cpu-governor.service.j2
+        dest: /etc/systemd/system/cpu-governor.service
+
+    - name: make sure CPU governor helper is enabled and running
+      systemd:
+        name: cpu-governor.service
+        daemon_reload: true
+        state: started
+        enabled: true
+
+- name: disable ondemand init script for Ubuntu
+  when:
+    - ansible_distribution == "Ubuntu"
+    - base_cpu_governor is defined
+  systemd:
+    name: ondemand
+    enabled: false
+
+- name: configure floating ips
+  when: base_floating_ips is defined
+  include_tasks: floating_ip.yml

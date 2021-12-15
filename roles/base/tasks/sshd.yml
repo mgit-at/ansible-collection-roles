@@ -1,0 +1,70 @@
+---
+## sshd
+# TODO: validate sshd_config
+- name: ssh - hardening server config
+  lineinfile:
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    dest: /etc/ssh/sshd_config
+    mode: 0644
+  loop:
+    - regexp: '^\s*#?\s*IgnoreRhosts'
+      line: 'IgnoreRhosts yes'
+    - regexp: '^\s*#?\s*PermitRootLogin'
+      line: 'PermitRootLogin {{ base_ssh_root_login }}'
+    - regexp: '^\s*#?\s*PubkeyAuthentication'
+      line: 'PubkeyAuthentication yes'
+    - regexp: '^\s*#?\s*HostbasedAuthentication'
+      line: 'HostbasedAuthentication no'
+    - regexp: '^\s*#?\s*PermitEmptyPasswords'
+      line: 'PermitEmptyPasswords no'
+    - regexp: '^\s*#?\s*UseDNS'
+      line: 'UseDNS no'
+  loop_control:
+    label: "{{ item.line }}"
+  notify: restart sshd
+
+# OMG, this is broken... be VERY careful using this!
+#   ssh exits with error 255 when IP is not available, and exactly this error code is not restarted by systemd
+#   but ssh.service does NOT depend on network-online.target, but just network.target (obviously), thus eg. with netplan on
+#   ubuntu 20.04 even static configured IPs are NOT bound when ssh starts, giving one error without restart => dead ssh
+- name: ssh - add listen address
+  when: base_ssh_listen_address is defined
+  blockinfile:
+    insertafter: '^\s*#?\s*ListenAddress ::'
+    block: |
+      {% for addr in base_ssh_listen_address %}
+      ListenAddress {{ addr }}
+      {% endfor %}
+    dest: /etc/ssh/sshd_config
+    marker: "# {mark} ANSIBLE MANAGED LISTENER BLOCK"
+    mode: 0644
+    validate: echo %s | sshd -t
+  notify: restart sshd
+  tags:
+    - sshd
+
+- name: ssh - remove listen address when not defined
+  when: not base_ssh_listen_address is defined
+  blockinfile:
+    block: ""
+    dest: /etc/ssh/sshd_config
+    marker: "# {mark} ANSIBLE MANAGED LISTENER BLOCK"
+    mode: 0644
+    validate: echo %s | sshd -t
+  notify: restart sshd
+  tags:
+    - sshd
+
+# TODO: find a better way to configure this
+- name: ssh - set ssh AllowUsers
+  when: base_ssh_allow_users is defined
+  lineinfile:
+    regexp: '^\s*#?\s*AllowUsers'
+    line: 'AllowUsers {{ base_ssh_allow_users | sort | join(" ") }}'
+    dest: /etc/ssh/sshd_config
+    mode: 0644
+    validate: echo %s | sshd -t
+  notify: restart sshd
+  tags:
+    - sshd

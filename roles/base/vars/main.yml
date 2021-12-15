@@ -1,0 +1,60 @@
+---
+# SYSTEM CONFIGURATION
+# ====================
+# These are not meant to be modified by the user
+
+#
+# To adjust these settings use sysctl_config_user dict
+#
+sysctl_config:
+
+  # Enable RFC-recommended source validation feature.
+  net.ipv4.conf.all.rp_filter: 1
+  net.ipv4.conf.default.rp_filter: 1
+
+  # Log packets with impossible addresses to kernel log? yes
+  net.ipv4.conf.all.log_martians: 1
+  net.ipv4.conf.default.log_martians: 1
+
+  # Reduce the surface on SMURF attacks.
+  # Make sure to ignore ECHO broadcasts, which are only required in broad network analysis.
+  net.ipv4.icmp_echo_ignore_broadcasts: 1
+
+  # There is no reason to accept bogus error responses from ICMP, so ignore them instead.
+  net.ipv4.icmp_ignore_bogus_error_responses: 1
+
+  # Limit the amount of traffic the system uses for ICMP.
+  net.ipv4.icmp_ratelimit: 1000
+
+  # Send redirects, if router, but this is just server
+  net.ipv4.conf.all.send_redirects: 0
+  net.ipv4.conf.default.send_redirects: 0
+  net.ipv4.conf.all.accept_redirects: 0
+  net.ipv4.conf.default.accept_redirects: 0
+  net.ipv6.conf.all.accept_redirects: 0
+  net.ipv6.conf.default.accept_redirects: 0
+  net.ipv4.conf.all.secure_redirects: 0
+  net.ipv4.conf.default.secure_redirects: 0
+
+  net.ipv4.conf.all.accept_source_route: 0
+  net.ipv4.conf.default.accept_source_route: 0
+
+  # Protect against wrapping sequence numbers at gigabit speeds
+  net.ipv4.tcp_timestamps: 0
+
+  # Prevent against the common 'syn flood attack'
+  net.ipv4.tcp_syncookies: 1
+
+  # Restrict dmesg to root user
+  kernel.dmesg_restrict: 1
+
+  # Disable Selective Acknowledgement (SACK)
+  # Workaround CVE-2019-11477, CVE-2019-11478, CVE-2019-11479
+  # See https://github.com/Netflix/security-bulletins/blob/master/advisories/third-party/2019-001.md
+  net.ipv4.tcp_sack: 1
+
+  # enable bbr as default
+  net.core.default_qdisc: "fq"
+  net.ipv4.tcp_congestion_control: "bbr"
+
+base_systemd_generators_dir: /etc/systemd/system-generators

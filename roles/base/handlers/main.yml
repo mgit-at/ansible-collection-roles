@@ -1,0 +1,29 @@
+---
+- name: Initialise persistent systemd journal (ubuntu)
+  command: systemd-tmpfiles --create --prefix /var/log/journal
+
+- name: Initialise persistent systemd journal (debian)
+  command: setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
+
+- name: restart sshd
+  systemd:
+    name: sshd
+    state: restarted
+  tags:
+    - sshd
+
+- name: restart sshd with systemd reload
+  systemd:
+    name: sshd
+    state: restarted
+    daemon_reload: yes
+  tags:
+    - sshd
+
+- name: netplan apply
+  command: netplan apply
+
+- name: restart networking
+  systemd:
+    name: networking
+    state: restarted
