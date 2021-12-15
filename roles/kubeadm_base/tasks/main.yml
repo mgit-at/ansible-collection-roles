@@ -1,0 +1,77 @@
+---
+- name: install kubeadm packages
+  apt:
+    name:
+      - haproxy
+      - "kubeadm={{ kubernetes_version }}-00"
+      - "kubectl={{ kubernetes_version }}-00"
+    state: present
+    force: yes
+
+- name: install hatop package (not on focal)
+  apt:
+    name:
+      - hatop
+    state: present
+    force: yes
+  # hatop is not available on Ubuntu 20.04 "Focal Fossa" but got re-added later
+  when: ansible_distribution == "Debian" or (ansible_distribution_major_version | int) != 20
+
+- name: add hatop config for shells (not on focal)
+  loop:
+    - zsh
+    - bash
+  blockinfile:
+    path: "/root/.{{ item }}rc"
+    create: yes
+    marker: "### {mark} ANSIBLE MANAGED BLOCK for hatop ###"
+    content: |
+      alias hatop="hatop -s /var/run/haproxy/admin.sock"
+  when: ansible_distribution == "Debian" or (ansible_distribution_major_version | int) != 20
+
+- name: disable automatic upgrades for kubeadm/kubectl
+  loop:
+    - kubeadm
+    - kubectl
+  dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+
+- name: add kubeadm config for shells
+  loop:
+    - zsh
+    - bash
+  blockinfile:
+    path: "/root/.{{ item }}rc"
+    create: yes
+    marker: "### {mark} ANSIBLE MANAGED BLOCK for kubeadm ###"
+    content: |
+      source <(kubeadm completion {{ item }})
+
+- name: configure haproxy
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+  register: haproxy_config
+
+- name: (re)start haproxy
+  systemd:
+    name: haproxy
+    state: "{% if haproxy_config is changed %}restarted{% else %}started{% endif %}"
+    enabled: yes
+
+## loading the modules temporarly because kubeadm will complain if they are not there
+#  but i don't think it is necessary to make this persistent, also ignoring changes here
+- name: load module br_netfilter to satisfy kubeadm init/join
+  modprobe:
+    name: br_netfilter
+    state: present
+  changed_when: false
+
+- name: enable IPv4 forwarding for cilium
+  sysctl:
+    name: 'net.ipv4.ip_forward'
+    value: '1'
+    sysctl_set: yes
+    state: present
+    reload: yes
