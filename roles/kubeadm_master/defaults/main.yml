@@ -1,0 +1,6 @@
+---
+## taint master nodes to not run any payload application
+kubernetes_dedicated_master: true
+
+kubernetes_api_cert_sans_extra: []
+kubernetes_network_dns_domain: cluster.local

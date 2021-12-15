@@ -1,0 +1,53 @@
+---
+- name: Install helm
+  apt:
+    name:
+      - helm
+      - python3-yaml  # for helm modules
+    state: present
+
+- name: Add cilium chart repo
+  kubernetes.core.helm_repository:
+    name: cilium
+    repo_url: "https://helm.cilium.io/"
+    repo_state: present
+
+- name: Check if Cilium is already present
+  kubernetes.core.helm_info:
+    release_name: cilium
+    release_namespace: kube-system
+  register: kubeadm_cilium_check
+
+- name: Install Cilium
+  kubernetes.core.helm:
+    release_name: cilium
+    chart_ref: cilium/cilium
+    release_namespace: kube-system
+    wait: true
+    chart_version: "{{ kubernetes_cilium_init_version }}"
+    release_values:
+      kubeProxyReplacement: strict
+      k8sServiceHost: 127.0.0.1  # provided by haproxy, not kubernetes directly!
+      k8sServicePort: "{{ kubernetes_api_lb_port | default('6443') }}"
+      cluster:
+        name: "{{ kubernetes_cluster_name }}"
+      containerRuntime:
+        integration: containerd  # only containerd supported in the future anyways, so no variable here
+        socketPath: /var/run/kube-containerd/containerd.sock
+      # No Hubble on dedicated control plane nodes
+      # hubble:
+      #   listenAddress: ":4244"
+      #   relay:
+      #     enabled: true
+      #   ui:
+      #     enabled: true
+      operator:
+        replicas: 1  # scale up in Flux once a second node is added to the cluster
+      ipam:
+        operator:
+          clusterPoolIPv4PodCIDR: "{{ kubernetes_network_pod_subnet }}"
+          clusterPoolIPv4MaskSize: "{{ kubernetes_network_node_cidr_size }}"
+      prometheus:
+        enabled: true  # emit metrics
+  when:
+    - not kubeadm_cilium_check.status.status == "deployed"

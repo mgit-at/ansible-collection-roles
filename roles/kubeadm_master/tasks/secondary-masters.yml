@@ -1,0 +1,57 @@
+---
+- name: fetch secrets needed for secondary master
+  run_once: true
+  delegate_to: "{{ groups[kubernetes_primary_master_group_name] | first }}"  # needs to be a single element, not a list
+  block:
+
+    - name: fetch list of current nodes
+      command: kubectl --kubeconfig /etc/kubernetes/admin.conf get nodes -o name
+      changed_when: False
+      check_mode: no
+      register: kubectl_node_list
+
+    - name: save list of current nodes
+      set_fact:
+        kubernetes_current_nodes: "{{ kubectl_node_list.stdout_lines | map('replace', 'node/', '') | list }}"
+
+    - name: upload certs
+      when: "groups[kubernetes_masters_group_name] | map('extract', hostvars) | map(attribute='ansible_nodename') | difference(kubernetes_current_nodes) | length > 0"
+      command: kubeadm init phase upload-certs --upload-certs
+      check_mode: no
+      register: kubeadm_upload_certs
+      no_log: true
+
+
+- name: extracting encryption key for certs
+  set_fact:
+    kubeadm_upload_certs_key: "{% if kubeadm_upload_certs.stdout is defined %}{{ kubeadm_upload_certs.stdout_lines | last }}{% endif %}"
+
+- name: join kubernetes secondary master node and store log
+  block:
+    - name: join kubernetes secondary master node
+      command: |
+        kubeadm join 127.0.0.1:{{ kubernetes_api_lb_port | default('6443') }}
+        --apiserver-bind-port 6442
+        --cri-socket {{ kubernetes_cri_socket }}
+        --token '{{ kube_bootstrap_token }}'
+        --discovery-token-ca-cert-hash '{{ kube_bootstrap_ca_cert_hash }}'
+        --control-plane
+        --certificate-key {{ kubeadm_upload_certs_key }}
+      args:
+        creates: /etc/kubernetes/kubelet.conf
+      register: kubeadm_join
+      no_log: true
+
+  always:
+    - name: dump output of kubeadm join to log file
+      when: kubeadm_join is changed
+      # This is not a handler by design to make sure this action runs at this point of the play.
+      copy:  # noqa 503
+        content: "{{ kubeadm_join.stdout }}\n"
+        dest: /etc/kubernetes/kubeadm-join.log
+
+    - name: dump error output of kubeadm join to log file
+      when: kubeadm_join.changed and kubeadm_join.stderr
+      copy:
+        content: "{{ kubeadm_join.stderr }}\n"
+        dest: /etc/kubernetes/kubeadm-join.errors

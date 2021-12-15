@@ -7,6 +7,9 @@ kubernetes_group_name: k8s_mycluster
 kubernetes_masters_group_name: k8s_mycluster_masters
 kubernetes_primary_master_group_name: k8s_mycluster_primary_master
 
+kubernetes_encryption_config_keys:
+  - ThisReallyShouldBeInAVault
+
 kubernetes_max_pods: 123  # default is 110, changed slightly to verify it ends up on nodes
 
 kubernetes_cilium_init_version: 1.33.7  # only the initially installed version, flux takes over afterwards!

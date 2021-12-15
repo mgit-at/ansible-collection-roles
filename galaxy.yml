@@ -21,3 +21,6 @@ build_ignore:
 # https://docs.ansible.com/ansible/devel/dev_guide/developing_collections.html#ignoring-files-and-folders
   - .gitignore
   - changelogs/.plugin-cache.yaml
+dependencies:
+  # for the helm modules installing Cilium
+  "kubernetes.core": ">=1.1.1"

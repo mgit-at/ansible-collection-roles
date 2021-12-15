@@ -1,0 +1,46 @@
+{# https://godoc.org/k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm/v1beta2 #}
+{#  #}
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: InitConfiguration
+{# TODO: this is ugly but we want to create our own token so we can #}
+{# better control its lifetime #}
+bootstrapTokens:
+- ttl: "1s"
+localAPIEndpoint:
+  bindPort: 6442
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: ClusterConfiguration
+kubernetesVersion: {{ kubernetes_version }}
+clusterName: {{ kubernetes_cluster_name }}
+imageRepository: k8s.gcr.io
+controlPlaneEndpoint: 127.0.0.1:{{ kubernetes_api_lb_port | default('6443') }}
+networking:
+  dnsDomain: {{ kubernetes_network_dns_domain }}
+  podSubnet: {{ kubernetes_network_pod_subnet }}
+  serviceSubnet: {{ kubernetes_network_svc_subnet }}
+apiServer:
+  extraArgs:
+    encryption-provider-config: /etc/kubernetes/encryption/config
+  extraVolumes:
+  - name: encryption-config
+    hostPath: /etc/kubernetes/encryption
+    mountPath: /etc/kubernetes/encryption
+    readOnly: true
+    pathType: Directory
+{% if (kubernetes_api_cert_sans_extra | length) == 0 %}
+  certSANs: []
+{% else %}
+  certSANs:
+  {{ kubernetes_api_cert_sans_extra | to_nice_yaml | indent(width=2) }}
+{% endif %}
+controllerManager:
+  extraArgs:
+    node-cidr-mask-size: "{{ kubernetes_network_node_cidr_size }}"
+scheduler: {}
+dns:
+  type: CoreDNS
+---
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+maxPods: {{ kubernetes_max_pods }}

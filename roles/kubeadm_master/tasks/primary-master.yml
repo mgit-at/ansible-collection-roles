@@ -1,0 +1,134 @@
+---
+- name: check if kubeconfig kubelet.conf already exists
+  stat:
+    path: /etc/kubernetes/kubelet.conf
+  register: kubeconfig_kubelet_stats
+
+- name: generate kubeadm.config
+  template:
+    src: kubeadm.config.j2
+    dest: /etc/kubernetes/kubeadm.config
+  register: kubeadm_config
+
+### cluster not yet initialized
+
+- name: create new cluster
+  when: not kubeconfig_kubelet_stats.stat.exists
+  block:
+
+    #### kubeadm wants token to come from --config if --config is used
+    #### i think this is stupid -> TODO: send bug report
+    # - name: generate bootstrap token for new cluster
+    #   command: kubeadm token generate
+    #   changed_when: False
+    #   check_mode: no
+    #   register: kubeadm_token_generate
+
+    - name: initialize kubernetes master and store log
+      block:
+        - name: initialize the kubernetes primary master
+          command: |
+            kubeadm
+            init
+            --config /etc/kubernetes/kubeadm.config
+            --cri-socket {{ kubernetes_cri_socket }}
+            --skip-phases addon/kube-proxy
+            --skip-token-print
+          args:
+            creates: /etc/kubernetes/pki/ca.crt
+          register: kubeadm_init
+
+      always:
+        - name: dump output of kubeadm init to log file
+          when: kubeadm_init.changed
+          copy:
+            content: "{{ kubeadm_init.stdout }}\n"
+            dest: /etc/kubernetes/kubeadm-init.log
+
+        - name: dump error output of kubeadm init to log file
+          when: kubeadm_init.changed and kubeadm_init.stderr
+          copy:
+            content: "{{ kubeadm_init.stderr }}\n"
+            dest: /etc/kubernetes/kubeadm-init.errors
+
+    - name: create bootstrap token for existing cluster
+      command: kubeadm token create --ttl 42m
+      check_mode: no
+      register: kubeadm_token_generate
+      no_log: true
+
+
+### cluster is already initialized but config has changed
+
+- name: upgrade cluster config
+  when: kubeconfig_kubelet_stats.stat.exists and kubeadm_config is changed
+  block:
+
+    # TODO: "kubeadm upgrade" unfortunately isn't enough, this likely needs a full "kubeadm reset" + "kubeadm join" from all master nodes
+
+    - name: kudeadm upgrade plan
+      command: kubeadm upgrade plan
+      register: kubeadm_plan
+      # Run even in check mode
+      check_mode: false
+
+    - name: Check for warnings
+      debug:
+        msg: "{{ kubeadm_plan.stdout }}"
+
+    - name: prompt for resume
+      pause:
+        prompt: Please check the last output for warnings. Confirm you if want to resume the upgrade! Press return to continue. Press Ctrl+c and then "a" to abort
+
+    - name: fail for cluster upgrades
+      fail:
+        msg: "upgrading cluster config is currently not supported!"
+
+
+### cluster is already initialized
+
+- name: prepare cluster for new nodes
+  when: kubeconfig_kubelet_stats.stat.exists and kubeadm_config is not changed
+  block:
+
+    - name: fetch list of current nodes
+      command: kubectl --kubeconfig /etc/kubernetes/admin.conf get nodes -o name
+      changed_when: False
+      check_mode: no
+      register: kubectl_node_list
+
+    - name: save list of current nodes
+      set_fact:
+        kubernetes_current_nodes: "{{ kubectl_node_list.stdout_lines | map('replace', 'node/', '') | list }}"
+
+    - name: create bootstrap token for existing cluster
+      when: "groups[kubernetes_group_name] | map('extract', hostvars) | map(attribute='ansible_nodename') | difference(kubernetes_current_nodes) | length > 0"
+      command: kubeadm token create --ttl 42m
+      check_mode: no
+      register: kubeadm_token_create
+      no_log: true
+
+
+## calculate certificate digest
+
+- name: install openssl
+  apt:
+    name: openssl
+    state: present
+
+- name: get ca certificate digest
+  shell: "set -o pipefail && openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'"
+  args:
+    executable: /bin/bash
+  check_mode: no
+  register: kube_ca_openssl
+  changed_when: False
+
+- name: set variables needed by kubernetes/nodes to join the cluster
+  set_fact:
+    kube_bootstrap_token: "{% if kubeadm_token_generate.stdout is defined %}{{ kubeadm_token_generate.stdout }}{% elif kubeadm_token_create.stdout is defined %}{{ kubeadm_token_create.stdout }}{% endif %}"
+    kube_bootstrap_ca_cert_hash: "sha256:{{ kube_ca_openssl.stdout }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: True
+  loop: "{{ groups[kubernetes_group_name] }}"
+  no_log: true
