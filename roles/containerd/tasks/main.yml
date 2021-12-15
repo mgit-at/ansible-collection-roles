@@ -11,3 +11,8 @@
     name: containerd
     state: present
     force: yes
+
+- name: create config directory
+  file:
+    name: /etc/containerd
+    state: directory
