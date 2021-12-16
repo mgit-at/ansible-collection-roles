@@ -2,6 +2,7 @@
 - name: install helm repo key
   copy:
     # Source: https://baltocdn.com/helm/signing.asc
+    # converted using `gpg --dearmor helm.asc`
     src: helm.gpg
     dest: /etc/apt/trusted.gpg.d/helm.gpg
   notify: update apt cache
