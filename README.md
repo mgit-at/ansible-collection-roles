@@ -108,3 +108,5 @@ Start publishing roles that are in common use internally or that are required fo
 Apache-2.0 License
 
 See [LICENSE](LICENSE) to see the full text.
+
+Copyright 2021 mgIT GmbH.
