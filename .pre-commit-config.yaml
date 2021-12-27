@@ -1,0 +1,30 @@
+---
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+repos:
+  ## Automatic checks (should run within seconds on the whole repository)
+  - repo: local
+    hooks:
+      - id: lint-skips
+        name: Exceptions to ansible-lint are not made via skip_ansible_lint
+        # Use specific "# noqa [rule name] - [description]" comments instead to silence linter errors
+        alias: lint-skips
+        entry: skip_ansible_lint
+        language: pygrep
+        types: [yaml]
+        exclude: ^\.pre-commit-config\.yaml$
+
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.26.0
+    hooks:
+      - id: yamllint
+        # Treat warnings as errors, or pre-commit will hide them
+        args: [--strict]
+        name: All yaml files pass the yamllint linter
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.7.1.1
+    hooks:
+      - id: shellcheck
+        name: All shell files pass the shellcheck linter
