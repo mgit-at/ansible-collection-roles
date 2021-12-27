@@ -85,6 +85,44 @@ jobs:
           fail_ci_if_error: false
 
 ###
+# pre-commit tests (using the pre-commit tool)
+#
+
+  pre-commit:
+    runs-on: ubuntu-latest
+    name: pre-commit (${{ matrix.hook }})
+    strategy:
+      # As soon as the first unit test fails, cancel the others to free up the CI queue
+      fail-fast: true
+      matrix:
+        hook:
+          # see .pre-commit-config.yml for hook names
+          - lint-skips
+          - yamllint
+          - shellcheck
+          - ansible-lint
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          path: ansible_collections/${{env.NAMESPACE}}/${{env.COLLECTION_NAME}}
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install pre-commit
+        run: pip install pre-commit
+
+      # Run the pre-commit hooks
+      - name: Run pre-commit
+        run: pre-commit run --all-files --hook-stage manual ${{ matrix.hook }}
+        working-directory: ./ansible_collections/${{env.NAMESPACE}}/${{env.COLLECTION_NAME}}
+        # TODO: Proper caching of both pre-commit as well as ansible-lint content
+
+###
 # Unit tests (OPTIONAL)
 #
 # https://docs.ansible.com/ansible/latest/dev_guide/testing_units.html
