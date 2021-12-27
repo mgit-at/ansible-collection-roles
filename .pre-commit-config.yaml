@@ -28,3 +28,15 @@ repos:
     hooks:
       - id: shellcheck
         name: All shell files pass the shellcheck linter
+
+  ## Manual checks (these are not fast or specific enough to be run on every commit)
+
+  - repo: https://github.com/ansible/ansible-lint.git
+    rev: v5.3.1
+    hooks:
+      - id: ansible-lint
+        name: Lint the repository with ansible-lint
+        # Only run against ansible-core so missing dependencies are discovered
+        additional_dependencies:
+          - .[core]
+        stages: [manual]

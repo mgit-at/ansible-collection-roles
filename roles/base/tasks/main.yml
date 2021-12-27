@@ -118,7 +118,7 @@
     - ["Service", "RestartSec", "1"]
     - ["Service", "RestartPreventExitStatus", " "]
     - ["Unit", "StartLimitIntervalSec", "0"]
-  ini_file:
+  community.general.ini_file:
     path: /etc/systemd/system/ssh.service.d/override.conf
     owner: root
     group: root
@@ -132,7 +132,7 @@
     sshd
 
 - name: Set authorized keys for root user
-  authorized_key:
+  ansible.posix.authorized_key:
     user: root
     state: present
     exclusive: true
@@ -188,7 +188,7 @@
     name: atd.service
     masked: true
     enabled: false
-  ignore_errors: true
+  ignore_errors: true  # noqa ignore-errors - TODO: Find a better way to ignore this potentially failing task
 
 ## sysctl
 - name: Change various sysctl-settings, look at the sysctl-vars file for documentation

@@ -1,0 +1,8 @@
+---
+skip_list:
+  # These default rules (https://docs.ansible.com/ansible-lint/rules/default_rules.html) are deactivated:
+  #
+  # TODO: This is not very urgent due to correct umasks, but should be fixed eventually
+  - risky-file-permissions
+  # Yamllint runs separate from ansible-lint using pre-commit
+  - yaml

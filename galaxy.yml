@@ -23,5 +23,9 @@ build_ignore:
   - .gitignore
   - changelogs/.plugin-cache.yaml
 dependencies:
+  # authorized_key
+  "ansible.posix": ">=1.1.1"
+  # ini_file
+  "community.general": ">=2.0.1"
   # for the helm modules installing Cilium
   "kubernetes.core": ">=1.1.1"
