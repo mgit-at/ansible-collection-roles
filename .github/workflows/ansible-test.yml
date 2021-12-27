@@ -1,3 +1,4 @@
+---
 # README FIRST
 # 1. replace "NAMESPACE" and "COLLECTION_NAME" with the correct name in the env section (e.g. with 'community' and 'mycollection')
 # 2. If you don't have unit tests remove that section
@@ -10,7 +11,7 @@
 # * release management (changelogs, release notes, artifacts)
 
 name: CI
-on:
+on:  # yamllint disable-line rule:truthy
   # Run CI against all pushes (direct commits, also merged PRs), Pull Requests
   push:
     branches:

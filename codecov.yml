@@ -1,2 +1,3 @@
+---
 fixes:
-   - "/ansible_collections/mgit_at/roles/::"
+  - "/ansible_collections/mgit_at/roles/::"

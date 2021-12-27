@@ -1,3 +1,4 @@
+---
 # See https://docs.ansible.com/ansible/latest/dev_guide/collections_galaxy_meta.html
 
 namespace: mgit_at
@@ -14,7 +15,7 @@ tags:
   - openssh
   - kubernetes
 repository: https://github.com/mgit-at/ansible-collection-roles
-#documentation: https://github.com/mgit-at/ansible-collection-roles/tree/main/docs
+# documentation: https://github.com/mgit-at/ansible-collection-roles/tree/main/docs
 homepage: https://github.com/mgit-at/ansible-collection-roles
 issues: https://github.com/mgit-at/ansible-collection-roles/issues
 build_ignore:

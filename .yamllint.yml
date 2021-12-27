@@ -1,0 +1,35 @@
+---
+extends: default
+
+# All rules that were violated at the time this was included are disabled for now.
+# When refactoring, re-enable them one by one and fix linting errors where necessary.
+rules:
+  comments-indentation: disable
+  indentation:
+    spaces: 2
+    indent-sequences: true
+    check-multi-line-strings: false
+  line-length: disable  # TODO: enable with max: 160
+  #   max: 160  # same as ansible-lint
+  truthy:
+    check-keys: true
+    allowed-values:
+      # All possible strings that can evaluate to true/false in YAML are listed for reference here
+      - "true"
+      - "false"
+      - "True"
+      - "False"
+      # - "TRUE"
+      # - "FALSE"
+      - "yes"
+      - "no"
+      # - "Yes"
+      # - "No"
+      # - "YES"
+      # - "NO"
+      # - "on"
+      # - "off"
+      # - "On"
+      # - "Off"
+      # - "ON"
+      # - "OFF"
