@@ -56,6 +56,7 @@
       check_mode: no
       register: kubeadm_token_generate
       no_log: true
+      changed_when: false  # this doesn't change cluster state
 
 
 ### cluster is already initialized but config has changed
@@ -71,6 +72,7 @@
       register: kubeadm_plan
       # Run even in check mode
       check_mode: false
+      changed_when: false  # readonly command
 
     - name: Check for warnings
       debug:
