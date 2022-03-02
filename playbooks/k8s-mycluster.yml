@@ -26,4 +26,7 @@
   roles:
     - role: mgit_at.roles.kubeadm_node
 
-# TODO: Install Flux here and let it take over the rest
+- name: Install flux initially
+  hosts: mycluster_k8s_primary_master
+  roles:
+    - role: mgit_at.roles.kubernetes_flux

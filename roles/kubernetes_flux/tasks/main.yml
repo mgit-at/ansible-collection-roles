@@ -1,0 +1,111 @@
+---
+# TODO:
+# Make sure this only runs for the initial install?
+# Currently upgrades are done via `flux install` too, but this might change.
+# See: https://fluxcd.io/docs/installation/#in-cluster-upgrade
+- name: Pull flux image
+  # either ghcr.io/fluxcd/flux-cli:v{{ kubernetes_flux_version }} or fluxcd/flux-cli:v{{ kubernetes_flux_version }}
+  # Hardcoding the ghcr one for now.
+  command: >-
+    ctr --address /var/run/containerd/containerd.sock --namespace k8s.io image pull
+    ghcr.io/fluxcd/flux-cli:v{{ kubernetes_flux_version }}
+  changed_when: false  # pulling images is idempotent
+
+- name: run flux pre-check
+  # use host networking for API server access
+  # remove container after use
+  # mount /root and /etc/kubernetes for the kubeconfig
+  # name container "fluxcontainer" so there's a bit less confusion hopefully
+  command: >-
+    ctr --address /var/run/containerd/containerd.sock --namespace k8s.io run
+    --net-host
+    --rm
+    --mount type=bind,src=/root,dst=/root,options=rbind:ro
+    --mount type=bind,src=/etc/kubernetes,dst=/etc/kubernetes,options=rbind:ro
+    ghcr.io/fluxcd/flux-cli:v{{ kubernetes_flux_version }} fluxcontainer
+    flux check --pre
+  changed_when: false  # readonly
+
+- name: create flux-system namespace
+  # Hack to be able to use kubectl create when resource exists
+  shell: >-
+    kubectl create ns flux-system
+    --dry-run=true
+    -o yaml
+    | kubectl apply -f -
+  changed_when: false  # this is idempotent
+
+- name: create secret with SSH credentials
+  # Create this earlier so there's no need to wait until the secret is ready.
+  # This caused issues when creating the secret right before the GitRepository
+  no_log: true  # Do NOT log these values!
+  # Hack to be able to use kubectl create when resource exists
+  shell: >-
+    kubectl create secret generic flux-mgit-ssh
+    --namespace=flux-system
+    --from-literal=identity="{{ kubernetes_flux_ssh_private_key }}"
+    --from-literal=identity.pub="{{ kubernetes_flux_ssh_public_key }}"
+    --from-literal=known_hosts="{{ kubernetes_flux_ssh_known_hosts }}"
+    --dry-run=true
+    -o yaml
+    | kubectl apply -f -
+  changed_when: false  # this is idempotent
+
+- name: install flux components to cluster
+  command: |
+    ctr --address /var/run/containerd/containerd.sock --namespace k8s.io run
+    --net-host
+    --rm
+    --mount type=bind,src=/root,dst=/root,options=rbind:ro
+    --mount type=bind,src=/etc/kubernetes,dst=/etc/kubernetes,options=rbind:ro
+    ghcr.io/fluxcd/flux-cli:v{{ kubernetes_flux_version }} fluxcontainer
+    flux install --version=v{{ kubernetes_flux_version }}
+
+- name: run flux check
+  command: |
+    ctr --address /var/run/containerd/containerd.sock --namespace k8s.io run
+    --net-host
+    --rm
+    --mount type=bind,src=/root,dst=/root,options=rbind:ro
+    --mount type=bind,src=/etc/kubernetes,dst=/etc/kubernetes,options=rbind:ro
+    ghcr.io/fluxcd/flux-cli:v{{ kubernetes_flux_version }} fluxcontainer
+    flux check
+  changed_when: false  # readonly
+
+- name: Manual steps
+  pause:
+    prompt: |
+      Please go to the cluster repository ({{ kubernetes_flux_repository_url }}) and check in the yaml files that flux deployed in the "flux install" command.
+      To get these files, run "ctr --address /var/run/containerd/containerd.sock --namespace k8s.io run --net-host --rm --mount type=bind,src=/root,dst=/root,options=rbind:ro --mount type=bind,src=/etc/kubernetes,dst=/etc/kubernetes,options=rbind:ro ghcr.io/fluxcd/flux-cli:v{{ kubernetes_flux_version }} fluxcontainer flux install --export --version=v{{ kubernetes_flux_version }}"
+      Also add the deploy key to the repository so flux is allowed to access the repo.
+      The deploy key is "{{ kubernetes_flux_ssh_public_key }}".
+      If you are installing a completely fresh cluster, make sure that the path at {{ kubernetes_flux_repository_path }} in the repository exists and contains something already.
+      Press return to continue. Press Ctrl+c and then "a" to abort.
+
+- name: create GitRepository object pointing to the cluster repo
+  command: |
+    ctr --address /var/run/containerd/containerd.sock --namespace k8s.io run
+    --net-host
+    --rm
+    --mount type=bind,src=/root,dst=/root,options=rbind:ro
+    --mount type=bind,src=/etc/kubernetes,dst=/etc/kubernetes,options=rbind:ro
+    ghcr.io/fluxcd/flux-cli:v{{ kubernetes_flux_version }} fluxcontainer
+    flux create source git mgit --namespace=flux-system --url={{ kubernetes_flux_repository_url }} --secret-ref flux-mgit-ssh --branch=master --interval=1m
+
+- name: create Kustomization CRD pointing to the git repo
+  command: |
+    ctr --address /var/run/containerd/containerd.sock --namespace k8s.io run
+    --net-host
+    --rm
+    --mount type=bind,src=/root,dst=/root,options=rbind:ro
+    --mount type=bind,src=/etc/kubernetes,dst=/etc/kubernetes,options=rbind:ro
+    ghcr.io/fluxcd/flux-cli:v{{ kubernetes_flux_version }} fluxcontainer
+    flux create kustomization mgit --namespace=flux-system --source=mgit --path="{{ kubernetes_flux_repository_path }}" --prune=true --interval=10m
+
+- name: Manual steps
+  pause:
+    prompt: |
+      Please go to the cluster repository ({{ kubernetes_flux_repository_url }}) and check in the yaml files that flux deployed in the "flux create" command.
+      To get the GitRepository file, run "ctr --address /var/run/containerd/containerd.sock --namespace k8s.io run --net-host --rm --mount type=bind,src=/root,dst=/root,options=rbind:ro --mount type=bind,src=/etc/kubernetes,dst=/etc/kubernetes,options=rbind:ro ghcr.io/fluxcd/flux-cli:v{{ kubernetes_flux_version }} fluxcontainer flux create source git mgit --namespace=flux-system --url={{ kubernetes_flux_repository_url }} --secret-ref flux-mgit-ssh --branch=master --interval=1m --export"
+      To get the Kustomization file, run "ctr --address /var/run/containerd/containerd.sock --namespace k8s.io run --net-host --rm --mount type=bind,src=/root,dst=/root,options=rbind:ro --mount type=bind,src=/etc/kubernetes,dst=/etc/kubernetes,options=rbind:ro ghcr.io/fluxcd/flux-cli:v{{ kubernetes_flux_version }} fluxcontainer flux create kustomization mgit --namespace=flux-system --source=mgit --path="{{ kubernetes_flux_repository_path }}" --prune=true --interval=10m --export"
+      Press return to continue. Press Ctrl+c and then "a" to abort.

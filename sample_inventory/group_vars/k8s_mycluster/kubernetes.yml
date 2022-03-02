@@ -24,3 +24,20 @@ kubernetes_api_cert_sans_extra:
 kubernetes_network_pod_subnet: 192.168.0.0/17
 kubernetes_network_node_cidr_size: 24
 kubernetes_network_svc_subnet: 192.168.128.0/20
+
+##### Cluster Addons
+
+# flux
+
+kubernetes_flux_version: 1.2.3  # initial version, will be updated by flux itself
+# Generate keypair via `ssh-keygen -t ed25519`
+kubernetes_flux_ssh_private_key: ThisReallyShouldBeInAVault
+kubernetes_flux_ssh_public_key: ssh-ed25519 base64pubkey
+# Get host keys via `ssh-keyscan gitlab.example.com`
+kubernetes_flux_ssh_known_hosts: |
+  gitlab.example.com ecdsa-sha2-nistp256 base64pubkey
+  gitlab.example.com ssh-rsa base64pubkey
+  gitlab.example.com ssh-ed25519 base64pubkey
+kubernetes_flux_repository_url: ssh://git@gitlab.example.com/group/repository
+kubernetes_flux_repository_path: ./clusters/mycluster
+# Quick repo link: https://gitlab.example.com/group/repository/-/tree/master/clusters/mycluster
