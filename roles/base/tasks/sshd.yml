@@ -2,7 +2,7 @@
 ## sshd
 # TODO: validate sshd_config
 - name: ssh - hardening server config
-  lineinfile:
+  ansible.builtin.lineinfile:
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
     dest: /etc/ssh/sshd_config
@@ -30,7 +30,7 @@
 #   ubuntu 20.04 even static configured IPs are NOT bound when ssh starts, giving one error without restart => dead ssh
 - name: ssh - add listen address
   when: base_ssh_listen_address is defined
-  blockinfile:
+  ansible.builtin.blockinfile:
     insertafter: '^\s*#?\s*ListenAddress ::'
     block: |
       {% for addr in base_ssh_listen_address %}
@@ -46,7 +46,7 @@
 
 - name: ssh - remove listen address when not defined
   when: not base_ssh_listen_address is defined
-  blockinfile:
+  ansible.builtin.blockinfile:
     block: ""
     dest: /etc/ssh/sshd_config
     marker: "# {mark} ANSIBLE MANAGED LISTENER BLOCK"
@@ -59,7 +59,7 @@
 # TODO: find a better way to configure this
 - name: ssh - set ssh AllowUsers
   when: base_ssh_allow_users is defined
-  lineinfile:
+  ansible.builtin.lineinfile:
     regexp: '^\s*#?\s*AllowUsers'
     line: 'AllowUsers {{ base_ssh_allow_users | sort | join(" ") }}'
     dest: /etc/ssh/sshd_config

@@ -1,6 +1,6 @@
 ---
 - name: Install helm
-  apt:
+  ansible.builtin.apt:
     name:
       - helm
       - python3-yaml  # for helm modules

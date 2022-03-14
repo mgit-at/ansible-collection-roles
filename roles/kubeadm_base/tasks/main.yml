@@ -1,6 +1,6 @@
 ---
 - name: install kubeadm packages
-  apt:
+  ansible.builtin.apt:
     name:
       - haproxy
       - "kubeadm={{ kubernetes_version }}-00"
@@ -9,7 +9,7 @@
     force: yes
 
 - name: install hatop package (not on focal)
-  apt:
+  ansible.builtin.apt:
     name:
       - hatop
     state: present
@@ -21,7 +21,7 @@
   loop:
     - zsh
     - bash
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: "/root/.{{ item }}rc"
     create: yes
     marker: "### {mark} ANSIBLE MANAGED BLOCK for hatop ###"
@@ -33,7 +33,7 @@
   loop:
     - kubeadm
     - kubectl
-  dpkg_selections:
+  ansible.builtin.dpkg_selections:
     name: "{{ item }}"
     selection: hold
 
@@ -41,7 +41,7 @@
   loop:
     - zsh
     - bash
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: "/root/.{{ item }}rc"
     create: yes
     marker: "### {mark} ANSIBLE MANAGED BLOCK for kubeadm ###"
@@ -49,13 +49,13 @@
       source <(kubeadm completion {{ item }})
 
 - name: configure haproxy
-  template:
+  ansible.builtin.template:
     src: haproxy.cfg.j2
     dest: /etc/haproxy/haproxy.cfg
   register: haproxy_config
 
 - name: (re)start haproxy
-  systemd:
+  ansible.builtin.systemd:
     name: haproxy
     state: "{% if haproxy_config is changed %}restarted{% else %}started{% endif %}"
     enabled: yes
@@ -63,13 +63,13 @@
 ## loading the modules temporarly because kubeadm will complain if they are not there
 #  but i don't think it is necessary to make this persistent, also ignoring changes here
 - name: load module br_netfilter to satisfy kubeadm init/join
-  modprobe:
+  community.general.modprobe:
     name: br_netfilter
     state: present
   changed_when: false
 
 - name: enable IPv4 forwarding for cilium
-  sysctl:
+  ansible.posix.sysctl:
     name: 'net.ipv4.ip_forward'
     value: '1'
     sysctl_set: yes
