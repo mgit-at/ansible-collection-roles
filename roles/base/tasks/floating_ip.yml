@@ -5,14 +5,14 @@
 
 - name: configure floating ip netplan
   when: "'netplan.io' in ansible_facts.packages"
-  template:
+  ansible.builtin.template:
     src: floating-ip-netplan.yaml.j2
     dest: /etc/netplan/60-floating-ip.yaml
   notify: netplan apply
 
 - name: configure floating ip (ubuntu > 20.04)
   when: "'netplan.io' not in ansible_facts.packages"
-  template:
+  ansible.builtin.template:
     src: floating-ip-interfaces.cfg.j2
     dest: /etc/network/interfaces.d/60-floating-ip.cfg
   notify: restart networking

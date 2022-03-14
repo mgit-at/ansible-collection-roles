@@ -1,11 +1,11 @@
 ---
 - name: install ethtool helper (1/2)
-  file:
+  ansible.builtin.file:
     path: "{{ base_systemd_generators_dir }}"
     state: directory
 
 - name: install ethtool helper (2/2)
-  copy:
+  ansible.builtin.copy:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
     mode: "{{ item.mode }}"
@@ -29,7 +29,7 @@
     label: "{{ item.dest }}/{{ item.src }}"
 
 - name: set HW Ring Parameters for existing interfaces
-  systemd:
+  ansible.builtin.systemd:
     name: ethtool-setringmax.service
     daemon_reload: true
     state: restarted

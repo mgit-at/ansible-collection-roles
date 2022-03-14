@@ -1,16 +1,16 @@
 ---
 - name: create kubernetes data directory
-  file:
+  ansible.builtin.file:
     name: /srv/kubernetes
     state: directory
 
 - name: prepare logs directory
-  file:
+  ansible.builtin.file:
     name: /srv/kubernetes/logs/pods
     state: directory
 
 - name: create bind mount for /var/log/pods
-  mount:
+  ansible.posix.mount:
     src: /srv/kubernetes/logs/pods
     path: /var/log/pods
     fstype: none
@@ -18,15 +18,15 @@
     state: mounted
 
 - name: install container runtime
-  include_tasks: "cri_containerd.yml"
+  ansible.builtin.include_tasks: "cri_containerd.yml"
 
 - name: create kubelet root directory
-  file:
+  ansible.builtin.file:
     name: /srv/kubernetes/kubelet
     state: directory
 
 - name: create bind mount for /var/lib/kubelet
-  mount:
+  ansible.posix.mount:
     src: /srv/kubernetes/kubelet
     path: /var/lib/kubelet
     fstype: none
@@ -34,7 +34,7 @@
     state: mounted
 
 - name: install kubelet and common packages
-  apt:
+  ansible.builtin.apt:
     name:
       # - nfs-common ## TODO: this is not needed on all hosts and is a security risk...
       - bridge-utils
@@ -45,7 +45,7 @@
     force: yes
 
 - name: disable automatic upgrades for kubelet
-  dpkg_selections:
+  ansible.builtin.dpkg_selections:
     name: kubelet
     selection: hold
 
@@ -53,7 +53,7 @@
   loop:
     - zsh
     - bash
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: "/root/.{{ item }}rc"
     create: yes
     marker: "### {mark} ANSIBLE MANAGED BLOCK for crictl ###"
@@ -73,12 +73,12 @@
   when: kubernetes_node_create_app_user
   block:
     - name: create app group
-      group:
+      ansible.builtin.group:
         name: app
         gid: "{{ kubernetes_node_app_user_id }}"
 
     - name: create app user
-      user:
+      ansible.builtin.user:
         name: app
         uid: "{{ kubernetes_node_app_user_id }}"
         group: app
@@ -86,6 +86,6 @@
 
 # kubernetes nodes will most probably need to run elasticsearch
 - name: increase vm.max_map_count
-  sysctl:
+  ansible.posix.sysctl:
     name: vm.max_map_count
     value: '262144'

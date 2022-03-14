@@ -1,43 +1,43 @@
 ---
 # TODO: Provide k9s debian package publicly
 # - name: install useful packages
-#   apt:
+#   ansible.builtin.apt:
 #     name:
 #       - k9s
 #     state: present
 
 - name: create directory for encryption config
-  file:
+  ansible.builtin.file:
     name: /etc/kubernetes/encryption
     state: directory
     mode: 0700
 
 - name: install encryption config
-  template:
+  ansible.builtin.template:
     src: encryption-config.j2
     dest: /etc/kubernetes/encryption/config
     mode: 0600
   no_log: true
 
 - name: install primary master
-  include_tasks: primary-master.yml
+  ansible.builtin.include_tasks: primary-master.yml
   when:
     - kubernetes_master
     - kubernetes_primary_master
 
 - name: install secondary masters
-  include_tasks: secondary-masters.yml
+  ansible.builtin.include_tasks: secondary-masters.yml
   when:
     - kubernetes_master
     - kubernetes_secondary_master
 
 - name: prepare kubectl (1/2)
-  file:
+  ansible.builtin.file:
     name: /root/.kube
     state: directory
 
 - name: prepare kubectl (2/2)
-  file:
+  ansible.builtin.file:
     dest: /root/.kube/config
     src: /etc/kubernetes/admin.conf
     state: link
@@ -46,7 +46,7 @@
   loop:
     - zsh
     - bash
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: "/root/.{{ item }}rc"
     create: yes
     marker: "### {mark} ANSIBLE MANAGED BLOCK for kubectl ###"
@@ -54,31 +54,31 @@
       source <(kubectl completion {{ item }})
 
 - name: Check if new nodes are ready
-  command: "kubectl wait --for=condition=Ready --timeout=90s node/{{ ansible_nodename }}"
+  ansible.builtin.command: "kubectl wait --for=condition=Ready --timeout=90s node/{{ ansible_nodename }}"
   check_mode: no
   changed_when: False  # read-only command
 
 - name: install Cilium
-  include_tasks: net_cilium.yml
+  ansible.builtin.include_tasks: net_cilium.yml
   # The Cilium installation method via helm needs a working kubeconfig
   when:
     - kubernetes_master
     - kubernetes_primary_master
 
 # - name: check if master is tainted (1/2)
-#   command: "kubectl --kubeconfig /etc/kubernetes/admin.conf get node {{ ansible_nodename }} -o json"
+#   ansible.builtin.command: "kubectl --kubeconfig /etc/kubernetes/admin.conf get node {{ ansible_nodename }} -o json"
 #   check_mode: no
 #   register: kubectl_get_node
 #   changed_when: False
 
 # - name: check if master is tainted (2/2)
-#   set_fact:
+#   ansible.builtin.set_fact:
 #     kube_node_taints: "{% set node_info = kubectl_get_node.stdout | from_json %}{%if node_info.spec.taints is defined %}{{ node_info.spec.taints | map(attribute='key') | list }}{% endif %}"
 
 # - name: remove taint from master node
 #   when: not kubernetes_dedicated_master and 'node-role.kubernetes.io/master' in kube_node_taints
-#   command: "kubectl --kubeconfig /etc/kubernetes/admin.conf taint nodes {{ ansible_nodename }} node-role.kubernetes.io/master-"
+#   ansible.builtin.command: "kubectl --kubeconfig /etc/kubernetes/admin.conf taint nodes {{ ansible_nodename }} node-role.kubernetes.io/master-"
 
 # - name: add taint for master node
 #   when: kubernetes_dedicated_master and 'node-role.kubernetes.io/master' not in kube_node_taints
-#   command: "kubectl --kubeconfig /etc/kubernetes/admin.conf taint nodes {{ ansible_nodename }} node-role.kubernetes.io/master='':NoSchedule"
+#   ansible.builtin.command: "kubectl --kubeconfig /etc/kubernetes/admin.conf taint nodes {{ ansible_nodename }} node-role.kubernetes.io/master='':NoSchedule"

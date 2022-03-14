@@ -1,19 +1,19 @@
 ---
 - name: Initialise persistent systemd journal (ubuntu)
-  command: systemd-tmpfiles --create --prefix /var/log/journal
+  ansible.builtin.command: systemd-tmpfiles --create --prefix /var/log/journal
 
 - name: Initialise persistent systemd journal (debian)
-  command: setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
+  ansible.builtin.command: setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
 
 - name: restart sshd
-  systemd:
+  ansible.builtin.systemd:
     name: sshd
     state: restarted
   tags:
     - sshd
 
 - name: restart sshd with systemd reload
-  systemd:
+  ansible.builtin.systemd:
     name: sshd
     state: restarted
     daemon_reload: yes
@@ -21,9 +21,9 @@
     - sshd
 
 - name: netplan apply
-  command: netplan apply
+  ansible.builtin.command: netplan apply
 
 - name: restart networking
-  systemd:
+  ansible.builtin.systemd:
     name: networking
     state: restarted
