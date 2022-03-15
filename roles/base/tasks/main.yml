@@ -158,7 +158,7 @@
     path: /root
     mode: 0700
     owner: root
-    ansible.builtin.group: root
+    group: root
     state: directory
 
 ## blacklist_modules
@@ -168,7 +168,7 @@
     line: "install {{ item }} /bin/true"
     create: true
     owner: root
-    ansible.builtin.group: root
+    group: root
     mode: 0644
   with_items: "{{ modules_blacklist.net | union(modules_blacklist.fs) | union(modules_blacklist.misc) | union(modules_blacklist_host) | union(modules_blacklist_group) }}"
 
