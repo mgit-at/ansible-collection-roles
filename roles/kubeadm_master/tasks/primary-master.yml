@@ -15,7 +15,6 @@
 - name: create new cluster
   when: not kubeconfig_kubelet_stats.stat.exists
   block:
-
     #### kubeadm wants token to come from --config if --config is used
     #### i think this is stupid -> TODO: send bug report
     # - name: generate bootstrap token for new cluster
@@ -56,23 +55,54 @@
       check_mode: no
       register: kubeadm_token_generate
       no_log: true
-      changed_when: false  # this doesn't change cluster state
+      changed_when: false # this doesn't change cluster state
 
+### cluster is already initialized but something in the config has changed
 
-### cluster is already initialized but config has changed
-
-- name: upgrade cluster config
-  when: kubeconfig_kubelet_stats.stat.exists and kubeadm_config is changed
+- name: get cluster facts
+  when: kubeconfig_kubelet_stats.stat.exists
   block:
+    - name: get cluster version
+      ansible.builtin.command: kubectl version -o yaml
+      register: kubectl_version
+      check_mode: false
+      changed_when: false # readonly command
 
-    # TODO: "kubeadm upgrade" unfortunately isn't enough, this likely needs a full "kubeadm reset" + "kubeadm join" from all master nodes
+    - name: Set cluster version fact
+      ansible.builtin.set_fact:
+        kubectl_cluster_version: "{{ kubectl_version.stdout | from_yaml }}"
 
+    - name: Set cluster git version fact
+      ansible.builtin.set_fact:
+        kubectl_cluster_git_version: "{{ kubectl_cluster_version.serverVersion.gitVersion | replace('v', '') }}"
+
+### config has changed
+
+- name: change cluster config
+  when:
+    - kubeconfig_kubelet_stats.stat.exists
+    - kubernetes_version is version(kubectl_cluster_git_version, '==')
+    - kubeadm_config is changed
+  block:
+    # TODO: "kubeadm upgrade" unfortunately isn't enough
+    #        this likely needs a full "kubeadm reset", "kubectl delete node" + "kubeadm join" for all master nodes and probably all others too
+    - name: fail for cluster config changes
+      ansible.builtin.fail:
+        msg: "changing the cluster config is currently not supported!"
+
+### version has changed
+
+- name: upgrade cluster version
+  when:
+    - kubeconfig_kubelet_stats.stat.exists
+    - kubernetes_version is version(kubectl_cluster_git_version, '>')
+  block:
     - name: kudeadm upgrade plan
       ansible.builtin.command: kubeadm upgrade plan
       register: kubeadm_plan
       # Run even in check mode
       check_mode: false
-      changed_when: false  # readonly command
+      changed_when: false # readonly command
 
     - name: Check for warnings
       ansible.builtin.debug:
@@ -82,17 +112,21 @@
       ansible.builtin.pause:
         prompt: Please check the last output for warnings. Confirm you if want to resume the upgrade! Press return to continue. Press Ctrl+c and then "a" to abort
 
-    - name: fail for cluster upgrades
-      ansible.builtin.fail:
-        msg: "upgrading cluster config is currently not supported!"
+    - name: upgrade primary master
+      ansible.builtin.command: "kubeadm upgrade apply v{{ kubernetes_version }} -y"
 
+    - name: upgrade other nodes
+      ansible.builtin.command: kubeadm upgrade node
+      delegate_to: "{{ item }}"
+      loop: "{{ groups[kubernetes_group_name] }}"
 
-### cluster is already initialized
+### cluster is already initialized, nothing has changed in the config
 
 - name: prepare cluster for new nodes
-  when: kubeconfig_kubelet_stats.stat.exists and kubeadm_config is not changed
+  when:
+    - kubeconfig_kubelet_stats.stat.exists
+    - kubeadm_config is not changed
   block:
-
     - name: fetch list of current nodes
       ansible.builtin.command: kubectl --kubeconfig /etc/kubernetes/admin.conf get nodes -o name
       changed_when: False
@@ -109,7 +143,7 @@
       check_mode: no
       register: kubeadm_token_create
       no_log: true
-
+      changed_when: false # this doesn't really change cluster state
 
 ## calculate certificate digest
 
