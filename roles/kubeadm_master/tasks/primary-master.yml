@@ -55,7 +55,7 @@
       check_mode: no
       register: kubeadm_token_generate
       no_log: true
-      changed_when: false # this doesn't change cluster state
+      changed_when: false  # this doesn't change cluster state
 
 ### cluster is already initialized but something in the config has changed
 
@@ -66,7 +66,7 @@
       ansible.builtin.command: kubectl version -o yaml
       register: kubectl_version
       check_mode: false
-      changed_when: false # readonly command
+      changed_when: false  # readonly command
 
     - name: Set cluster version fact
       ansible.builtin.set_fact:
@@ -102,7 +102,7 @@
       register: kubeadm_plan
       # Run even in check mode
       check_mode: false
-      changed_when: false # readonly command
+      changed_when: false  # readonly command
 
     - name: Check for warnings
       ansible.builtin.debug:
@@ -114,11 +114,13 @@
 
     - name: upgrade primary master
       ansible.builtin.command: "kubeadm upgrade apply v{{ kubernetes_version }} -y"
+      changed_when: true  # this will nearly always cause a change anyways
 
     - name: upgrade other nodes
       ansible.builtin.command: kubeadm upgrade node
       delegate_to: "{{ item }}"
       loop: "{{ groups[kubernetes_group_name] }}"
+      changed_when: true  # this will nearly always cause a change anyways
 
 ### cluster is already initialized, nothing has changed in the config
 
@@ -143,7 +145,7 @@
       check_mode: no
       register: kubeadm_token_create
       no_log: true
-      changed_when: false # this doesn't really change cluster state
+      changed_when: false  # this doesn't really change cluster state
 
 ## calculate certificate digest
 
