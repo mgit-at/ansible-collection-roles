@@ -107,7 +107,8 @@
     - screen
 
 ## sshd
-- ansible.builtin.include_tasks: sshd.yml
+- name: Configure sshd
+  ansible.builtin.include_tasks: sshd.yml
   when: not base_sshd_extended_conf
   tags:
     sshd
