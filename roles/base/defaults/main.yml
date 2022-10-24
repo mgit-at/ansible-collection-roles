@@ -5,6 +5,7 @@ base_sshd_extended_conf: false
 
 base_customer_mirror: apt.changeme.example.com
 base_customer_mirror_ip: 1.2.3.4
+base_customer_mirror_protocol: http
 
 sysctl_config_user: {}
 
