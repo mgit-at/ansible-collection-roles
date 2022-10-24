@@ -62,9 +62,24 @@
     name:
       - linux-tools-common   ## contains cpupower (see below)
       - "{% if base_ubuntu_linux_hwe | bool %}linux-tools-generic-hwe-{{ ansible_distribution_version }}{% else %}linux-tools-generic{% endif %}"
-      - rng-tools
     state: present
   when: ansible_distribution == "Ubuntu"
+
+- name: apt - Install rng tools tools (ubuntu before jammy)
+  when:
+    - ansible_distribution == "Ubuntu" and (ansible_distribution_major_version | int) <= 20
+  ansible.builtin.apt:
+    name:
+      - rng-tools
+    state: present
+
+- name: apt - Install rng tools tools (ubuntu jammy and later)
+  when:
+    - ansible_distribution == "Ubuntu" and (ansible_distribution_major_version | int) >= 22
+  ansible.builtin.apt:
+    name:
+      - rng-tools5
+    state: present
 
 - name: apt - (Un)install base system tools (debian stretch and beyond)
   when:
