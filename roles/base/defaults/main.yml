@@ -1,5 +1,6 @@
 ---
 base_ssh_root_login: "without-password"
+base_ssh_root_keys: []
 
 base_sshd_extended_conf: false
 
