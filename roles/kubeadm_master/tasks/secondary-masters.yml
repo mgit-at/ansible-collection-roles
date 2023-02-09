@@ -6,8 +6,8 @@
 
     - name: fetch list of current nodes
       ansible.builtin.command: kubectl --kubeconfig /etc/kubernetes/admin.conf get nodes -o name
-      changed_when: False
-      check_mode: no
+      changed_when: false
+      check_mode: false
       register: kubectl_node_list
 
     - name: save list of current nodes
@@ -17,7 +17,7 @@
     - name: upload certs
       when: "groups[kubernetes_masters_group_name] | map('extract', hostvars) | map(attribute='ansible_nodename') | difference(kubernetes_current_nodes) | length > 0"
       ansible.builtin.command: kubeadm init phase upload-certs --upload-certs
-      check_mode: no
+      check_mode: false
       register: kubeadm_upload_certs
       no_log: true
 

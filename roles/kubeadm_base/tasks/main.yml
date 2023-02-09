@@ -6,14 +6,14 @@
       - "kubeadm={{ kubernetes_version }}-00"
       - "kubectl={{ kubernetes_version }}-00"
     state: present
-    force: yes
+    force: true
 
 - name: install hatop package (not on focal)
   ansible.builtin.apt:
     name:
       - hatop
     state: present
-    force: yes
+    force: true
   # hatop is not available on Ubuntu 20.04 "Focal Fossa" but got re-added later
   when: ansible_distribution == "Debian" or (ansible_distribution_major_version | int) != 20
 
@@ -23,7 +23,7 @@
     - bash
   ansible.builtin.blockinfile:
     path: "/root/.{{ item }}rc"
-    create: yes
+    create: true
     marker: "### {mark} ANSIBLE MANAGED BLOCK for hatop ###"
     content: |
       alias hatop="hatop -s /var/run/haproxy/admin.sock"
@@ -43,7 +43,7 @@
     - bash
   ansible.builtin.blockinfile:
     path: "/root/.{{ item }}rc"
-    create: yes
+    create: true
     marker: "### {mark} ANSIBLE MANAGED BLOCK for kubeadm ###"
     content: |
       source <(kubeadm completion {{ item }})
@@ -58,7 +58,7 @@
   ansible.builtin.systemd:
     name: haproxy
     state: "{% if haproxy_config is changed %}restarted{% else %}started{% endif %}"
-    enabled: yes
+    enabled: true
 
 ## loading the modules temporarly because kubeadm will complain if they are not there
 #  but i don't think it is necessary to make this persistent, also ignoring changes here
@@ -72,6 +72,6 @@
   ansible.posix.sysctl:
     name: 'net.ipv4.ip_forward'
     value: '1'
-    sysctl_set: yes
+    sysctl_set: true
     state: present
-    reload: yes
+    reload: true

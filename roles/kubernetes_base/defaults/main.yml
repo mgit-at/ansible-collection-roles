@@ -1,5 +1,5 @@
 ---
-kubernetes_node_create_app_user: yes
+kubernetes_node_create_app_user: true
 kubernetes_node_app_user_id: 1000
 
 # kubernetes_dockerhub_auth: "{{ user_name + ':' + password | b64encode }}"

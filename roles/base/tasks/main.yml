@@ -23,7 +23,7 @@
 
 - name: apt - update apt cache
   ansible.builtin.apt:
-    update_cache: yes
+    update_cache: true
   when: base_sources_list.changed  # noqa 503 - this needs to run right at this point to use the new mirrors
 
 - name: apt - disable recommends and suggests
@@ -117,7 +117,7 @@
     line: "startup_message off"
     dest: /etc/screenrc
     mode: 0644
-    create: yes
+    create: true
   tags:
     - screen
 
@@ -142,7 +142,7 @@
     section: "{{ item[0] }}"
     option: "{{ item[1] }}"
     value: "{{ item[2] }}"
-    no_extra_spaces: yes
+    no_extra_spaces: true
   notify: restart sshd with systemd reload
   tags:
     sshd

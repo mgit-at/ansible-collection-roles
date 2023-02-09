@@ -32,5 +32,5 @@
 - name: make sure containerd is enabled and started
   ansible.builtin.systemd:
     name: containerd.service
-    enabled: yes
+    enabled: true
     state: "{% if kubernetes_containerd_config.changed %}re{% endif %}started"
