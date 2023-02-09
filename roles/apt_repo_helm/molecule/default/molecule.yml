@@ -1,0 +1,35 @@
+---
+dependency:
+  name: galaxy
+  # options:
+  #   requirements-file: collections.yml
+  # ^ This fails?!
+driver:
+  name: delegated
+platforms:
+  # - name: helmrepo-ubuntu-16.04 # Xenial Xerus
+  - name: helmrepo-ubuntu-18.04 # Bionic Beaver
+    image: ubuntu-18.04
+    server_type: cx11 # 1 CPU, 2 GiB RAM, 20 GiB disk
+  - name: helmrepo-ubuntu-20.04 # Focal Fossa
+    image: ubuntu-20.04
+    server_type: cx11
+  - name: helmrepo-ubuntu-22.04 # Jammy Jellyfish
+    image: ubuntu-22.04
+    server_type: cx11
+  # - name: helmrepo-debian-8 # Jessie
+  # - name: helmrepo-debian-9 # Stretch
+  - name: helmrepo-debian-10 # Buster
+    image: debian-10
+    server_type: cx11
+  - name: helmrepo-debian-11 # Bullseye
+    image: debian-11
+    server_type: cx11
+  # - name: helmrepo-debian-12 # Bookworm
+provisioner:
+  name: ansible
+  playbooks:
+    create: ../../../../tests/molecule/hcloud_playbooks/create.yml
+    destroy: ../../../../tests/molecule/hcloud_playbooks/destroy.yml
+verifier:
+  name: ansible
