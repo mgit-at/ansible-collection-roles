@@ -1,4 +1,5 @@
 ---
+profile: production
 skip_list:
   # These default rules (https://docs.ansible.com/ansible-lint/rules/default_rules.html) are deactivated:
   #
