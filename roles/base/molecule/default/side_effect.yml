@@ -1,0 +1,7 @@
+---
+- name: Side effect
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Just ping
+      ansible.builtin.ping:
