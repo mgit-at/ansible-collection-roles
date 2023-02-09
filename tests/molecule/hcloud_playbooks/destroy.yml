@@ -19,7 +19,7 @@
       when: not instance_config_lookup.ansible_facts.instance_conf
 
     - name: Destroy molecule instance(s)
-      hcloud_server:
+      hetzner.hcloud.hcloud_server:
         name: "{{ item.instance }}"
         api_token: "{{ lookup('env', 'HCLOUD_TOKEN') }}"
         state: absent
@@ -66,7 +66,7 @@
     #   loop: "{{ instance_conf|subelements('networks', skip_missing=True) }}"
 
     - name: Remove registered SSH key
-      hcloud_ssh_key:
+      hetzner.hcloud.hcloud_ssh_key:
         name: "{{ instance_conf[0].ssh_key_name }}"
         api_token: "{{ lookup('env', 'HCLOUD_TOKEN') }}"
         state: absent
