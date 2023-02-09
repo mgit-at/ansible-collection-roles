@@ -1,35 +1,25 @@
 ---
 extends: default
 
-# All rules that were violated at the time this was included are disabled for now.
-# When refactoring, re-enable them one by one and fix linting errors where necessary.
+# This is the yamllint config used in ansible-lint: https://github.com/ansible/ansible-lint/blob/main/src/ansiblelint/yaml_utils.py
 rules:
-  comments-indentation: disable
-  indentation:
-    spaces: 2
-    indent-sequences: true
-    check-multi-line-strings: false
-  line-length: disable  # TODO: enable with max: 160
-  #   max: 160  # same as ansible-lint
-  truthy:
-    check-keys: true
-    allowed-values:
-      # All possible strings that can evaluate to true/false in YAML are listed for reference here
-      - "true"
-      - "false"
-      - "True"
-      - "False"
-      # - "TRUE"
-      # - "FALSE"
-      - "yes"
-      - "no"
-      # - "Yes"
-      # - "No"
-      # - "YES"
-      # - "NO"
-      # - "on"
-      # - "off"
-      # - "On"
-      # - "Off"
-      # - "ON"
-      # - "OFF"
+  comments:
+    # https://github.com/prettier/prettier/issues/6780
+    min-spaces-from-content: 1
+  # https://github.com/adrienverge/yamllint/issues/384
+  comments-indentation: false
+  document-start: disable
+  # 160 chars was the default used by old E204 rule, but
+  # you can easily change it or disable in your .yamllint file.
+  # ### disabled by us below:
+  # line-length:
+  #   max: 160
+  # ###
+  # We are adding an extra space inside braces as that's how prettier does it
+  # and we are trying not to fight other linters.
+  braces:
+    min-spaces-inside: 0 # yamllint defaults to 0
+    max-spaces-inside: 1 # yamllint defaults to 0
+  ###
+  # Additional rules by us:
+  line-length: disable # TODO: enable with max: 160
