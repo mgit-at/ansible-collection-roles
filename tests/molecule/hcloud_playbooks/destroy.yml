@@ -7,13 +7,13 @@
   no_log: "{{ molecule_no_log }}"
   tasks:
     - name: Populate the instance config
-      set_fact:
+      ansible.builtin.set_fact:
         instance_conf: "{{ lookup('file', molecule_instance_config, errors='warn') | from_yaml }}"
         skip_instances: false
       register: instance_config_lookup
 
     - name: Populate instance config when file missing
-      set_fact:
+      ansible.builtin.set_fact:
         instance_conf: {}
         skip_instances: true
       when: not instance_config_lookup.ansible_facts.instance_conf
@@ -30,7 +30,7 @@
       poll: 0
 
     - name: Wait for instance(s) deletion to complete
-      async_status:
+      ansible.builtin.async_status:
         jid: "{{ item.ansible_job_id }}"
       register: hetzner_jobs
       until: hetzner_jobs.finished
@@ -75,13 +75,14 @@
         - instance_conf | length  # must contain at least one instance
 
     - name: Populate instance config
-      set_fact:
+      ansible.builtin.set_fact:
         instance_conf: {}
 
     - name: Dump instance config
-      copy:
+      ansible.builtin.copy:
         content: |
           # Molecule managed
           {{ instance_conf | to_json | from_json | to_yaml }}
         dest: "{{ molecule_instance_config }}"
+      # noqa no-handler - a handler would run right here anyways
       when: server.changed | bool
