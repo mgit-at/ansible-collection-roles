@@ -10,7 +10,7 @@
   ansible.builtin.apt:
     name: containerd
     state: present
-    force: yes
+    force: true
 
 - name: create config directory
   ansible.builtin.file:

@@ -52,7 +52,7 @@
 
     - name: create bootstrap token for existing cluster
       ansible.builtin.command: kubeadm token create --ttl 42m
-      check_mode: no
+      check_mode: false
       register: kubeadm_token_generate
       no_log: true
       changed_when: false  # this doesn't change cluster state
@@ -131,8 +131,8 @@
   block:
     - name: fetch list of current nodes
       ansible.builtin.command: kubectl --kubeconfig /etc/kubernetes/admin.conf get nodes -o name
-      changed_when: False
-      check_mode: no
+      changed_when: false
+      check_mode: false
       register: kubectl_node_list
 
     - name: save list of current nodes
@@ -142,7 +142,7 @@
     - name: create bootstrap token for existing cluster
       when: "groups[kubernetes_group_name] | map('extract', hostvars) | map(attribute='ansible_nodename') | difference(kubernetes_current_nodes) | length > 0"
       ansible.builtin.command: kubeadm token create --ttl 42m
-      check_mode: no
+      check_mode: false
       register: kubeadm_token_create
       no_log: true
       changed_when: false  # this doesn't really change cluster state
@@ -158,15 +158,15 @@
   ansible.builtin.shell: "set -o pipefail && openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'"
   args:
     executable: /bin/bash
-  check_mode: no
+  check_mode: false
   register: kube_ca_openssl
-  changed_when: False
+  changed_when: false
 
 - name: set variables needed by kubernetes/nodes to join the cluster
   ansible.builtin.set_fact:
     kube_bootstrap_token: "{% if kubeadm_token_generate.stdout is defined %}{{ kubeadm_token_generate.stdout }}{% elif kubeadm_token_create.stdout is defined %}{{ kubeadm_token_create.stdout }}{% endif %}"
     kube_bootstrap_ca_cert_hash: "sha256:{{ kube_ca_openssl.stdout }}"
   delegate_to: "{{ item }}"
-  delegate_facts: True
+  delegate_facts: true
   loop: "{{ groups[kubernetes_group_name] }}"
   no_log: true

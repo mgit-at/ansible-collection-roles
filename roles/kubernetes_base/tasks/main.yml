@@ -42,7 +42,7 @@
       - "kubelet={{ kubernetes_version }}-00"
       - open-iscsi
     state: present
-    force: yes
+    force: true
 
 - name: disable automatic upgrades for kubelet
   ansible.builtin.dpkg_selections:
@@ -55,7 +55,7 @@
     - bash
   ansible.builtin.blockinfile:
     path: "/root/.{{ item }}rc"
-    create: yes
+    create: true
     marker: "### {mark} ANSIBLE MANAGED BLOCK for crictl ###"
     content: |
       {% if kubernetes_cri_socket %}

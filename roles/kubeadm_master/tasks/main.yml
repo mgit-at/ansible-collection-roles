@@ -48,15 +48,15 @@
     - bash
   ansible.builtin.blockinfile:
     path: "/root/.{{ item }}rc"
-    create: yes
+    create: true
     marker: "### {mark} ANSIBLE MANAGED BLOCK for kubectl ###"
     content: |
       source <(kubectl completion {{ item }})
 
 - name: Check if new nodes are ready
   ansible.builtin.command: "kubectl wait --for=condition=Ready --timeout=90s node/{{ ansible_nodename }}"
-  check_mode: no
-  changed_when: False  # read-only command
+  check_mode: false
+  changed_when: false  # read-only command
 
 - name: install Cilium
   ansible.builtin.include_tasks: net_cilium.yml
