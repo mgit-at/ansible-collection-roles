@@ -3,7 +3,7 @@ dependency:
   name: galaxy
   options:
     # https://github.com/ansible/galaxy/issues/2302 - galaxy is sometimes (often?) slow to respond
-    timeout: 60
+    timeout: "60"
     # requirements-file: collections.yml
     # ^ This fails?!
 driver:
