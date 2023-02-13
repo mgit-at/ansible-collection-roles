@@ -14,6 +14,11 @@ on:  # yamllint disable-line rule:truthy
 env:
   NAMESPACE: mgit_at
   COLLECTION_NAME: roles
+concurrency:
+  # Make sure only one of these workflows runs at the same time
+  group: hcloud
+  # Don't cancel running workflows (servers get deleted by cleanup usually, but SSH keys stay around on hcloud)
+  cancel-in-progress: false
 
 jobs:
 
