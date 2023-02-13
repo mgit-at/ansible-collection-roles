@@ -33,6 +33,7 @@ jobs:
         hook:
           # see .pre-commit-config.yml for hook names
           - molecule-base
+          - molecule-apt-repo-helm
 
     steps:
       - name: Check out code
