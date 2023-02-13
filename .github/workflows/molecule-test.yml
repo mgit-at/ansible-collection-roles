@@ -24,6 +24,8 @@ jobs:
   pre-commit-molecule:
     runs-on: ubuntu-latest
     name: role test (${{ matrix.hook }})
+    env:
+      HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
     strategy:
       # Run all tests always
       fail-fast: false
