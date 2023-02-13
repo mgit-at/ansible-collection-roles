@@ -12,7 +12,7 @@
       register: deb_entries
       changed_when: false # idempotent
       failed_when: "'https://baltocdn.com/helm/stable/debian/' not in deb_entries['stdout']"
-    - name: Helm should be available
+    - name: Helm should be installable
       ansible.builtin.apt:
         name:
           - helm
