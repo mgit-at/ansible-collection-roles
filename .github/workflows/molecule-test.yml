@@ -1,0 +1,53 @@
+---
+name: Molecule CI
+on:  # yamllint disable-line rule:truthy
+  # Run CI against all pushes (direct commits, also merged PRs), Pull Requests
+  push:
+    branches:
+      - main
+      - stable-*
+  pull_request:
+  # Run CI on Monday (at 06:00 UTC)
+  # This ensures that even if there haven't been commits that we are still testing against latest changes/packages upstream
+  schedule:
+    - cron: '0 6 * * 1'
+env:
+  NAMESPACE: mgit_at
+  COLLECTION_NAME: roles
+
+jobs:
+
+###
+# pre-commit tests (using the pre-commit tool)
+#
+
+  pre-commit-molecule:
+    runs-on: ubuntu-latest
+    name: role test (${{ matrix.hook }})
+    strategy:
+      # Run all tests always
+      fail-fast: false
+      matrix:
+        hook:
+          # see .pre-commit-config.yml for hook names
+          - molecule-base
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          path: ansible_collections/${{env.NAMESPACE}}/${{env.COLLECTION_NAME}}
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
+
+      - name: Install pre-commit
+        run: pip install pre-commit
+
+      # Run the pre-commit hooks
+      - name: Run pre-commit
+        run: pre-commit run --verbose --color always --all-files --hook-stage manual ${{ matrix.hook }}
+        working-directory: ./ansible_collections/${{env.NAMESPACE}}/${{env.COLLECTION_NAME}}
+        # TODO: Proper caching

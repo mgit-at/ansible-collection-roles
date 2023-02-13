@@ -40,3 +40,16 @@ repos:
         additional_dependencies:
           - .[core]
         stages: [manual]
+
+  - repo: local
+    hooks:
+      - id: molecule-base
+        name: The base role is passing molecule tests
+        entry: bash -c "cd roles/base/ && molecule test"
+        language: python
+        additional_dependencies:
+          - molecule==5.0.0a0
+          - hcloud
+        always_run: true # It is surprisingly hard to check if a change affects a certain role
+        pass_filenames: false # molecule test is hardcoded above
+        stages: [manual]
