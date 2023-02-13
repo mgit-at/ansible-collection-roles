@@ -1,9 +1,11 @@
 ---
 dependency:
   name: galaxy
-  # options:
-  #   requirements-file: collections.yml
-  # ^ This fails?!
+  options:
+    # https://github.com/ansible/galaxy/issues/2302 - galaxy is sometimes (often?) slow to respond
+    timeout: 60
+    # requirements-file: collections.yml
+    # ^ This fails?!
 driver:
   name: delegated
 platforms:
