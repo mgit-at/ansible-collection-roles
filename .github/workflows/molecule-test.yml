@@ -49,5 +49,6 @@ jobs:
       # Run the pre-commit hooks
       - name: Run pre-commit
         run: pre-commit run --verbose --color always --all-files --hook-stage manual ${{ matrix.hook }}
-        working-directory: ./ansible_collections/${{env.NAMESPACE}}/${{env.COLLECTION_NAME}}
+        # working-directory: ./ansible_collections/${{env.NAMESPACE}}/${{env.COLLECTION_NAME}}
+        # ^ Not needed for molecule (yet?)
         # TODO: Proper caching
