@@ -32,7 +32,7 @@ repos:
   ## Manual checks (these are not fast or specific enough to be run on every commit)
 
   - repo: https://github.com/ansible/ansible-lint
-    rev: v6.12.1
+    rev: v6.12.2
     hooks:
       - id: ansible-lint
         name: Lint the repository with ansible-lint
