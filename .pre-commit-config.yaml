@@ -43,6 +43,16 @@ repos:
 
   - repo: local
     hooks:
+      - id: molecule-apt-repo-docker
+        name: The apt_repo_docker role is passing molecule tests
+        entry: bash -c "cd roles/apt_repo_docker/ && molecule test"
+        language: python
+        additional_dependencies:
+          - molecule==5.0.0a0
+          - hcloud
+        always_run: true # It is surprisingly hard to check if a change affects a certain role
+        pass_filenames: false # molecule test is hardcoded above
+        stages: [manual]
       - id: molecule-apt-repo-helm
         name: The apt_repo_helm role is passing molecule tests
         entry: bash -c "cd roles/apt_repo_helm/ && molecule test"
@@ -50,8 +60,18 @@ repos:
         additional_dependencies:
           - molecule==5.0.0a0
           - hcloud
-        always_run: true # It is surprisingly hard to check if a change affects a certain role
-        pass_filenames: false # molecule test is hardcoded above
+        always_run: true
+        pass_filenames: false
+        stages: [manual]
+      - id: molecule-apt-repo-kubernetes
+        name: The apt_repo_kubernetes role is passing molecule tests
+        entry: bash -c "cd roles/apt_repo_kubernetes/ && molecule test"
+        language: python
+        additional_dependencies:
+          - molecule==5.0.0a0
+          - hcloud
+        always_run: true
+        pass_filenames: false
         stages: [manual]
       - id: molecule-base
         name: The base role is passing molecule tests
