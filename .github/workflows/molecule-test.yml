@@ -37,8 +37,10 @@ jobs:
       matrix:
         hook:
           # see .pre-commit-config.yml for hook names
-          - molecule-base
+          - molecule-apt-repo-docker
           - molecule-apt-repo-helm
+          - molecule-apt-repo-kubernetes
+          - molecule-base
 
     steps:
       - name: Check out code
