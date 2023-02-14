@@ -1,0 +1,24 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Apt update should work without errors
+      ansible.builtin.apt:
+        update_cache: true
+    - name: Grep all deb entries in /etc/apt for repo
+      # https://askubuntu.com/questions/148932/how-can-i-get-a-list-of-all-repositories-and-ppas-from-the-command-line-into-an
+      ansible.builtin.command: grep -r --include '*.list' '^deb ' /etc/apt/sources.list /etc/apt/sources.list.d/
+      register: deb_entries
+      changed_when: false # idempotent
+      failed_when: "'https://download.docker.com/linux/' not in deb_entries['stdout']"
+    - name: Containerd.io should be installable
+      ansible.builtin.apt:
+        name:
+          - containerd.io
+        state: present
+    - name: Repo should show up in apt-cache policy
+      ansible.builtin.command: apt-cache policy containerd.io
+      register: policy
+      changed_when: false # idempotent
+      failed_when: "'https://download.docker.com/linux/' not in policy['stdout']"
