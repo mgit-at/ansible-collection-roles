@@ -21,4 +21,4 @@
       ansible.builtin.command: apt-cache policy kubeadm
       register: policy
       changed_when: false # idempotent
-      failed_when: "'https://apt.kubernetes.io/' not in policy['stdout']"
+      failed_when: "'https://apt.kubernetes.io' not in policy['stdout']"
