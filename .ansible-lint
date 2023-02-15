@@ -5,3 +5,5 @@ skip_list:
   #
   # TODO: This is not very urgent due to correct umasks, but should be fixed eventually
   - risky-file-permissions
+  # TODO: Hopefully this can be automatically fixed in most cases (hah!) using --write in the future
+  - name[casing]

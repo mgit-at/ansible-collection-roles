@@ -3,7 +3,7 @@
 
 namespace: mgit_at
 name: roles
-version: 0.1.0
+version: 1.0.0
 readme: README.md
 authors:
   - Markus Teufelberger (github.com/MarkusTeufelberger)
@@ -14,6 +14,9 @@ tags:
 # tags are all lower-case, no spaces, no dashes.
   - openssh
   - kubernetes
+  - linux
+  - tools
+  - application
 repository: https://github.com/mgit-at/ansible-collection-roles
 # documentation: https://github.com/mgit-at/ansible-collection-roles/tree/main/docs
 homepage: https://github.com/mgit-at/ansible-collection-roles
