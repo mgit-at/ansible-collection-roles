@@ -1,2 +1,2 @@
 ---
-requires_ansible: '>=2.12.x'  # probably fine with older versions too, but not tested/in production any more
+requires_ansible: '>=2.12.0'  # probably fine with older versions too, but not tested/in production any more

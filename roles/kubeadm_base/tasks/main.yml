@@ -54,10 +54,18 @@
     dest: /etc/haproxy/haproxy.cfg
   register: haproxy_config
 
-- name: (re)start haproxy
+- name: restart haproxy if necessary
   ansible.builtin.systemd:
     name: haproxy
-    state: "{% if haproxy_config is changed %}restarted{% else %}started{% endif %}"
+    state: restarted
+    enabled: true
+  # noqa no-handler - this needs to run right here
+  when: haproxy_config is changed
+
+- name: start and enable haproxy
+  ansible.builtin.systemd:
+    name: haproxy
+    state: started
     enabled: true
 
 ## loading the modules temporarly because kubeadm will complain if they are not there
