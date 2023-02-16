@@ -19,8 +19,15 @@
       - kubernetes_cri_socket == "unix:///run/containerd/containerd.sock"
 
 - name: install containerd
-  ansible.builtin.include_role:
-    name: mgit_at.roles.containerd
+  ansible.builtin.apt:
+    # This is NOT the distro package but the one from the Docker repository!
+    name: containerd.io
+    state: present
+
+- name: create config directory
+  ansible.builtin.file:
+    name: /etc/containerd
+    state: directory
 
 - name: install containerd config for kubernetes
   ansible.builtin.template:
