@@ -18,6 +18,7 @@
     state: mounted
 
 - name: install container runtime
+  # Separate file, CRI could be a choice in the future
   ansible.builtin.include_tasks: "cri_containerd.yml"
 
 - name: create kubelet root directory
