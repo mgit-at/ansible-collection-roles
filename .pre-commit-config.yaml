@@ -83,3 +83,13 @@ repos:
         always_run: true
         pass_filenames: false
         stages: [manual]
+      - id: molecule-kubernetes-base
+        name: The kubernetes_base role is passing molecule tests
+        entry: bash -c "cd roles/kubernetes_base/ && molecule test"
+        language: python
+        additional_dependencies:
+          - molecule==5.0.0a0
+          - hcloud
+        always_run: true
+        pass_filenames: false
+        stages: [manual]
