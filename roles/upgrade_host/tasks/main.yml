@@ -1,0 +1,51 @@
+---
+- name: Apt upgrade
+  ansible.builtin.apt:
+    upgrade: dist
+  register: upgrade_host_apt_result
+  until: upgrade_host_apt_result is not failed
+  retries: 60
+  delay: 5
+
+- name: Get initial boot_id
+  ansible.builtin.command: cat /proc/sys/kernel/random/boot_id
+  register: upgrade_host_boot_id_before
+  check_mode: false # Run even in check mode
+  changed_when: false # Read-only command
+- name: Display initial boot ID
+  ansible.builtin.debug:
+    var: upgrade_host_boot_id_before.stdout
+- name: Reboot
+  # noqa ignore-errors
+  ansible.builtin.shell: sleep 2 && shutdown -r now "Ansible updates triggered"
+  async: 1
+  poll: 0
+  ignore_errors: true
+  changed_when: true
+# using command directly does not work with mitogen because mitogen transport
+#   gets interrupted while a command is running which aborts ansible
+- name: Waiting for startup (changed boot_id)
+  ansible.builtin.command: ssh root@{{ inventory_hostname }} cat /proc/sys/kernel/random/boot_id
+  register: upgrade_host_boot_id_after
+  until: upgrade_host_boot_id_after.rc == 0 and upgrade_host_boot_id_after.stdout != upgrade_host_boot_id_before.stdout
+  retries: 80
+  delay: 5
+  changed_when: false
+  delegate_to: localhost
+
+- name: Check system state
+  ansible.builtin.command: systemctl is-system-running
+  # systemctl used deliberately for functionality not in systemd module
+  # noqa command-instead-of-module
+  register: upgrade_host_running_result
+  until: upgrade_host_running_result.rc == 0
+  retries: 10
+  delay: 1
+  changed_when: false # Read-only command
+- name: Check service state
+  ansible.builtin.command: systemctl --failed
+  # systemctl used deliberately for functionality not in systemd module
+  # noqa command-instead-of-module
+  register: upgrade_host_failed_result
+  failed_when: "'failed' in upgrade_host_failed_result.stdout"
+  changed_when: false # Read-only command
