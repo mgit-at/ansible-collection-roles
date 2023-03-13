@@ -1,4 +1,8 @@
 ---
+# Query for latest released version by minor or general:
+# https://dl.k8s.io/release/stable-1.23.txt
+# https://dl.k8s.io/release/stable.txt
+
 kubernetes_version: 1.33.7
 kubernetes_cluster_name: mycluster
 

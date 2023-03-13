@@ -41,6 +41,7 @@ jobs:
           - molecule-apt-repo-helm
           - molecule-apt-repo-kubernetes
           - molecule-base
+          - molecule-kubeadm-base
           - molecule-kubernetes-base
 
     steps:
