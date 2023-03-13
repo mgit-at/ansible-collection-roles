@@ -16,6 +16,7 @@
 
     - name: upload certs
       when: "groups[kubernetes_masters_group_name] | map('extract', hostvars) | map(attribute='ansible_nodename') | difference(kubernetes_current_nodes) | length > 0"
+      # noqa no-changed-when - yes, this is not idempotent
       ansible.builtin.command: kubeadm init phase upload-certs --upload-certs
       check_mode: false
       register: kubeadm_upload_certs
