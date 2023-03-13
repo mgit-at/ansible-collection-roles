@@ -15,9 +15,11 @@
   tasks:
     - name: Kubeadm is installed
       ansible.builtin.command: kubeadm version
+      changed_when: false # idempotent
       register: kubeadm_version
     - name: Kubectl is installed
       ansible.builtin.command: kubectl version
+      changed_when: false # idempotent
       register: kubectl_version
       # kubectl returns 1 since no cluster is running yet
       failed_when: kubectl_version['rc'] != 1
