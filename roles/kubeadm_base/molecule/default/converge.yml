@@ -1,0 +1,21 @@
+---
+- name: Converge
+  hosts: all
+  gather_facts: true
+  pre_tasks:
+    - name: Get current kubernetes release
+      ansible.builtin.uri:
+        url: https://dl.k8s.io/release/stable.txt
+        return_content: true
+        # Returns something like "v1.23.45", kubernetes_version is expected to be without the "v"
+      register: current_version
+    - name: Log the version used
+      ansible.builtin.debug:
+        msg: "The current kubernetes release used for this test is {{ current_version['content'] }}."
+  roles:
+    - role: apt_repo_kubernetes
+    - role: kubeadm_base
+      vars:
+        kubernetes_version: "{{ current_version['content'][1:] }}"
+        kubernetes_master: true
+        kubernetes_masters_group_name: k8s_control_plane

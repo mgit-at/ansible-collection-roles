@@ -6,7 +6,6 @@
       - "kubeadm={{ kubernetes_version }}-00"
       - "kubectl={{ kubernetes_version }}-00"
     state: present
-    force: true
 
 - name: install hatop package (not on focal)
   ansible.builtin.apt:

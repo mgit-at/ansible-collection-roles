@@ -1,0 +1,29 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: true
+  pre_tasks:
+    - name: Get current kubernetes release
+      ansible.builtin.uri:
+        url: https://dl.k8s.io/release/stable.txt
+        return_content: true
+        # Returns something like "v1.23.45", kubernetes_version is expected to be without the "v"
+      register: current_version
+    - name: Log the version used
+      ansible.builtin.debug:
+        msg: "The current kubernetes release used for this test is {{ current_version['content'] }}."
+  tasks:
+    - name: Kubeadm is installed
+      ansible.builtin.command: kubeadm version
+      register: kubeadm_version
+    - name: Kubectl is installed
+      ansible.builtin.command: kubectl version
+      register: kubectl_version
+      # kubectl returns 1 since no cluster is running yet
+      failed_when: kubectl_version['rc'] != 1
+    - name: Correct versions are installed
+      ansible.builtin.assert:
+        that:
+          - current_version['content'] in kubeadm_version['stdout']
+          - current_version['content'] in kubectl_version['stdout']
+      # TODO: Check if HAproxy is running

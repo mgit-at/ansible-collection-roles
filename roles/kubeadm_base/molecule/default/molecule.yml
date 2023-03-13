@@ -1,0 +1,47 @@
+---
+dependency:
+  name: galaxy
+  options:
+    # https://github.com/ansible/galaxy/issues/2302 - galaxy is sometimes (often?) slow to respond
+    timeout: "60"
+    # requirements-file: collections.yml
+    # ^ This fails?!
+driver:
+  name: delegated
+platforms:
+  # - name: kadm-base-ubuntu-16.04 # Xenial Xerus
+  - name: kadm-base-ubuntu-18.04 # Bionic Beaver
+    image: ubuntu-18.04
+    server_type: cx11 # 1 CPU, 2 GiB RAM, 20 GiB disk
+    groups:
+      - k8s_control_plane
+  - name: kadm-base-ubuntu-20.04 # Focal Fossa
+    image: ubuntu-20.04
+    server_type: cx11
+    groups:
+      - k8s_control_plane
+  - name: kadm-base-ubuntu-22.04 # Jammy Jellyfish
+    image: ubuntu-22.04
+    server_type: cx11
+    groups:
+      - k8s_control_plane
+  # - name: kadm-base-debian-8 # Jessie
+  # - name: kadm-base-debian-9 # Stretch
+  - name: kadm-base-debian-10 # Buster
+    image: debian-10
+    server_type: cx11
+    groups:
+      - k8s_control_plane
+  - name: kadm-base-debian-11 # Bullseye
+    image: debian-11
+    server_type: cx11
+    groups:
+      - k8s_control_plane
+  # - name: kadm-base-debian-12 # Bookworm
+provisioner:
+  name: ansible
+  playbooks:
+    create: ../../../../tests/molecule/hcloud_playbooks/create.yml
+    destroy: ../../../../tests/molecule/hcloud_playbooks/destroy.yml
+verifier:
+  name: ansible
