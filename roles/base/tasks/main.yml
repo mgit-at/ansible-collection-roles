@@ -24,7 +24,7 @@
 - name: apt - update apt cache
   ansible.builtin.apt:
     update_cache: true
-  when: base_sources_list.changed  # noqa 503 - this needs to run right at this point to use the new mirrors
+  when: base_sources_list.changed  # noqa no-handler - this needs to run right at this point to use the new mirrors
 
 - name: apt - disable recommends and suggests
   ansible.builtin.copy:
