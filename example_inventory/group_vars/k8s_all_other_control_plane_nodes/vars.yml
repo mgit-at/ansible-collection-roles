@@ -1,0 +1,3 @@
+---
+kubernetes_initial_control_plane: false
+kubernetes_other_control_plane: true
