@@ -3,6 +3,7 @@
 - name: roles present on every kubernetes host
   hosts: "{{ hostlist | default('k8s_all') }}"
   roles:
+    - role: mgit_at.roles.apt_repo_docker
     - role: mgit_at.roles.apt_repo_helm
     - role: mgit_at.roles.apt_repo_kubernetes
     - role: mgit_at.roles.kubernetes_base
