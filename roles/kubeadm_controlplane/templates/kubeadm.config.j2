@@ -1,4 +1,4 @@
-{# https://godoc.org/k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm/v1beta2 #}
+{# https://godoc.org/k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm/v1beta3 #}
 {#  #}
 apiVersion: kubeadm.k8s.io/v1beta2
 kind: InitConfiguration
@@ -8,12 +8,16 @@ bootstrapTokens:
 - ttl: "1s"
 localAPIEndpoint:
   bindPort: 6442
+nodeRegistration:
+  criSocket: "{{ kubernetes_cri_socket }}"
+skipPhases:
+- addon/kube-proxy
 ---
 apiVersion: kubeadm.k8s.io/v1beta2
 kind: ClusterConfiguration
 kubernetesVersion: {{ kubernetes_version }}
 clusterName: {{ kubernetes_cluster_name }}
-imageRepository: k8s.gcr.io
+imageRepository: registry.k8s.io
 controlPlaneEndpoint: 127.0.0.1:{{ kubernetes_api_lb_port | default('6443') }}
 networking:
   dnsDomain: {{ kubernetes_network_dns_domain }}
@@ -38,8 +42,6 @@ controllerManager:
   extraArgs:
     node-cidr-mask-size: "{{ kubernetes_network_node_cidr_size }}"
 scheduler: {}
-dns:
-  type: CoreDNS
 ---
 apiVersion: kubelet.config.k8s.io/v1beta1
 kind: KubeletConfiguration

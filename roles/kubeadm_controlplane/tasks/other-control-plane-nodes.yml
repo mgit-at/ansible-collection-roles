@@ -1,0 +1,41 @@
+---
+### Several options possible, depending on what happened:
+
+### The cluster was not yet initialized
+- name: Join a new cluster
+  when: not kubeconfig_kubelet_stats.stat.exists
+  ansible.builtin.include_tasks: join-cluster.yml
+
+### The cluster is now initialized but something in the config might be changed, so we need more info about it
+# TODO: The cluster version might in fact be wrong, depending on which API server is being queried in an HA setting.
+#       Probably needs to query 127.0.0.1:6442 (not 6443!) to get the local running instance instead of hitting the HA endpoint.
+- name: Get cluster facts
+  block:
+    - name: Get cluster version
+      ansible.builtin.command: kubectl version -o yaml
+      register: kubectl_version
+      check_mode: false
+      changed_when: false  # readonly command
+
+    - name: Set cluster version fact
+      ansible.builtin.set_fact:
+        kubectl_cluster_version: "{{ kubectl_version.stdout | from_yaml }}"
+
+    - name: Set cluster git version fact
+      ansible.builtin.set_fact:
+        kubectl_cluster_git_version: "{{ kubectl_cluster_version.serverVersion.gitVersion | replace('v', '') }}"
+
+### Using the additional infos, we can see that:
+
+### The cluster version has changed
+### TODO: Add check to disallow simultaneous config + version changes, since kubeadm upgrade might not support this
+- name: Upgrade the cluster version
+  when:
+    - kubeconfig_kubelet_stats.stat.exists
+    - kubernetes_version is version(kubectl_cluster_git_version, '>')
+  ansible.builtin.include_tasks: upgrade-other-control-plane-nodes.yml
+- name: Downgrade the cluster version
+  when:
+    - kubeconfig_kubelet_stats.stat.exists
+    - kubernetes_version is version(kubectl_cluster_git_version, '<')
+  ansible.builtin.include_tasks: downgrade-other-control-plane-nodes.yml

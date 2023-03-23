@@ -1,0 +1,6 @@
+---
+## taint control plane nodes to not run any payload application
+kubernetes_dedicated_control_plane: true
+
+kubernetes_api_cert_sans_extra: []
+kubernetes_network_dns_domain: cluster.local

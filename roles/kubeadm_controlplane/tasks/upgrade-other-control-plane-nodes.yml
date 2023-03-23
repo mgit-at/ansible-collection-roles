@@ -1,0 +1,56 @@
+---
+- name: Drain node
+  # noqa no-changed-when - yes, this is not idempotent
+  ansible.builtin.command: kubectl drain {{ ansible_nodename }} --ignore-daemonsets --delete-local-data --force
+- name: Upgrade cluster node
+  # noqa no-changed-when - yes, this is not idempotent
+  ansible.builtin.command: kubeadm upgrade node
+
+- name: Unhold kubelet & kubectl
+  # noqa no-changed-when - yes, this is not idempotent
+  ansible.builtin.command: apt-mark unhold kubelet kubectl
+- name: Update kubelet & kubectl
+  ansible.builtin.apt:
+    name:
+      - kubelet={{ kubernetes_version }}-00
+      - kubectl={{ kubernetes_version }}-00
+    state: present
+- name: Hold kubelet & kubectl
+  # noqa no-changed-when - yes, this is not idempotent
+  ansible.builtin.command: apt-mark hold kubelet kubectl
+
+- name: Force kubelet certificate rotation (it gets regenerated after reboot)
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /var/lib/kubelet/pki/kubelet.crt
+    - /var/lib/kubelet/pki/kubelet.key
+
+- name: Upgrade and reboot host OS on other control plane node
+  ansible.builtin.import_role:
+    name: upgrade_host
+
+- name: Uncordon other control plane node
+  # noqa no-changed-when - yes, this is not idempotent
+  ansible.builtin.command: kubectl uncordon {{ ansible_nodename }}
+  retries: 50
+  delay: 5
+  register: uncordon_node
+  until: uncordon_node.rc == 0
+- name: Wait up to 5 minutes until all pods are ready and running on the node again
+  ansible.builtin.command: kubectl wait --for=condition=Ready --field-selector='spec.nodeName={{ ansible_nodename }}' --timeout=300s -A --all pods
+  changed_when: false # Read-only command
+
+# Remove apt fragments
+- name: Run apt-get autoremove
+  ansible.builtin.apt:
+    autoremove: true
+
+- name: Run apt-get autoclean
+  ansible.builtin.apt:
+    autoclean: true
+
+- name: Run apt-get clean
+  ansible.builtin.apt:
+    clean: true

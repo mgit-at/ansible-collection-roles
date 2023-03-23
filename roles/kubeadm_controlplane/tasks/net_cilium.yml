@@ -33,7 +33,7 @@
         name: "{{ kubernetes_cluster_name }}"
       containerRuntime:
         integration: containerd  # only containerd supported in the future anyways, so no variable here
-        socketPath: /var/run/kube-containerd/containerd.sock
+        socketPath: /run/containerd/containerd.sock
       # No Hubble on dedicated control plane nodes
       # hubble:
       #   listenAddress: ":4244"
@@ -50,4 +50,5 @@
       prometheus:
         enabled: true  # emit metrics
   when:
+    - kubeadm_cilium_check.status is defined
     - not kubeadm_cilium_check.status.status == "deployed"
