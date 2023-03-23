@@ -5,6 +5,8 @@
 - name: Upgrade cluster node
   # noqa no-changed-when - yes, this is not idempotent
   ansible.builtin.command: kubeadm upgrade node
+  # TODO: this is probably not enough to ensure the control plane doesn't go down...
+  throttle: 1
 
 - name: Unhold kubelet & kubectl
   # noqa no-changed-when - yes, this is not idempotent
