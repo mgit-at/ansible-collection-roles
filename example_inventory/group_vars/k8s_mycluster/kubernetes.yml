@@ -8,8 +8,8 @@ kubernetes_cluster_name: mycluster
 
 # Enter the group names from your hosts.ini file here:
 kubernetes_group_name: k8s_mycluster
-kubernetes_masters_group_name: k8s_mycluster_masters
-kubernetes_primary_master_group_name: k8s_mycluster_primary_master
+kubernetes_control_plane_nodes_group_name: k8s_mycluster_control_plane_nodes
+kubernetes_initial_control_plane_node_group_name: k8s_mycluster_initial_control_plane_node
 
 kubernetes_encryption_config_keys:
   - ThisReallyShouldBeInAVault
