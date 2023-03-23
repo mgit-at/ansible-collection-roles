@@ -49,6 +49,3 @@
           clusterPoolIPv4MaskSize: "{{ kubernetes_network_node_cidr_size }}"
       prometheus:
         enabled: true  # emit metrics
-  when:
-    - kubeadm_cilium_check.status is defined
-    - not kubeadm_cilium_check.status.status == "deployed"

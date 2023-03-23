@@ -14,14 +14,22 @@
         kubeadm
         init
         --config /etc/kubernetes/kubeadm.config
-        --cri-socket {{ kubernetes_cri_socket }}
-        --skip-phases addon/kube-proxy
         --skip-token-print
       args:
         creates: /etc/kubernetes/pki/ca.crt
       register: kubeadm_init
 
   always:
+    - name: Display output of kubeadm init
+      when: kubeadm_init.changed
+      ansible.builtin.debug:
+        msg: "{{ kubeadm_init.stdout }}\n"
+
+    - name: Display error output of kubeadm init
+      when: kubeadm_init.changed and kubeadm_init.stderr
+      ansible.builtin.debug:
+        msg: "{{ kubeadm_init.stderr }}\n"
+
     - name: Dump output of kubeadm init to log file
       when: kubeadm_init.changed
       ansible.builtin.copy:

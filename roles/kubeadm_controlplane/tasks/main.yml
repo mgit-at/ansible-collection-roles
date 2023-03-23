@@ -29,6 +29,8 @@
     dest: /root/.kube/config
     src: /etc/kubernetes/admin.conf
     state: link
+    # The origin file doesn't exist if a new node is being installed
+    force: true
 
 - name: Add kubectl completion config for shells
   loop:
@@ -54,7 +56,7 @@
 
 - name: Join/reconfigure other control plane nodes one-by-one
   ansible.builtin.include_tasks: other-control-plane-nodes.yml
-  throttle: 1
+  # throttle: 1 <-- not valid on TaskInclude :-(
   when:
     - kubernetes_control_plane
     - kubernetes_other_control_plane

@@ -29,6 +29,7 @@
 
 ### The cluster version has changed
 ### TODO: Add check to disallow simultaneous config + version changes, since kubeadm upgrade might not support this
+### TODO: Ensure this gets throttled somehow!
 - name: Upgrade the cluster version
   when:
     - kubeconfig_kubelet_stats.stat.exists
