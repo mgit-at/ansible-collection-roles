@@ -12,29 +12,29 @@ platforms:
   # - name: kadm-cp-ubuntu-16.04 # Xenial Xerus
   - name: kadm-cp-ubuntu-18.04 # Bionic Beaver
     image: ubuntu-18.04
-    server_type: cx11 # 1 CPU, 2 GiB RAM, 20 GiB disk
+    server_type: cx21 # 2 CPU, 4 GiB RAM, 40 GiB disk
     groups:
       - ubuntu18
   - name: kadm-cp-ubuntu-20.04 # Focal Fossa
     image: ubuntu-20.04
-    server_type: cx11
+    server_type: cx21
     groups:
       - ubuntu20
   - name: kadm-cp-ubuntu-22.04 # Jammy Jellyfish
     image: ubuntu-22.04
-    server_type: cx11
+    server_type: cx21
     groups:
       - ubuntu22
   # - name: kadm-cp-debian-8 # Jessie
   # - name: kadm-cp-debian-9 # Stretch
   - name: kadm-cp-debian-10 # Buster
     image: debian-10
-    server_type: cx11
+    server_type: cx21
     groups:
       - debian10
   - name: kadm-cp-debian-11 # Bullseye
     image: debian-11
-    server_type: cx11
+    server_type: cx21
     groups:
       - debian11
   # - name: kadm-cp-debian-12 # Bookworm
