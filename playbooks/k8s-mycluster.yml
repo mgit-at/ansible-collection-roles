@@ -1,32 +1,27 @@
 ---
 # see the example_inventory folder for an explanation for group names etc.
-- name: roles present on every host
+- name: Roles present on every host
   import_playbook: base.yml
   vars:
     hostlist: k8s_mycluster
 
-- name: roles present on every kubernetes host
+- name: Roles present on every kubernetes host
   import_playbook: k8s-base.yml
   vars:
     hostlist: k8s_mycluster
 
-- name: Set up primary master node
-  hosts: mycluster_k8s_primary_master
+- name: Set up control plane nodes
+  hosts: k8s_mycluster_control_plane_nodes
   roles:
-    - role: mgit_at.roles.kubeadm_master
-
-- name: Set up secondary master node(s)
-  hosts: mycluster_k8s_secondary_masters
-  roles:
-    - role: mgit_at.roles.kubeadm_master
+    - role: mgit_at.roles.kubeadm_controlplane
 
 - name: Set up other (worker, storage, ingress, egress...) nodes
   hosts:
-    - mycluster_k8s_workers
+    - k8s_mycluster_worker_nodes
   roles:
     - role: mgit_at.roles.kubeadm_node
 
 - name: Install flux initially
-  hosts: mycluster_k8s_primary_master
+  hosts: k8s_mycluster_initial_control_plane_node
   roles:
     - role: mgit_at.roles.kubernetes_flux
