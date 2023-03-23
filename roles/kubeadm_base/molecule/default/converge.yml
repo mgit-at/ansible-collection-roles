@@ -17,5 +17,5 @@
     - role: kubeadm_base
       vars:
         kubernetes_version: "{{ current_version['content'][1:] }}"
-        kubernetes_master: true
-        kubernetes_masters_group_name: k8s_control_plane
+        kubernetes_control_plane: true
+        kubernetes_control_plane_nodes_group_name: k8s_control_plane

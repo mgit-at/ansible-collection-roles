@@ -16,7 +16,7 @@ defaults
     option dontlog-normal
 
 frontend kube_api
-{% if kubernetes_master %}
+{% if kubernetes_control_plane %}
     bind *:{{ kubernetes_api_lb_port | default('6443') }}
 {% else %}
     bind 127.0.0.1:{{ kubernetes_api_lb_port | default('6443') }}
@@ -25,7 +25,7 @@ frontend kube_api
     default_backend kube_api
 
 backend kube_api
-{% if kubernetes_master %}
+{% if kubernetes_control_plane %}
     balance first
 {% else %}
     balance roundrobin
@@ -36,6 +36,6 @@ backend kube_api
     default-server inter 5s fall 3 rise 2
     timeout connect 5s
     timeout server 3h
-{% for master in groups[kubernetes_masters_group_name] | sort() %}
-    server {{ hostvars[master].ansible_nodename }} {{ hostvars[master].ansible_default_ipv4.address }}:6442 {% if master == inventory_hostname %}id 1{% endif %} check check-ssl verify none
+{% for node in groups[kubernetes_control_plane_nodes_group_name] | sort() %}
+    server {{ hostvars[node].ansible_nodename }} {{ hostvars[node].ansible_default_ipv4.address }}:6442 {% if node == inventory_hostname %}id 1{% endif %} check check-ssl verify none
 {% endfor %}
