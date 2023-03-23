@@ -1,0 +1,54 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: true
+  pre_tasks:
+    - name: Get current kubernetes release
+      ansible.builtin.uri:
+        url: https://dl.k8s.io/release/stable.txt
+        return_content: true
+        # Returns something like "v1.23.45", kubernetes_version is expected to be without the "v"
+      register: current_version
+    - name: Log the version used
+      ansible.builtin.debug:
+        msg: "The current kubernetes release used for this test is {{ current_version['content'] }}."
+    - name: Get current cilium release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/cilium/cilium/releases/latest
+        # Returns json, we use the tag_name in there which contains a "v"
+      register: current_cilium_release
+    - name: Log the version used
+      ansible.builtin.debug:
+        msg: "The current cilium release used for this test is {{ current_cilium_release['json']['tag_name'] }}."
+    - name: Get current sonobuoy release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/vmware-tanzu/sonobuoy/releases/latest
+        # Returns json, we use the tag_name in there which contains a "v"
+      register: current_sonobuoy_release
+    - name: Log the version used
+      ansible.builtin.debug:
+        msg: "The current sonobuoy release used for this test is {{ current_sonobuoy_release['json']['tag_name'] }}."
+    - name: Download sonobuoy
+      ansible.builtin.unarchive:
+        remote_src: true
+        src: "https://github.com/vmware-tanzu/sonobuoy/releases/download/{{ current_sonobuoy_release['json']['tag_name'] }}/sonobuoy_{{ current_sonobuoy_release['json']['tag_name'][1:] }}_linux_amd64.tar.gz"
+        dest: /usr/bin/
+    - name: Run sonobuoy version
+      ansible.builtin.command: sonobuoy version --kubeconfig ~/.kube/config
+      register: sonobuoy_version
+    - name: Show sonobuoy version output
+      ansible.builtin.debug:
+        msg: "{{ sonobuoy_version['stdout'] }}\n"
+
+  tasks:
+    - name: Run a quick sonobuoy test
+      ansible.builtin.command: sonobuoy run --wait --mode quick --wait-output silent
+    - name: Retrieve the results
+      ansible.builtin.command: sonobuoy retrieve
+      register: sonobuoy_quick_results_retrieve
+    - name: Process the results
+      ansible.builtin.command: "sonobuoy results {{ sonobuoy_quick_results_retrieve['stdout'] }}"
+      register: sonobuoy_quick_results
+    - name: Display the results
+      ansible.builtin.debug:
+        msg: "{{ sonobuoy_quick_results['stdout'] }}\n"
