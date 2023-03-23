@@ -1,0 +1,117 @@
+---
+- name: Run pre-upgrade tasks on all nodes in the cluster
+  delegate_to: "{{ item }}"
+  loop: "{{ groups[kubernetes_group_name] }}"
+  block:
+    - name: Apt update
+      ansible.builtin.apt:
+        update_cache: true
+    - name: Unhold kubeadm
+      # noqa no-changed-when - yes, this is not idempotent
+      ansible.builtin.command: apt-mark unhold kubeadm
+    - name: Update kubeadm
+      ansible.builtin.apt:
+        name: kubeadm={{ kubernetes_version }}-00
+        state: present
+    - name: Hold kubeadm
+      # noqa no-changed-when - yes, this is not idempotent
+      ansible.builtin.command: apt-mark hold kubeadm
+    - name: Verify kubeadm version
+      ansible.builtin.command: kubeadm version
+      register: kubeadm_version
+      failed_when: kubernetes_version not in kubeadm_version.stdout
+      changed_when: false # Read-only command
+
+    - name: Pre-pull images and clean up old etcd backups etc. on control plane nodes
+      when:
+        - kubernetes_control_plane
+      block:
+        - name: Pre-pull images for new version on control plane nodes
+          ansible.builtin.command: kubeadm config images pull --kubernetes-version {{ kubernetes_version }}
+          changed_when: false # Idempotent command
+        - name: Find all folders in /etc/kubernetes/tmp that are older than 15 weeks
+          ansible.builtin.find:
+            paths: /etc/kubernetes/tmp/
+            age: 15w
+            file_type: directory
+          register: old_tempfiles
+        - name: Remove all old folders in /etc/kubernetes/tmp
+          ansible.builtin.file:
+            path: "{{ item.path }}"
+            state: absent
+          loop: "{{ old_tempfiles.files }}"
+          loop_control:
+            label: "{{ item.path }}"
+
+- name: Kudeadm upgrade plan
+  ansible.builtin.command: kubeadm upgrade plan
+  register: kubeadm_plan
+  check_mode: false # Run even in check mode
+  changed_when: false # Read-only command
+- name: Let user check for warnings manually
+  ansible.builtin.debug:
+    msg: "{{ kubeadm_plan.stdout }}"
+- name: Prompt for resume
+  when: kubernetes_autoupgrade is not defined
+  ansible.builtin.pause:
+    prompt: Please check the last output for warnings. Confirm you if want to resume the upgrade! Press return to continue. Press Ctrl+c and then "a" to abort
+- name: Drain node
+  # noqa no-changed-when - yes, this is not idempotent
+  ansible.builtin.command: kubectl drain {{ ansible_nodename }} --ignore-daemonsets --delete-local-data --force
+- name: Upgrade initial control plane node
+  # noqa no-changed-when - yes, this is not idempotent
+  # This will take the current cluster config inside the cluster and change the version in there
+  # If you modified /etc/kubernetes/kubeadm.config, it first needs to be uploaded (with the initial version)
+  # for changes to be applied by kubeadm in addition to the version change.
+  # This is done with this command: kubeadm init phase upload-config kubeadm --config=/etc/kubernetes/kubeadm.config
+  # Kubeadm will NOT care about the contents of this file, it only takes/uses what's in the cluster!
+  ansible.builtin.command: kubeadm upgrade apply v{{ kubernetes_version }} -y
+
+- name: Unhold kubelet & kubectl
+  # noqa no-changed-when - yes, this is not idempotent
+  ansible.builtin.command: apt-mark unhold kubelet kubectl
+- name: Update kubelet & kubectl
+  ansible.builtin.apt:
+    name:
+      - kubelet={{ kubernetes_version }}-00
+      - kubectl={{ kubernetes_version }}-00
+    state: present
+- name: Hold kubelet & kubectl
+  # noqa no-changed-when - yes, this is not idempotent
+  ansible.builtin.command: apt-mark hold kubelet kubectl
+
+- name: Force kubelet certificate rotation (it gets regenerated after reboot)
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /var/lib/kubelet/pki/kubelet.crt
+    - /var/lib/kubelet/pki/kubelet.key
+
+- name: Upgrade and reboot host OS on initial control plane node
+  ansible.builtin.import_role:
+    name: upgrade_host
+
+- name: Uncordon initial control plane node
+  # noqa no-changed-when - yes, this is not idempotent
+  ansible.builtin.command: kubectl uncordon {{ ansible_nodename }}
+  retries: 50
+  delay: 5
+  register: uncordon_node
+  until: uncordon_node.rc == 0
+- name: Wait up to 5 minutes until all pods are ready and running on the node again
+  ansible.builtin.command: kubectl wait --for=condition=Ready --field-selector='spec.nodeName={{ ansible_nodename }}' --timeout=300s -A --all pods
+  changed_when: false # Read-only command
+
+# Remove apt fragments:
+- name: Run apt-get autoremove
+  ansible.builtin.apt:
+    autoremove: true
+
+- name: Run apt-get autoclean
+  ansible.builtin.apt:
+    autoclean: true
+
+- name: Run apt-get clean
+  ansible.builtin.apt:
+    clean: true

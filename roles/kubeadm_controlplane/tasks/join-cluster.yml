@@ -1,0 +1,34 @@
+---
+- name: Extract encryption key for certs
+  ansible.builtin.set_fact:
+    kubeadm_upload_certs_key: "{% if kubeadm_upload_certs.stdout is defined %}{{ kubeadm_upload_certs.stdout_lines | last }}{% endif %}"
+
+- name: Join control plane nodes and store log
+  block:
+    - name: Join other kubernetes control plane nodes
+      ansible.builtin.command: |
+        kubeadm join 127.0.0.1:{{ kubernetes_api_lb_port | default('6443') }}
+        --apiserver-bind-port 6442
+        --cri-socket {{ kubernetes_cri_socket }}
+        --token '{{ kube_bootstrap_token }}'
+        --discovery-token-ca-cert-hash '{{ kube_bootstrap_ca_cert_hash }}'
+        --control-plane
+        --certificate-key {{ kubeadm_upload_certs_key }}
+      args:
+        creates: /etc/kubernetes/kubelet.conf
+      register: kubeadm_join
+      no_log: true
+
+  always:
+    - name: Dump output of kubeadm join to log file
+      when: kubeadm_join is changed
+      # This is not a handler by design to make sure this action runs at this point of the play.
+      ansible.builtin.copy:  # noqa no-handler
+        content: "{{ kubeadm_join.stdout }}\n"
+        dest: /etc/kubernetes/kubeadm-join.log
+
+    - name: Dump error output of kubeadm join to log file
+      when: kubeadm_join.changed and kubeadm_join.stderr
+      ansible.builtin.copy:
+        content: "{{ kubeadm_join.stderr }}\n"
+        dest: /etc/kubernetes/kubeadm-join.errors

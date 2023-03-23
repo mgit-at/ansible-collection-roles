@@ -1,0 +1,90 @@
+---
+# TODO: Provide k9s debian package publicly
+# - name: install useful packages
+#   ansible.builtin.apt:
+#     name:
+#       - k9s
+#     state: present
+
+- name: Create directory for encryption config
+  ansible.builtin.file:
+    name: /etc/kubernetes/encryption
+    state: directory
+    mode: 0700
+
+- name: Install encryption config
+  ansible.builtin.template:
+    src: encryption-config.j2
+    dest: /etc/kubernetes/encryption/config
+    mode: 0600
+  no_log: true
+
+- name: Prepare kubectl (1/2)
+  ansible.builtin.file:
+    name: /root/.kube
+    state: directory
+
+- name: Prepare kubectl (2/2)
+  ansible.builtin.file:
+    dest: /root/.kube/config
+    src: /etc/kubernetes/admin.conf
+    state: link
+
+- name: Add kubectl completion config for shells
+  loop:
+    - zsh
+    - bash
+  ansible.builtin.blockinfile:
+    path: "/root/.{{ item }}rc"
+    create: true
+    marker: "### {mark} ANSIBLE MANAGED BLOCK for kubectl ###"
+    content: |
+      source <(kubectl completion {{ item }})
+
+- name: Check if the kubelet.conf already exists
+  ansible.builtin.stat:
+    path: /etc/kubernetes/kubelet.conf
+  register: kubeconfig_kubelet_stats
+
+- name: Initialize/configure the cluster on the initial control plane node
+  ansible.builtin.include_tasks: initial-control-plane-node.yml
+  when:
+    - kubernetes_control_plane
+    - kubernetes_initial_control_plane
+
+- name: Join/reconfigure other control plane nodes one-by-one
+  ansible.builtin.include_tasks: other-control-plane-nodes.yml
+  throttle: 1
+  when:
+    - kubernetes_control_plane
+    - kubernetes_other_control_plane
+
+### Deal with taints on control plane nodes
+# TODO: Use kubernetes.core.k8s_info module here and elsewhere
+- name: Check if control plane nodes are tainted (1/2)
+  ansible.builtin.command: "kubectl get node {{ ansible_nodename }} -o json"
+  check_mode: false
+  register: kubectl_get_node
+  changed_when: false  # read-only command
+
+- name: Check if control plane nodes are tainted (2/2)
+  ansible.builtin.set_fact:
+    kube_node_taints: "{% set node_info = kubectl_get_node.stdout | from_json %}{%if node_info.spec.taints is defined %}{{ node_info.spec.taints | map(attribute='key') | list }}{% endif %}"
+
+# TODO: Move to kubernetes.core.k8s_taint module
+- name: Remove NoSchedule taint from control plane nodes
+  when:
+    - not kubernetes_dedicated_control_plane
+    - "'node-role.kubernetes.io/control-plane' in kube_node_taints"
+  ansible.builtin.command: "kubectl taint nodes {{ ansible_nodename }} node-role.kubernetes.io/control-plane"
+
+- name: Add NoSchedule taint for control plane nodes
+  when:
+    - kubernetes_dedicated_control_plane
+    - "'node-role.kubernetes.io/control-plane' not in kube_node_taints"
+  ansible.builtin.command: "kubectl taint nodes {{ ansible_nodename }} node-role.kubernetes.io/control-plane='':NoSchedule"
+
+- name: Check if all the nodes are ready
+  ansible.builtin.command: "kubectl wait --for=condition=Ready --timeout=90s node/{{ ansible_nodename }}"
+  check_mode: false
+  changed_when: false  # read-only command

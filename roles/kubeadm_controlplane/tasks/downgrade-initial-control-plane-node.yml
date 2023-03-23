@@ -1,0 +1,4 @@
+---
+- name: Fail for downgrades
+  ansible.builtin.fail:
+    msg: "Downgrading the cluster version is currently not supported!"
