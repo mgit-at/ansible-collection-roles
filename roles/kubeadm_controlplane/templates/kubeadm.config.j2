@@ -11,8 +11,6 @@ localAPIEndpoint:
   bindPort: 6442
 nodeRegistration:
   criSocket: "{{ kubernetes_cri_socket }}"
-  ignorePreflightErrors:
-  - NumCPU
 skipPhases:
 - addon/kube-proxy
 
