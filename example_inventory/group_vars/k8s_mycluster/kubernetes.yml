@@ -12,6 +12,8 @@ kubernetes_control_plane_nodes_group_name: k8s_mycluster_control_plane_nodes
 kubernetes_initial_control_plane_node_group_name: k8s_mycluster_initial_control_plane_node
 
 kubernetes_encryption_config_keys:
+  # generate via `openssl rand -base64 32`
+  # For more info, see https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/
   - ThisReallyShouldBeInAVault
 
 kubernetes_max_pods: 123  # default is 110, changed slightly to verify it ends up on nodes
