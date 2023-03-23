@@ -43,6 +43,7 @@ jobs:
           - molecule-base
           - molecule-kubeadm-base
           - molecule-kubernetes-base
+          - molecule-upgrade-host
 
     steps:
       - name: Check out code
