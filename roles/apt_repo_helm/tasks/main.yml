@@ -1,5 +1,5 @@
 ---
-- name: install helm repo key
+- name: Install helm repo key
   ansible.builtin.copy:
     # Source: https://baltocdn.com/helm/signing.asc
     # converted using `gpg --dearmor helm.asc`
@@ -7,7 +7,7 @@
     dest: /etc/apt/trusted.gpg.d/helm.gpg
   notify: update apt cache
 
-- name: add helm apt repo
+- name: Add helm apt repo
   ansible.builtin.copy:
     content: |
       deb {{ helm_apt_repo_base_url }} all main

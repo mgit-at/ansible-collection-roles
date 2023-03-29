@@ -7,14 +7,14 @@
   # noqa: no-changed-when - this is already in a handler
   ansible.builtin.command: setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
 
-- name: restart sshd
+- name: Restart sshd
   ansible.builtin.systemd:
     name: sshd
     state: restarted
   tags:
     - sshd
 
-- name: restart sshd with systemd reload
+- name: Restart sshd with systemd reload
   ansible.builtin.systemd:
     name: sshd
     state: restarted
@@ -22,11 +22,11 @@
   tags:
     - sshd
 
-- name: netplan apply
+- name: Netplan apply
   # noqa: no-changed-when - this is already in a handler
   ansible.builtin.command: netplan apply
 
-- name: restart networking
+- name: Restart networking
   ansible.builtin.systemd:
     name: networking
     state: restarted

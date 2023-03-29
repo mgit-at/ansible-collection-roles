@@ -1,6 +1,6 @@
 ---
 # see the example_inventory folder for an explanation for group names etc.
-- name: roles present on every kubernetes host
+- name: Roles present on every kubernetes host
   hosts: "{{ hostlist | default('k8s_all') }}"
   roles:
     - role: mgit_at.roles.apt_repo_docker

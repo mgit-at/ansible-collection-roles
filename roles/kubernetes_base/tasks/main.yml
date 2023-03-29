@@ -1,15 +1,15 @@
 ---
-- name: create kubernetes data directory
+- name: Create kubernetes data directory
   ansible.builtin.file:
     name: /srv/kubernetes
     state: directory
 
-- name: prepare logs directory
+- name: Prepare logs directory
   ansible.builtin.file:
     name: /srv/kubernetes/logs/pods
     state: directory
 
-- name: create bind mount for /var/log/pods
+- name: Create bind mount for /var/log/pods
   ansible.posix.mount:
     src: /srv/kubernetes/logs/pods
     path: /var/log/pods
@@ -17,16 +17,16 @@
     opts: bind,defaults
     state: mounted
 
-- name: install container runtime
+- name: Install container runtime
   # Separate file, CRI could be a choice in the future
   ansible.builtin.include_tasks: cri_containerd.yml
 
-- name: create kubelet root directory
+- name: Create kubelet root directory
   ansible.builtin.file:
     name: /srv/kubernetes/kubelet
     state: directory
 
-- name: create bind mount for /var/lib/kubelet
+- name: Create bind mount for /var/lib/kubelet
   ansible.posix.mount:
     src: /srv/kubernetes/kubelet
     path: /var/lib/kubelet
@@ -34,7 +34,7 @@
     opts: bind,defaults
     state: mounted
 
-- name: install kubelet and common packages
+- name: Install kubelet and common packages
   ansible.builtin.apt:
     name:
       # - nfs-common ## TODO: this is not needed on all hosts and is a security risk...
@@ -45,12 +45,12 @@
     state: present
     force: true
 
-- name: disable automatic upgrades for kubelet
+- name: Disable automatic upgrades for kubelet
   ansible.builtin.dpkg_selections:
     name: kubelet
     selection: hold
 
-- name: add crictl config for shells
+- name: Add crictl config for shells
   loop:
     - zsh
     - bash
@@ -70,15 +70,15 @@
     mode: "0644"
 
 ## most containers will likely run as 1000:1000 - let's create a local user with those ids
-- name: create app user and group
+- name: Create app user and group
   when: kubernetes_node_create_app_user
   block:
-    - name: create app group
+    - name: Create app group
       ansible.builtin.group:
         name: app
         gid: "{{ kubernetes_node_app_user_id }}"
 
-    - name: create app user
+    - name: Create app user
       ansible.builtin.user:
         name: app
         uid: "{{ kubernetes_node_app_user_id }}"
@@ -86,7 +86,7 @@
         password: "!"
 
 # kubernetes nodes will most probably need to run elasticsearch
-- name: increase vm.max_map_count
+- name: Increase vm.max_map_count
   ansible.posix.sysctl:
     name: vm.max_map_count
     value: "262144"

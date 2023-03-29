@@ -1,7 +1,7 @@
 ---
-- name: join kubernetes node and store log
+- name: Join kubernetes node and store log
   block:
-    - name: join kubernetes node
+    - name: Join kubernetes node
       ansible.builtin.command: |
         kubeadm join 127.0.0.1:{{ kubernetes_api_lb_port | default('6443') }}
         --cri-socket {{ kubernetes_cri_socket }}
@@ -13,14 +13,14 @@
       no_log: true
 
   always:
-    - name: dump output of kubeadm join to log file
+    - name: Dump output of kubeadm join to log file
       when: kubeadm_join is changed
       # This is not a handler by design to make sure this action runs at this point of the play.
       ansible.builtin.copy: # noqa no-handler
         content: "{{ kubeadm_join.stdout }}\n"
         dest: /etc/kubernetes/kubeadm-join.log
 
-    - name: dump error output of kubeadm join to log file
+    - name: Dump error output of kubeadm join to log file
       when: kubeadm_join.changed and kubeadm_join.stderr
       ansible.builtin.copy:
         content: "{{ kubeadm_join.stderr }}\n"

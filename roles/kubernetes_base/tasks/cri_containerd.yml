@@ -1,10 +1,10 @@
 ---
-- name: prepare containerd directory
+- name: Prepare containerd directory
   ansible.builtin.file:
     name: /srv/containerd
     state: directory
 
-- name: create bind mount for /var/lib/containerd
+- name: Create bind mount for /var/lib/containerd
   ansible.posix.mount:
     src: /srv/containerd
     path: /var/lib/containerd
@@ -12,13 +12,13 @@
     opts: bind,defaults
     state: mounted
 
-- name: make sure the kubernetes_cri_socket variable is configured correctly
+- name: Make sure the kubernetes_cri_socket variable is configured correctly
   ansible.builtin.assert:
     msg: The variable kubernetes_cri_socket is not configured correctly. You might need to move your host to the group kubernetes_cluster or standalone-kubelet!
     that:
       - kubernetes_cri_socket == "unix:///run/containerd/containerd.sock"
 
-- name: install containerd
+- name: Install containerd
   ansible.builtin.apt:
     # This is NOT the distro package but the one from the Docker repository!
     name: containerd.io
@@ -41,19 +41,19 @@
     that:
       - "'v1' in kubernetes_base_cgroups_version or 'v2' in kubernetes_base_cgroups_version"
 
-- name: create config directory
+- name: Create config directory
   ansible.builtin.file:
     name: /etc/containerd
     state: directory
 
-- name: install containerd config for kubernetes
+- name: Install containerd config for kubernetes
   ansible.builtin.template:
     src: containerd.toml.j2
     dest: /etc/containerd/config.toml
     mode: "0600"
   register: kubernetes_containerd_config
 
-- name: make sure containerd is enabled and started
+- name: Make sure containerd is enabled and started
   ansible.builtin.systemd:
     name: containerd.service
     enabled: true

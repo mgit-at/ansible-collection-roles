@@ -5,13 +5,13 @@
   failed_when: ansible_os_family != "Debian"
 
 ## apt
-- name: apt - install zone and distro specific apt sources.list
+- name: Apt - install zone and distro specific apt sources.list
   ansible.builtin.template:
     src: "{{ base_apt_repo_zone }}-{{ ansible_distribution | lower }}.list.j2"
     dest: /etc/apt/sources.list
   register: base_sources_list
 
-- name: apt - set /etc/hosts when no dns is available
+- name: Apt - set /etc/hosts when no dns is available
   ansible.builtin.blockinfile:
     path: /etc/hosts
     marker_begin: "### APT REPO NO DNS HACK - BEGIN ###"
@@ -21,17 +21,17 @@
     - base_apt_repo_no_dns_hack | bool
     - base_apt_repo_zone == "intranet"
 
-- name: apt - update apt cache
+- name: Apt - update apt cache
   ansible.builtin.apt:
     update_cache: true
   when: base_sources_list.changed # noqa no-handler - this needs to run right at this point to use the new mirrors
 
-- name: apt - disable recommends and suggests
+- name: Apt - disable recommends and suggests
   ansible.builtin.copy:
     content: "APT::Install-Recommends \"false\";\n"
     dest: /etc/apt/apt.conf.d/99norecommends
 
-- name: apt - Install base system tools
+- name: Apt - Install base system tools
   ansible.builtin.apt:
     name:
       - htop
@@ -57,7 +57,7 @@
       - ioping
     state: present
 
-- name: apt - Install base system tools (ubuntu)
+- name: Apt - Install base system tools (ubuntu)
   ansible.builtin.apt:
     name:
       - linux-tools-common ## contains cpupower (see below)
@@ -65,7 +65,7 @@
     state: present
   when: ansible_distribution == "Ubuntu"
 
-- name: apt - Install rng tools tools (ubuntu before jammy)
+- name: Apt - Install rng tools tools (ubuntu before jammy)
   when:
     - ansible_distribution == "Ubuntu" and (ansible_distribution_major_version | int) <= 20
   ansible.builtin.apt:
@@ -73,7 +73,7 @@
       - rng-tools
     state: present
 
-- name: apt - Install rng tools tools (ubuntu jammy and later)
+- name: Apt - Install rng tools tools (ubuntu jammy and later)
   when:
     - ansible_distribution == "Ubuntu" and (ansible_distribution_major_version | int) >= 22
   ansible.builtin.apt:
@@ -81,19 +81,19 @@
       - rng-tools5
     state: present
 
-- name: apt - (Un)install base system tools (debian stretch and beyond)
+- name: Apt - (Un)install base system tools (debian stretch and beyond)
   when:
     - ansible_distribution == "Debian"
     - (ansible_distribution_major_version | int) >= 9
   block:
-    - name: apt - Uninstall base system tools (debian stretch and beyond)
+    - name: Apt - Uninstall base system tools (debian stretch and beyond)
       ansible.builtin.apt:
         name:
           - rngd-rdrand
           - linux-tools
         state: absent
 
-    - name: apt - Install base system tools (debian stretch and beyond)
+    - name: Apt - Install base system tools (debian stretch and beyond)
       ansible.builtin.apt:
         name:
           - linux-perf
@@ -102,7 +102,7 @@
           - acl
         state: present
 
-- name: apt - Install base system tools (debian buster and ubuntu focal)
+- name: Apt - Install base system tools (debian buster and ubuntu focal)
   when: ansible_distribution == "Debian" and ansible_distribution_major_version | int >= 10 or ansible_distribution == "Ubuntu" and (ansible_distribution_major_version
     | int) >= 20
   ansible.builtin.apt:
@@ -128,7 +128,7 @@
   when: not base_sshd_extended_conf
   tags: sshd
 
-- name: ensure ssh is always restarted
+- name: Ensure ssh is always restarted
   loop:
     - [Service, Restart, always]
     - [Service, RestartSec, "1"]
@@ -155,7 +155,7 @@
   when: base_ssh_root_keys | length > 0
   tags: sshd
 
-- name: ssh - seed initial global known_hosts
+- name: Ssh - seed initial global known_hosts
   loop:
     # https://gitlab.com/gitlab-org/gitlab-foss/-/blob/master/doc/user/gitlab_com/index.md#ssh-host-keys-fingerprints
     - [gitlab.com, ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf]
@@ -176,7 +176,7 @@
     state: directory
 
 ## blacklist_modules
-- name: disable net/fs/misc kernel modules
+- name: Disable net/fs/misc kernel modules
   ansible.builtin.lineinfile:
     dest: /etc/modprobe.d/disablemod.conf
     line: install {{ item }} /bin/true
@@ -188,7 +188,7 @@
     \ }}"
 
 ## cron
-- name: allow cron and at for root-only
+- name: Allow cron and at for root-only
   ansible.builtin.copy:
     dest: "{{ item }}"
     content: "" # similar to touch, but doesn't log a change for existing files
@@ -197,7 +197,7 @@
     - /etc/at.allow
 
 # this task can fail under debian, because atd is not installed by default
-- name: mask atd
+- name: Mask atd
   ansible.builtin.systemd:
     name: atd.service
     masked: true
@@ -223,7 +223,7 @@
 ## Also mind that we do neither reload the module nor do we remount all
 ## NFS volumes here. Both of which would need to be done in order for the settings
 ## to take effect. The next reboot will take care of it!
-- name: configure default options for sunrpc module
+- name: Configure default options for sunrpc module
   ansible.builtin.template:
     src: modprobe-sunrpc.conf.j2
     dest: /etc/modprobe.d/sunrpc.conf
@@ -245,28 +245,28 @@
   when: ansible_distribution == "Debian"
 
 ## misc
-- name: install ethtool-setringmax
+- name: Install ethtool-setringmax
   ansible.builtin.import_tasks: ethtool-setringmax.yml
   when: base_install_ethtool_setringmax | bool
 
-- name: deal with cpu governor
+- name: Deal with cpu governor
   when:
     - ansible_distribution != "Debian" or (ansible_distribution_major_version | int) >= 9
     - base_cpu_governor is defined
   block:
-    - name: install CPU governor helper
+    - name: Install CPU governor helper
       ansible.builtin.template:
         src: cpu-governor.service.j2
         dest: /etc/systemd/system/cpu-governor.service
 
-    - name: make sure CPU governor helper is enabled and running
+    - name: Make sure CPU governor helper is enabled and running
       ansible.builtin.systemd:
         name: cpu-governor.service
         daemon_reload: true
         state: started
         enabled: true
 
-- name: disable ondemand init script for Ubuntu
+- name: Disable ondemand init script for Ubuntu
   when:
     - ansible_distribution == "Ubuntu"
     - base_cpu_governor is defined
@@ -274,6 +274,6 @@
     name: ondemand
     enabled: false
 
-- name: configure floating ips
+- name: Configure floating ips
   when: base_floating_ips is defined
   ansible.builtin.include_tasks: floating_ip.yml
