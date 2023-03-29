@@ -7,3 +7,5 @@ skip_list:
   - risky-file-permissions
   # TODO: Hopefully this can be automatically fixed in most cases (hah!) using --write in the future
   - name[casing]
+  # TODO: Broken sanity test upstream, can't ignore individual cases of this rule...
+  - sanity[cannot-ignore]
