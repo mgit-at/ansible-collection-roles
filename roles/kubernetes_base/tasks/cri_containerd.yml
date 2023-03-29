@@ -32,8 +32,8 @@
   check_mode: false
 
 - name: Set cgroups version
-  set_fact:
-    kubernetes_base_cgroups_version: "v{% if kubernetes_base_cgroups_check.stdout == 'tmpfs'%}1{% elif kubernetes_base_cgroups_check.stdout == 'cgroup2fs'%}2{% endif %}"
+  ansible.builtin.set_fact:
+    kubernetes_base_cgroups_version: "v{% if kubernetes_base_cgroups_check.stdout == 'tmpfs' %}1{% elif kubernetes_base_cgroups_check.stdout == 'cgroup2fs' %}2{% endif %}"
 
 - name: Make sure cgroups version is detected correctly
   ansible.builtin.assert:

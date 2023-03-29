@@ -35,6 +35,7 @@
         dest: /usr/bin/
     - name: Run sonobuoy version
       ansible.builtin.command: sonobuoy version --kubeconfig ~/.kube/config
+      changed_when: false # readonly command
       register: sonobuoy_version
     - name: Show sonobuoy version output
       ansible.builtin.debug:
@@ -43,12 +44,15 @@
   tasks:
     - name: Run a quick sonobuoy test
       ansible.builtin.command: sonobuoy run --wait --mode quick --wait-output silent
+      # noqa: no-changed-when
     - name: Retrieve the results
       ansible.builtin.command: sonobuoy retrieve
       register: sonobuoy_quick_results_retrieve
+      # noqa: no-changed-when
     - name: Process the results
       ansible.builtin.command: "sonobuoy results {{ sonobuoy_quick_results_retrieve['stdout'] }}"
       register: sonobuoy_quick_results
+      changed_when: false # readonly command
     - name: Display the results
       ansible.builtin.debug:
         msg: "{{ sonobuoy_quick_results['stdout'] }}\n"

@@ -1,8 +1,10 @@
 ---
 - name: Initialise persistent systemd journal (ubuntu)
+  # noqa: no-changed-when - this is already in a handler
   ansible.builtin.command: systemd-tmpfiles --create --prefix /var/log/journal
 
 - name: Initialise persistent systemd journal (debian)
+  # noqa: no-changed-when - this is already in a handler
   ansible.builtin.command: setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
 
 - name: restart sshd
@@ -21,6 +23,7 @@
     - sshd
 
 - name: netplan apply
+  # noqa: no-changed-when - this is already in a handler
   ansible.builtin.command: netplan apply
 
 - name: restart networking
