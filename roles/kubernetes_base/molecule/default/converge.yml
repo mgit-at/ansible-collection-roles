@@ -11,11 +11,11 @@
       register: current_version
     - name: Log the version used
       ansible.builtin.debug:
-        msg: "The current kubernetes release used for this test is {{ current_version['content'] }}."
+        msg: The current kubernetes release used for this test is {{ current_version['content'] }}.
   roles:
     - role: apt_repo_docker
     - role: apt_repo_kubernetes
     - role: kubernetes_base
       vars:
         kubernetes_version: "{{ current_version['content'][1:] }}"
-        kubernetes_cri_socket: "unix:///run/containerd/containerd.sock"
+        kubernetes_cri_socket: unix:///run/containerd/containerd.sock

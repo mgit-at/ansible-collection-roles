@@ -11,7 +11,7 @@
       register: current_version
     - name: Log the version used
       ansible.builtin.debug:
-        msg: "The current kubernetes release used for this test is {{ current_version['content'] }}."
+        msg: The current kubernetes release used for this test is {{ current_version['content'] }}.
     - name: Get current cilium release
       ansible.builtin.uri:
         url: https://api.github.com/repos/cilium/cilium/releases/latest
@@ -19,7 +19,7 @@
       register: current_cilium_release
     - name: Log the version used
       ansible.builtin.debug:
-        msg: "The current cilium release used for this test is {{ current_cilium_release['json']['tag_name'] }}."
+        msg: The current cilium release used for this test is {{ current_cilium_release['json']['tag_name'] }}.
     - name: Get current sonobuoy release
       ansible.builtin.uri:
         url: https://api.github.com/repos/vmware-tanzu/sonobuoy/releases/latest
@@ -27,11 +27,12 @@
       register: current_sonobuoy_release
     - name: Log the version used
       ansible.builtin.debug:
-        msg: "The current sonobuoy release used for this test is {{ current_sonobuoy_release['json']['tag_name'] }}."
+        msg: The current sonobuoy release used for this test is {{ current_sonobuoy_release['json']['tag_name'] }}.
     - name: Download sonobuoy
       ansible.builtin.unarchive:
         remote_src: true
-        src: "https://github.com/vmware-tanzu/sonobuoy/releases/download/{{ current_sonobuoy_release['json']['tag_name'] }}/sonobuoy_{{ current_sonobuoy_release['json']['tag_name'][1:] }}_linux_amd64.tar.gz"
+        src: https://github.com/vmware-tanzu/sonobuoy/releases/download/{{ current_sonobuoy_release['json']['tag_name'] }}/sonobuoy_{{ current_sonobuoy_release['json']['tag_name'][1:]
+          }}_linux_amd64.tar.gz
         dest: /usr/bin/
     - name: Run sonobuoy version
       ansible.builtin.command: sonobuoy version --kubeconfig ~/.kube/config
@@ -50,7 +51,7 @@
       register: sonobuoy_quick_results_retrieve
       # noqa: no-changed-when
     - name: Process the results
-      ansible.builtin.command: "sonobuoy results {{ sonobuoy_quick_results_retrieve['stdout'] }}"
+      ansible.builtin.command: sonobuoy results {{ sonobuoy_quick_results_retrieve['stdout'] }}
       register: sonobuoy_quick_results
       changed_when: false # readonly command
     - name: Display the results

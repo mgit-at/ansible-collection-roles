@@ -37,7 +37,7 @@ platforms:
     server_type: cx11
     groups:
       - k8s_control_plane
-  # - name: kadm-base-debian-12 # Bookworm
+# - name: kadm-base-debian-12 # Bookworm
 provisioner:
   name: ansible
   playbooks:

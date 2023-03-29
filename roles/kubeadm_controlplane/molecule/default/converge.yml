@@ -12,7 +12,7 @@
       register: current_version
     - name: Log the version used
       ansible.builtin.debug:
-        msg: "The current kubernetes release used for this test is {{ current_version['content'] }}."
+        msg: The current kubernetes release used for this test is {{ current_version['content'] }}.
     - name: Get current cilium release
       ansible.builtin.uri:
         url: https://api.github.com/repos/cilium/cilium/releases/latest
@@ -20,7 +20,7 @@
       register: current_cilium_release
     - name: Log the version used
       ansible.builtin.debug:
-        msg: "The current cilium release used for this test is {{ current_cilium_release['json']['tag_name'] }}."
+        msg: The current cilium release used for this test is {{ current_cilium_release['json']['tag_name'] }}.
   roles:
     # from playbooks/base.yml
     - role: base

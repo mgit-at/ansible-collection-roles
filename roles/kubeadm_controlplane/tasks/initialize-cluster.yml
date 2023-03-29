@@ -51,7 +51,7 @@
   check_mode: false
   register: kubeadm_token_generate
   no_log: true
-  changed_when: false  # this doesn't change cluster state
+  changed_when: false # this doesn't change cluster state
 
 - name: Install Cilium
   ansible.builtin.include_tasks: net_cilium.yml
@@ -67,7 +67,8 @@
     kubernetes_current_nodes: "{{ kubectl_node_list.stdout_lines | map('replace', 'node/', '') | list }}"
 
 - name: Upload certs
-  when: "groups[kubernetes_control_plane_nodes_group_name] | map('extract', hostvars) | map(attribute='ansible_nodename') | difference(kubernetes_current_nodes) | length > 0"
+  when: groups[kubernetes_control_plane_nodes_group_name] | map('extract', hostvars) | map(attribute='ansible_nodename') | difference(kubernetes_current_nodes) |
+    length > 0
   # noqa no-changed-when - yes, this is not idempotent
   # TODO: Get rid of the group name in there as well as in other tasks like this, this should be possible to infer otherwise
   ansible.builtin.command: kubeadm init phase upload-certs --upload-certs

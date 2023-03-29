@@ -72,12 +72,11 @@
         state: absent
       when:
         - not skip_instances
-        - instance_conf | length  # must contain at least one instance
+        - instance_conf | length # must contain at least one instance
 
     - name: Populate instance config
       ansible.builtin.set_fact:
         instance_conf: {}
-
     - name: Dump instance config
       ansible.builtin.copy:
         content: |

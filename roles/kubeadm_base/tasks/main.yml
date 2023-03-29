@@ -3,8 +3,8 @@
   ansible.builtin.apt:
     name:
       - haproxy
-      - "kubeadm={{ kubernetes_version }}-00"
-      - "kubectl={{ kubernetes_version }}-00"
+      - kubeadm={{ kubernetes_version }}-00
+      - kubectl={{ kubernetes_version }}-00
     state: present
 
 - name: install hatop package (not on focal)
@@ -21,7 +21,7 @@
     - zsh
     - bash
   ansible.builtin.blockinfile:
-    path: "/root/.{{ item }}rc"
+    path: /root/.{{ item }}rc
     create: true
     marker: "### {mark} ANSIBLE MANAGED BLOCK for hatop ###"
     content: |
@@ -41,7 +41,7 @@
     - zsh
     - bash
   ansible.builtin.blockinfile:
-    path: "/root/.{{ item }}rc"
+    path: /root/.{{ item }}rc
     create: true
     marker: "### {mark} ANSIBLE MANAGED BLOCK for kubeadm ###"
     content: |
@@ -77,8 +77,8 @@
 
 - name: enable IPv4 forwarding for cilium
   ansible.posix.sysctl:
-    name: 'net.ipv4.ip_forward'
-    value: '1'
+    name: net.ipv4.ip_forward
+    value: "1"
     sysctl_set: true
     state: present
     reload: true

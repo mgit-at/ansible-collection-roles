@@ -1,7 +1,6 @@
 ---
-base_ssh_root_login: "without-password"
+base_ssh_root_login: without-password
 base_ssh_root_keys: []
-
 base_sshd_extended_conf: false
 
 base_customer_mirror: apt.changeme.example.com
@@ -9,7 +8,6 @@ base_customer_mirror_ip: 1.2.3.4
 base_customer_mirror_protocol: http
 
 sysctl_config_user: {}
-
 # should be moved to an extended base role
 modules_blacklist_host: []
 modules_blacklist_group: []
@@ -17,7 +15,6 @@ modules_blacklist:
   net: [dccp, sctp, rds, tipc]
   fs: [cramfs, freevxfs, hfs, hfsplus, jffs2]
   misc: [bluetooth, firewire-core, n_hdlc, net-pf-31, soundcore, thunderbolt, usb-midi]
-
 base_ubuntu_linux_hwe: false
 base_install_ethtool_setringmax: true
 # base_cpu_governor: performance

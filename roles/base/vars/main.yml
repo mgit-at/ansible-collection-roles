@@ -7,7 +7,6 @@
 # To adjust these settings use sysctl_config_user dict
 #
 sysctl_config:
-
   # Enable RFC-recommended source validation feature.
   net.ipv4.conf.all.rp_filter: 1
   net.ipv4.conf.default.rp_filter: 1
@@ -54,7 +53,7 @@ sysctl_config:
   net.ipv4.tcp_sack: 1
 
   # enable bbr as default
-  net.core.default_qdisc: "fq"
-  net.ipv4.tcp_congestion_control: "bbr"
+  net.core.default_qdisc: fq
+  net.ipv4.tcp_congestion_control: bbr
 
 base_systemd_generators_dir: /etc/systemd/system-generators

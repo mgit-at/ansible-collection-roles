@@ -1,7 +1,7 @@
 ---
 - name: Check if OS is Debian-based (we do not support others)
   ansible.builtin.debug:
-    msg: "Check OS family"
+    msg: Check OS family
   failed_when: ansible_os_family != "Debian"
 
 ## apt
@@ -24,7 +24,7 @@
 - name: apt - update apt cache
   ansible.builtin.apt:
     update_cache: true
-  when: base_sources_list.changed  # noqa no-handler - this needs to run right at this point to use the new mirrors
+  when: base_sources_list.changed # noqa no-handler - this needs to run right at this point to use the new mirrors
 
 - name: apt - disable recommends and suggests
   ansible.builtin.copy:
@@ -60,7 +60,7 @@
 - name: apt - Install base system tools (ubuntu)
   ansible.builtin.apt:
     name:
-      - linux-tools-common   ## contains cpupower (see below)
+      - linux-tools-common ## contains cpupower (see below)
       - "{% if base_ubuntu_linux_hwe | bool %}linux-tools-generic-hwe-{{ ansible_distribution_version }}{% else %}linux-tools-generic{% endif %}"
     state: present
   when: ansible_distribution == "Ubuntu"
@@ -103,7 +103,8 @@
         state: present
 
 - name: apt - Install base system tools (debian buster and ubuntu focal)
-  when: ansible_distribution == "Debian" and ansible_distribution_major_version | int >= 10 or ansible_distribution == "Ubuntu" and (ansible_distribution_major_version | int) >= 20
+  when: ansible_distribution == "Debian" and ansible_distribution_major_version | int >= 10 or ansible_distribution == "Ubuntu" and (ansible_distribution_major_version
+    | int) >= 20
   ansible.builtin.apt:
     name:
       - ripgrep
@@ -113,10 +114,10 @@
 # screen
 - name: Remove startup message from screen
   ansible.builtin.lineinfile:
-    regexp: "^startup_message"
-    line: "startup_message off"
+    regexp: ^startup_message
+    line: startup_message off
     dest: /etc/screenrc
-    mode: 0644
+    mode: "0644"
     create: true
   tags:
     - screen
@@ -125,27 +126,25 @@
 - name: Configure sshd
   ansible.builtin.include_tasks: sshd.yml
   when: not base_sshd_extended_conf
-  tags:
-    sshd
+  tags: sshd
 
 - name: ensure ssh is always restarted
   loop:
-    - ["Service", "Restart", "always"]
-    - ["Service", "RestartSec", "1"]
-    - ["Service", "RestartPreventExitStatus", " "]
-    - ["Unit", "StartLimitIntervalSec", "0"]
+    - [Service, Restart, always]
+    - [Service, RestartSec, "1"]
+    - [Service, RestartPreventExitStatus, " "]
+    - [Unit, StartLimitIntervalSec, "0"]
   community.general.ini_file:
     path: /etc/systemd/system/ssh.service.d/override.conf
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
     section: "{{ item[0] }}"
     option: "{{ item[1] }}"
     value: "{{ item[2] }}"
     no_extra_spaces: true
   notify: restart sshd with systemd reload
-  tags:
-    sshd
+  tags: sshd
 
 - name: Set authorized keys for root user
   ansible.posix.authorized_key:
@@ -153,16 +152,15 @@
     state: present
     exclusive: true
     key: "{{ base_ssh_root_keys | join('\n') }}"
-  when: "base_ssh_root_keys | length > 0"
-  tags:
-    sshd
+  when: base_ssh_root_keys | length > 0
+  tags: sshd
 
 - name: ssh - seed initial global known_hosts
   loop:
     # https://gitlab.com/gitlab-org/gitlab-foss/-/blob/master/doc/user/gitlab_com/index.md#ssh-host-keys-fingerprints
-    - ["gitlab.com", "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf"]
+    - [gitlab.com, ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf]
     # https://github.blog/2021-09-01-improving-git-protocol-security-github/#new-host-keys
-    - ["github.com", "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl"]
+    - [github.com, ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl]
   ansible.builtin.known_hosts:
     path: /etc/ssh/ssh_known_hosts
     name: "{{ item[0] }}"
@@ -172,7 +170,7 @@
 - name: Ensure /root is not world accessible
   ansible.builtin.file:
     path: /root
-    mode: 0700
+    mode: "0700"
     owner: root
     group: root
     state: directory
@@ -181,19 +179,19 @@
 - name: disable net/fs/misc kernel modules
   ansible.builtin.lineinfile:
     dest: /etc/modprobe.d/disablemod.conf
-    line: "install {{ item }} /bin/true"
+    line: install {{ item }} /bin/true
     create: true
     owner: root
     group: root
-    mode: 0644
-  with_items: "{{ modules_blacklist.net | union(modules_blacklist.fs) | union(modules_blacklist.misc) | union(modules_blacklist_host) | union(modules_blacklist_group) }}"
-
+    mode: "0644"
+  with_items: "{{ modules_blacklist.net | union(modules_blacklist.fs) | union(modules_blacklist.misc) | union(modules_blacklist_host) | union(modules_blacklist_group)\
+    \ }}"
 
 ## cron
 - name: allow cron and at for root-only
   ansible.builtin.copy:
     dest: "{{ item }}"
-    content: ""  # similar to touch, but doesn't log a change for existing files
+    content: "" # similar to touch, but doesn't log a change for existing files
   with_items:
     - /etc/cron.allow
     - /etc/at.allow
@@ -204,27 +202,27 @@
     name: atd.service
     masked: true
     enabled: false
-  ignore_errors: true  # noqa ignore-errors - TODO: Find a better way to ignore this potentially failing task
+  ignore_errors: true # noqa ignore-errors - TODO: Find a better way to ignore this potentially failing task
 
 ## sysctl
 - name: Change various sysctl-settings, look at the sysctl-vars file for documentation
   ansible.posix.sysctl:
-    name: '{{ item.key }}'
-    value: '{{ item.value }}'
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
     sysctl_set: true
     state: present
     reload: true
     ignoreerrors: true
-  with_dict: '{{ sysctl_config | combine(sysctl_config_user) }}'
+  with_dict: "{{ sysctl_config | combine(sysctl_config_user) }}"
   loop_control:
     label: "{{ item.key }} = {{ item.value }}"
 
-  ## the options could be set using sysctl as well but only if the sunrpc module
-  ## has been loaded which is not the case for all machines. Doing it via sysctl
-  ## would therefore mark the host changed on every run.
-  ## Also mind that we do neither reload the module nor do we remount all
-  ## NFS volumes here. Both of which would need to be done in order for the settings
-  ## to take effect. The next reboot will take care of it!
+## the options could be set using sysctl as well but only if the sunrpc module
+## has been loaded which is not the case for all machines. Doing it via sysctl
+## would therefore mark the host changed on every run.
+## Also mind that we do neither reload the module nor do we remount all
+## NFS volumes here. Both of which would need to be done in order for the settings
+## to take effect. The next reboot will take care of it!
 - name: configure default options for sunrpc module
   ansible.builtin.template:
     src: modprobe-sunrpc.conf.j2
@@ -245,7 +243,6 @@
     group: systemd-journal
   notify: Initialise persistent systemd journal (debian)
   when: ansible_distribution == "Debian"
-
 
 ## misc
 - name: install ethtool-setringmax

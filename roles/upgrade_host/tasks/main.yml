@@ -9,7 +9,7 @@
 
 - name: Reboot
   ansible.builtin.reboot:
-    msg: "Ansible updates triggered"
+    msg: Ansible updates triggered
     # use something more elaborate than "whoami"
     test_command: systemctl is-system-running
   tags:

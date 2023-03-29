@@ -1,2 +1,2 @@
 ---
-kubernetes_apt_repo_base_url: "https://apt.kubernetes.io/"
+kubernetes_apt_repo_base_url: https://apt.kubernetes.io/

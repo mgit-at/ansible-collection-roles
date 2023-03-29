@@ -37,7 +37,7 @@ platforms:
     server_type: cx21
     groups:
       - debian11
-  # - name: kadm-cp-debian-12 # Bookworm
+# - name: kadm-cp-debian-12 # Bookworm
 provisioner:
   name: ansible
   playbooks:
@@ -49,7 +49,7 @@ provisioner:
         children:
           k8s_all:
             vars:
-              kubernetes_cri_socket: "unix:///run/containerd/containerd.sock"
+              kubernetes_cri_socket: unix:///run/containerd/containerd.sock
             children:
               k8s_all_control_plane_nodes:
                 vars:
@@ -95,7 +95,6 @@ provisioner:
                       ubuntu18: {}
                   k8s_ubuntu18_other_control_plane_nodes: {}
               k8s_ubuntu18_worker_nodes: {}
-
           k8s_ubuntu20:
             vars:
               kubernetes_cluster_name: ubuntu20
@@ -118,7 +117,6 @@ provisioner:
                       ubuntu20: {}
                   k8s_ubuntu20_other_control_plane_nodes: {}
               k8s_ubuntu20_worker_nodes: {}
-
           k8s_ubuntu22:
             vars:
               kubernetes_cluster_name: ubuntu22
@@ -141,7 +139,6 @@ provisioner:
                       ubuntu22: {}
                   k8s_ubuntu22_other_control_plane_nodes: {}
               k8s_ubuntu22_worker_nodes: {}
-
           k8s_debian10:
             vars:
               kubernetes_cluster_name: debian10
@@ -164,7 +161,6 @@ provisioner:
                       debian10: {}
                   k8s_debian10_other_control_plane_nodes: {}
               k8s_debian10_worker_nodes: {}
-
           k8s_debian11:
             vars:
               kubernetes_cluster_name: debian11

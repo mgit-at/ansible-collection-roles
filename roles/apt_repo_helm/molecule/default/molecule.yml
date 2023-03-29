@@ -27,7 +27,7 @@ platforms:
   - name: helmrepo-debian-11 # Bullseye
     image: debian-11
     server_type: cx11
-  # - name: helmrepo-debian-12 # Bookworm
+# - name: helmrepo-debian-12 # Bookworm
 provisioner:
   name: ansible
   playbooks:
