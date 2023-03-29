@@ -19,7 +19,7 @@
       ansible.builtin.command: kubectl version -o yaml
       register: kubectl_version
       check_mode: false
-      changed_when: false  # readonly command
+      changed_when: false # readonly command
 
     - name: Set cluster version fact
       ansible.builtin.set_fact:
@@ -31,7 +31,7 @@
 
     - name: Fetch list of current nodes
       ansible.builtin.command: kubectl get nodes -o name
-      changed_when: false  # readonly command
+      changed_when: false # readonly command
       check_mode: false
       register: kubectl_node_list
 
@@ -65,7 +65,7 @@
     #        this likely needs a full "kubeadm reset", "kubectl delete node" + "kubeadm join" for all control plane nodes and probably all other nodes too
     - name: Fail for cluster config changes
       ansible.builtin.fail:
-        msg: "changing the cluster config is currently not supported!"
+        msg: changing the cluster config is currently not supported!
 
 ### The cluster is already initialized, nothing has changed in the config but there are still nodes to be joined
 
@@ -73,18 +73,19 @@
   when:
     - kubeconfig_kubelet_stats.stat.exists
     - kubeadm_config is not changed
-    - "groups[kubernetes_group_name] | map('extract', hostvars) | map(attribute='ansible_nodename') | difference(kubernetes_current_nodes) | length > 0"
+    - groups[kubernetes_group_name] | map('extract', hostvars) | map(attribute='ansible_nodename') | difference(kubernetes_current_nodes) | length > 0
   ansible.builtin.command: kubeadm token create --ttl 42m
   check_mode: false
   register: kubeadm_token_create
   no_log: true
-  changed_when: false  # this doesn't really change cluster state
+  changed_when: false # this doesn't really change cluster state
 
 - name: Upload certificates for new control plane nodes
   when:
     - kubeconfig_kubelet_stats.stat.exists
     - kubeadm_config is not changed
-    - "groups[kubernetes_control_plane_nodes_group_name] | map('extract', hostvars) | map(attribute='ansible_nodename') | difference(kubernetes_current_nodes) | length > 0"
+    - groups[kubernetes_control_plane_nodes_group_name] | map('extract', hostvars) | map(attribute='ansible_nodename') | difference(kubernetes_current_nodes) | length
+      > 0
   # noqa no-changed-when - yes, this is not idempotent
   # TODO: Get rid of the group name in there as well as in other tasks like this, this should be possible to infer otherwise
   ansible.builtin.command: kubeadm init phase upload-certs --upload-certs
@@ -99,7 +100,8 @@
     name: openssl
     state: present
 - name: Get CA certificate digest
-  ansible.builtin.shell: "set -o pipefail && openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'"
+  ansible.builtin.shell: set -o pipefail && openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256
+    -hex | sed 's/^.* //'
   args:
     executable: /bin/bash
   check_mode: false
@@ -108,8 +110,9 @@
 
 - name: Set variables needed by kubernetes/nodes to join the cluster on all cluster nodes
   ansible.builtin.set_fact:
-    kube_bootstrap_token: "{% if kubeadm_token_generate.stdout is defined %}{{ kubeadm_token_generate.stdout }}{% elif kubeadm_token_create.stdout is defined %}{{ kubeadm_token_create.stdout }}{% endif %}"
-    kube_bootstrap_ca_cert_hash: "sha256:{{ kube_ca_openssl.stdout }}"
+    kube_bootstrap_token: "{% if kubeadm_token_generate.stdout is defined %}{{ kubeadm_token_generate.stdout }}{% elif kubeadm_token_create.stdout is defined %}{{\
+      \ kubeadm_token_create.stdout }}{% endif %}"
+    kube_bootstrap_ca_cert_hash: sha256:{{ kube_ca_openssl.stdout }}
   delegate_to: "{{ item }}"
   delegate_facts: true
   loop: "{{ groups[kubernetes_group_name] }}"

@@ -15,7 +15,7 @@
       ansible.builtin.command: kubectl version -o yaml
       register: kubectl_version
       check_mode: false
-      changed_when: false  # readonly command
+      changed_when: false # readonly command
 
     - name: Set cluster version fact
       ansible.builtin.set_fact:

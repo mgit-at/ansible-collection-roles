@@ -11,7 +11,7 @@
       register: current_version
     - name: Log the version used
       ansible.builtin.debug:
-        msg: "The current kubernetes release used for this test is {{ current_version['content'] }}."
+        msg: The current kubernetes release used for this test is {{ current_version['content'] }}.
   roles:
     - role: apt_repo_kubernetes
     - role: kubeadm_base

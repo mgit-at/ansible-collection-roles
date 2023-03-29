@@ -14,7 +14,7 @@
 
 - name: make sure the kubernetes_cri_socket variable is configured correctly
   ansible.builtin.assert:
-    msg: "The variable kubernetes_cri_socket is not configured correctly. You might need to move your host to the group kubernetes_cluster or standalone-kubelet!"
+    msg: The variable kubernetes_cri_socket is not configured correctly. You might need to move your host to the group kubernetes_cluster or standalone-kubelet!
     that:
       - kubernetes_cri_socket == "unix:///run/containerd/containerd.sock"
 
@@ -28,12 +28,13 @@
   # See https://kubernetes.io/docs/concepts/architecture/cgroups/#check-cgroup-version
   ansible.builtin.command: stat -fc %T /sys/fs/cgroup/
   register: kubernetes_base_cgroups_check
-  changed_when: false  # Read only
+  changed_when: false # Read only
   check_mode: false
 
 - name: Set cgroups version
   ansible.builtin.set_fact:
-    kubernetes_base_cgroups_version: "v{% if kubernetes_base_cgroups_check.stdout == 'tmpfs' %}1{% elif kubernetes_base_cgroups_check.stdout == 'cgroup2fs' %}2{% endif %}"
+    kubernetes_base_cgroups_version: v{% if kubernetes_base_cgroups_check.stdout == 'tmpfs' %}1{% elif kubernetes_base_cgroups_check.stdout == 'cgroup2fs' %}2{% endif
+      %}
 
 - name: Make sure cgroups version is detected correctly
   ansible.builtin.assert:
@@ -49,7 +50,7 @@
   ansible.builtin.template:
     src: containerd.toml.j2
     dest: /etc/containerd/config.toml
-    mode: 0600
+    mode: "0600"
   register: kubernetes_containerd_config
 
 - name: make sure containerd is enabled and started

@@ -27,7 +27,7 @@ platforms:
   - name: k8s-base-debian-11 # Bullseye
     image: debian-11
     server_type: cx11
-  # - name: k8s-base-debian-12 # Bookworm
+# - name: k8s-base-debian-12 # Bookworm
 provisioner:
   name: ansible
   playbooks:

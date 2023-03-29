@@ -3,13 +3,13 @@
   ansible.builtin.apt:
     name:
       - helm
-      - python3-yaml  # for helm modules
+      - python3-yaml # for helm modules
     state: present
 
 - name: Add cilium chart repo
   kubernetes.core.helm_repository:
     name: cilium
-    repo_url: "https://helm.cilium.io/"
+    repo_url: https://helm.cilium.io/
     repo_state: present
 
 - name: Check if Cilium is already present
@@ -27,12 +27,12 @@
     chart_version: "{{ kubernetes_cilium_init_version }}"
     release_values:
       kubeProxyReplacement: strict
-      k8sServiceHost: 127.0.0.1  # provided by haproxy, not kubernetes directly!
+      k8sServiceHost: 127.0.0.1 # provided by haproxy, not kubernetes directly!
       k8sServicePort: "{{ kubernetes_api_lb_port | default('6443') }}"
       cluster:
         name: "{{ kubernetes_cluster_name }}"
       containerRuntime:
-        integration: containerd  # only containerd supported in the future anyways, so no variable here
+        integration: containerd # only containerd supported in the future anyways, so no variable here
         socketPath: /run/containerd/containerd.sock
       # No Hubble on dedicated control plane nodes
       # hubble:
@@ -42,10 +42,10 @@
       #   ui:
       #     enabled: true
       operator:
-        replicas: 1  # scale up in Flux once a second node is added to the cluster
+        replicas: 1 # scale up in Flux once a second node is added to the cluster
       ipam:
         operator:
           clusterPoolIPv4PodCIDR: "{{ kubernetes_network_pod_subnet }}"
           clusterPoolIPv4MaskSize: "{{ kubernetes_network_node_cidr_size }}"
       prometheus:
-        enabled: true  # emit metrics
+        enabled: true # emit metrics

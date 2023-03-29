@@ -1,2 +1,2 @@
 ---
-kubernetes_cri_socket: "unix:///run/containerd/containerd.sock"
+kubernetes_cri_socket: unix:///run/containerd/containerd.sock

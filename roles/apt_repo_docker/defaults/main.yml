@@ -1,2 +1,2 @@
 ---
-docker_apt_repo_base_url: "https://download.docker.com/linux/{{ ansible_distribution | lower }}"
+docker_apt_repo_base_url: https://download.docker.com/linux/{{ ansible_distribution | lower }}

@@ -19,7 +19,7 @@
 
     - name: Register the SSH key name
       ansible.builtin.set_fact:
-        ssh_key_name: "molecule-generated-{{ 12345 | random | to_uuid }}"
+        ssh_key_name: molecule-generated-{{ 12345 | random | to_uuid }}
 
     - name: Register SSH key for test instance(s)
       hetzner.hcloud.hcloud_ssh_key:
@@ -122,16 +122,14 @@
     - name: Populate instance config dict
       ansible.builtin.set_fact:
         instance_conf_dict:
-          {
-            "instance": "{{ item.hcloud_server.name }}",
-            "ssh_key_name": "{{ ssh_key_name }}",
-            "address": "{{ item.hcloud_server.ipv4_address }}",
-            "user": "{{ ssh_user }}",
-            "port": "{{ ssh_port }}",
-            "identity_file": "{{ ssh_path }}",
-            "volumes": "{{ item.item.item.volumes | default({}) }}",
-            "networks": "{{ item.item.item.networks | default({}) | dict2items(key_name='name', value_name='data') }}",
-          }
+          instance: "{{ item.hcloud_server.name }}"
+          ssh_key_name: "{{ ssh_key_name }}"
+          address: "{{ item.hcloud_server.ipv4_address }}"
+          user: "{{ ssh_user }}"
+          port: "{{ ssh_port }}"
+          identity_file: "{{ ssh_path }}"
+          volumes: "{{ item.item.item.volumes | default({}) }}"
+          networks: "{{ item.item.item.networks | default({}) | dict2items(key_name='name', value_name='data') }}"
       with_items: "{{ hetzner_jobs.results }}"
       register: instance_config_dict
       # noqa no-handler - this needs to run right here

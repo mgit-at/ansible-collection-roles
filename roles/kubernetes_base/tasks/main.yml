@@ -19,7 +19,7 @@
 
 - name: install container runtime
   # Separate file, CRI could be a choice in the future
-  ansible.builtin.include_tasks: "cri_containerd.yml"
+  ansible.builtin.include_tasks: cri_containerd.yml
 
 - name: create kubelet root directory
   ansible.builtin.file:
@@ -40,7 +40,7 @@
       # - nfs-common ## TODO: this is not needed on all hosts and is a security risk...
       - bridge-utils
       - cri-tools
-      - "kubelet={{ kubernetes_version }}-00"
+      - kubelet={{ kubernetes_version }}-00
       - open-iscsi
     state: present
     force: true
@@ -55,7 +55,7 @@
     - zsh
     - bash
   ansible.builtin.blockinfile:
-    path: "/root/.{{ item }}rc"
+    path: /root/.{{ item }}rc
     create: true
     marker: "### {mark} ANSIBLE MANAGED BLOCK for crictl ###"
     content: |
@@ -89,4 +89,4 @@
 - name: increase vm.max_map_count
   ansible.posix.sysctl:
     name: vm.max_map_count
-    value: '262144'
+    value: "262144"

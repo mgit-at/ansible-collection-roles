@@ -16,12 +16,12 @@ kubernetes_encryption_config_keys:
   # For more info, see https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/
   - ThisReallyShouldBeInAVault
 
-kubernetes_max_pods: 123  # default is 110, changed slightly to verify it ends up on nodes
+kubernetes_max_pods: 123 # default is 110, changed slightly to verify it ends up on nodes
 
-kubernetes_cilium_init_version: 1.33.7  # only the initially installed version, flux takes over afterwards!
+kubernetes_cilium_init_version: 1.33.7 # only the initially installed version, flux takes over afterwards!
 
 # Network settings
-kubernetes_api_lb_ip: 1.2.3.4  # externally reachable IP, e.g. from your hosting provider
+kubernetes_api_lb_ip: 1.2.3.4 # externally reachable IP, e.g. from your hosting provider
 kubernetes_api_lb_port: 6443
 
 kubernetes_api_cert_sans_extra:
@@ -35,7 +35,7 @@ kubernetes_network_svc_subnet: 192.168.128.0/20
 
 # flux
 
-kubernetes_flux_version: 1.2.3  # initial version, will be updated by flux itself
+kubernetes_flux_version: 1.2.3 # initial version, will be updated by flux itself
 # Generate keypair via `ssh-keygen -t ed25519`
 kubernetes_flux_ssh_private_key: ThisReallyShouldBeInAVault
 kubernetes_flux_ssh_public_key: ssh-ed25519 base64pubkey
