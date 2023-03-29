@@ -1,5 +1,5 @@
 ---
-- name: install kubeadm packages
+- name: Install kubeadm packages
   ansible.builtin.apt:
     name:
       - haproxy
@@ -7,7 +7,7 @@
       - kubectl={{ kubernetes_version }}-00
     state: present
 
-- name: install hatop package (not on focal)
+- name: Install hatop package (not on focal)
   ansible.builtin.apt:
     name:
       - hatop
@@ -16,7 +16,7 @@
   # hatop is not available on Ubuntu 20.04 "Focal Fossa" but got re-added later
   when: ansible_distribution == "Debian" or (ansible_distribution_major_version | int) != 20
 
-- name: add hatop config for shells (not on focal)
+- name: Add hatop config for shells (not on focal)
   loop:
     - zsh
     - bash
@@ -28,7 +28,7 @@
       alias hatop="hatop -s /var/run/haproxy/admin.sock"
   when: ansible_distribution == "Debian" or (ansible_distribution_major_version | int) != 20
 
-- name: disable automatic upgrades for kubeadm/kubectl
+- name: Disable automatic upgrades for kubeadm/kubectl
   loop:
     - kubeadm
     - kubectl
@@ -36,7 +36,7 @@
     name: "{{ item }}"
     selection: hold
 
-- name: add kubeadm config for shells
+- name: Add kubeadm config for shells
   loop:
     - zsh
     - bash
@@ -47,13 +47,13 @@
     content: |
       source <(kubeadm completion {{ item }})
 
-- name: configure haproxy
+- name: Configure haproxy
   ansible.builtin.template:
     src: haproxy.cfg.j2
     dest: /etc/haproxy/haproxy.cfg
   register: haproxy_config
 
-- name: restart haproxy if necessary
+- name: Restart haproxy if necessary
   ansible.builtin.systemd:
     name: haproxy
     state: restarted
@@ -61,7 +61,7 @@
   # noqa no-handler - this needs to run right here
   when: haproxy_config is changed
 
-- name: start and enable haproxy
+- name: Start and enable haproxy
   ansible.builtin.systemd:
     name: haproxy
     state: started
@@ -69,13 +69,13 @@
 
 ## loading the modules temporarly because kubeadm will complain if they are not there
 #  but i don't think it is necessary to make this persistent, also ignoring changes here
-- name: load module br_netfilter to satisfy kubeadm init/join
+- name: Load module br_netfilter to satisfy kubeadm init/join
   community.general.modprobe:
     name: br_netfilter
     state: present
   changed_when: false
 
-- name: enable IPv4 forwarding for cilium
+- name: Enable IPv4 forwarding for cilium
   ansible.posix.sysctl:
     name: net.ipv4.ip_forward
     value: "1"

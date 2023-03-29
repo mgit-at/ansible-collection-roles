@@ -1,5 +1,5 @@
 ---
-- name: install docker repo key on debian hosts
+- name: Install docker repo key on debian hosts
   when: ansible_distribution == "Debian"
   ansible.builtin.copy:
     # Source: https://download.docker.com/linux/debian/gpg
@@ -8,7 +8,7 @@
     dest: /etc/apt/trusted.gpg.d/docker.gpg
   notify: update apt cache
 
-- name: install docker repo key on ubuntu hosts
+- name: Install docker repo key on ubuntu hosts
   when: ansible_distribution == "Ubuntu"
   ansible.builtin.copy:
     # Source: https://download.docker.com/linux/ubuntu/gpg
@@ -18,7 +18,7 @@
     dest: /etc/apt/trusted.gpg.d/docker.gpg
   notify: update apt cache
 
-- name: add docker apt repo
+- name: Add docker apt repo
   ansible.builtin.copy:
     content: |
       deb {{ docker_apt_repo_base_url }} {{ ansible_distribution_release }} stable

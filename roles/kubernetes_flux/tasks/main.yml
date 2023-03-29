@@ -11,7 +11,7 @@
     ghcr.io/fluxcd/flux-cli:v{{ kubernetes_flux_version }}
   changed_when: false # pulling images is idempotent
 
-- name: run flux pre-check
+- name: Run flux pre-check
   # use host networking for API server access
   # remove container after use
   # mount /root and /etc/kubernetes for the kubeconfig
@@ -26,7 +26,7 @@
     flux check --pre
   changed_when: false # readonly
 
-- name: create flux-system namespace
+- name: Create flux-system namespace
   # Hack to be able to use kubectl create when resource exists
   ansible.builtin.shell: |
     set -o pipefail
@@ -36,7 +36,7 @@
     | kubectl apply -f -
   changed_when: false # this is idempotent
 
-- name: create secret with SSH credentials
+- name: Create secret with SSH credentials
   # Create this earlier so there's no need to wait until the secret is ready.
   # This caused issues when creating the secret right before the GitRepository
   no_log: true # Do NOT log these values!
@@ -53,7 +53,7 @@
     | kubectl apply -f -
   changed_when: false # this is idempotent
 
-- name: install flux components to cluster
+- name: Install flux components to cluster
   # noqa no-changed-when
   ansible.builtin.command: |
     ctr --address /var/run/containerd/containerd.sock --namespace k8s.io run
@@ -64,7 +64,7 @@
     ghcr.io/fluxcd/flux-cli:v{{ kubernetes_flux_version }} fluxcontainer
     flux install --version=v{{ kubernetes_flux_version }}
 
-- name: run flux check
+- name: Run flux check
   ansible.builtin.command: |
     ctr --address /var/run/containerd/containerd.sock --namespace k8s.io run
     --net-host
@@ -85,7 +85,7 @@
       If you are installing a completely fresh cluster, make sure that the path at {{ kubernetes_flux_repository_path }} in the repository exists and contains something already.
       Press return to continue. Press Ctrl+c and then "a" to abort.
 
-- name: create GitRepository object pointing to the cluster repo
+- name: Create GitRepository object pointing to the cluster repo
   # noqa no-changed-when
   ansible.builtin.command: |
     ctr --address /var/run/containerd/containerd.sock --namespace k8s.io run
@@ -96,7 +96,7 @@
     ghcr.io/fluxcd/flux-cli:v{{ kubernetes_flux_version }} fluxcontainer
     flux create source git mgit --namespace=flux-system --url={{ kubernetes_flux_repository_url }} --secret-ref flux-mgit-ssh --branch=master --interval=1m
 
-- name: create Kustomization CRD pointing to the git repo
+- name: Create Kustomization CRD pointing to the git repo
   # noqa no-changed-when
   ansible.builtin.command: |
     ctr --address /var/run/containerd/containerd.sock --namespace k8s.io run

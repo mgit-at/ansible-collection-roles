@@ -1,7 +1,7 @@
 ---
 ## sshd
 # TODO: validate sshd_config
-- name: ssh - hardening server config
+- name: Ssh - hardening server config
   ansible.builtin.lineinfile:
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
@@ -28,7 +28,7 @@
 #   ssh exits with error 255 when IP is not available, and exactly this error code is not restarted by systemd
 #   but ssh.service does NOT depend on network-online.target, but just network.target (obviously), thus eg. with netplan on
 #   ubuntu 20.04 even static configured IPs are NOT bound when ssh starts, giving one error without restart => dead ssh
-- name: ssh - add listen address
+- name: Ssh - add listen address
   when: base_ssh_listen_address is defined
   ansible.builtin.blockinfile:
     insertafter: "^\\s*#?\\s*ListenAddress ::"
@@ -44,7 +44,7 @@
   tags:
     - sshd
 
-- name: ssh - remove listen address when not defined
+- name: Ssh - remove listen address when not defined
   when: not base_ssh_listen_address is defined
   ansible.builtin.blockinfile:
     block: ""
@@ -57,7 +57,7 @@
     - sshd
 
 # TODO: find a better way to configure this
-- name: ssh - set ssh AllowUsers
+- name: Ssh - set ssh AllowUsers
   when: base_ssh_allow_users is defined
   ansible.builtin.lineinfile:
     regexp: ^\s*#?\s*AllowUsers
