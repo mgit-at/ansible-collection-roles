@@ -1,9 +1,18 @@
 [metrics]
   address = "127.0.0.1:9701"
 
-{% if kubernetes_dockerhub_auth is defined %}
 [plugins]
   [plugins.cri]
+    [plugins.cri.containerd]
+      [plugins.cri.containerd.runtimes]
+        [plugins.cri.containerd.runtimes.runc]
+          runtime_type = "io.containerd.runc.v2"
+{% if kubernetes_base_cgroups_version == 'v2' %}
+          [plugins.cri.containerd.runtimes.runc.options]
+            SystemdCgroup = true
+{% endif %}
+
+{% if kubernetes_dockerhub_auth is defined %}
     [plugins.cri.registry]
       [plugins.cri.registry.auths]
         [plugins.cri.registry.auths."https://registry-1.docker.io"]
