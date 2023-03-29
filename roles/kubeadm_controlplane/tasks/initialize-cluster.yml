@@ -22,21 +22,25 @@
   always:
     - name: Display output of kubeadm init
       when: kubeadm_init.changed
+      # noqa: no-handler - this should run right here
       ansible.builtin.debug:
         msg: "{{ kubeadm_init.stdout }}\n"
 
     - name: Display error output of kubeadm init
+      # noqa: no-handler - this should run right here
       when: kubeadm_init.changed and kubeadm_init.stderr
       ansible.builtin.debug:
         msg: "{{ kubeadm_init.stderr }}\n"
 
     - name: Dump output of kubeadm init to log file
+      # noqa: no-handler - this should run right here
       when: kubeadm_init.changed
       ansible.builtin.copy:
         content: "{{ kubeadm_init.stdout }}\n"
         dest: /etc/kubernetes/kubeadm-init.log
 
     - name: Dump error output of kubeadm init to log file
+      # noqa: no-handler - this should run right here
       when: kubeadm_init.changed and kubeadm_init.stderr
       ansible.builtin.copy:
         content: "{{ kubeadm_init.stderr }}\n"

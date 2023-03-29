@@ -75,12 +75,14 @@
 
 # TODO: Move to kubernetes.core.k8s_taint module
 - name: Remove NoSchedule taint from control plane nodes
+  # noqa: no-changed-when - this command is idempotent
   when:
     - not kubernetes_dedicated_control_plane
     - "'node-role.kubernetes.io/control-plane' in kube_node_taints"
   ansible.builtin.command: "kubectl taint nodes {{ ansible_nodename }} node-role.kubernetes.io/control-plane:NoSchedule-"
 
 - name: Add NoSchedule taint for control plane nodes
+  # noqa: no-changed-when - this command is idempotent
   when:
     - kubernetes_dedicated_control_plane
     - "'node-role.kubernetes.io/control-plane' not in kube_node_taints"
