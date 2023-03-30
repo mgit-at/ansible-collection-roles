@@ -143,7 +143,7 @@
     option: "{{ item[1] }}"
     value: "{{ item[2] }}"
     no_extra_spaces: true
-  notify: restart sshd with systemd reload
+  notify: Restart sshd with systemd reload
   tags: sshd
 
 - name: Set authorized keys for root user

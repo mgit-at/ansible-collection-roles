@@ -6,7 +6,7 @@
     # converted using `gpg --dearmor docker.gpg`
     src: docker_debian.gpg
     dest: /etc/apt/trusted.gpg.d/docker.gpg
-  notify: update apt cache
+  notify: Update apt cache
 
 - name: Install docker repo key on ubuntu hosts
   when: ansible_distribution == "Ubuntu"
@@ -16,14 +16,14 @@
     # Debian and Ubuntu keys are identical at the moment by the way, but this might change(?)
     src: docker_ubuntu.gpg
     dest: /etc/apt/trusted.gpg.d/docker.gpg
-  notify: update apt cache
+  notify: Update apt cache
 
 - name: Add docker apt repo
   ansible.builtin.copy:
     content: |
       deb {{ docker_apt_repo_base_url }} {{ ansible_distribution_release }} stable
     dest: /etc/apt/sources.list.d/docker.list
-  notify: update apt cache
+  notify: Update apt cache
 
 - name: Run handlers to update apt cache
   ansible.builtin.meta: flush_handlers
