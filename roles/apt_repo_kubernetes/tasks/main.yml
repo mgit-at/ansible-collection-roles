@@ -4,14 +4,14 @@
     # Source: https://packages.cloud.google.com/apt/doc/apt-key.gpg
     src: kubernetes.gpg
     dest: /etc/apt/trusted.gpg.d/kubernetes.gpg
-  notify: update apt cache
+  notify: Update apt cache
 
 - name: Add kubernetes apt repo
   ansible.builtin.copy:
     content: |
       deb {{ kubernetes_apt_repo_base_url }} kubernetes-xenial main
     dest: /etc/apt/sources.list.d/kubernetes.list
-  notify: update apt cache
+  notify: Update apt cache
 
 - name: Run handlers to update apt cache
   ansible.builtin.meta: flush_handlers

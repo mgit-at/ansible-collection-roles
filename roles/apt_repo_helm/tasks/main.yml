@@ -5,14 +5,14 @@
     # converted using `gpg --dearmor helm.asc`
     src: helm.gpg
     dest: /etc/apt/trusted.gpg.d/helm.gpg
-  notify: update apt cache
+  notify: Update apt cache
 
 - name: Add helm apt repo
   ansible.builtin.copy:
     content: |
       deb {{ helm_apt_repo_base_url }} all main
     dest: /etc/apt/sources.list.d/helm.list
-  notify: update apt cache
+  notify: Update apt cache
 
 - name: Run handlers to update apt cache
   ansible.builtin.meta: flush_handlers

@@ -22,7 +22,7 @@
       line: UseDNS no
   loop_control:
     label: "{{ item.line }}"
-  notify: restart sshd
+  notify: Restart sshd
 
 # OMG, this is broken... be VERY careful using this!
 #   ssh exits with error 255 when IP is not available, and exactly this error code is not restarted by systemd
@@ -40,7 +40,7 @@
     marker: "# {mark} ANSIBLE MANAGED LISTENER BLOCK"
     mode: "0644"
     validate: echo %s | sshd -t
-  notify: restart sshd
+  notify: Restart sshd
   tags:
     - sshd
 
@@ -52,7 +52,7 @@
     marker: "# {mark} ANSIBLE MANAGED LISTENER BLOCK"
     mode: "0644"
     validate: echo %s | sshd -t
-  notify: restart sshd
+  notify: Restart sshd
   tags:
     - sshd
 
@@ -65,6 +65,6 @@
     dest: /etc/ssh/sshd_config
     mode: "0644"
     validate: echo %s | sshd -t
-  notify: restart sshd
+  notify: Restart sshd
   tags:
     - sshd
