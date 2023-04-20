@@ -1,27 +1,5 @@
 ---
-- name: Join kubernetes node and store log
-  block:
-    - name: Join kubernetes node
-      ansible.builtin.command: |
-        kubeadm join 127.0.0.1:{{ kubernetes_api_lb_port | default('6443') }}
-        --cri-socket {{ kubernetes_cri_socket }}
-        --token '{{ kube_bootstrap_token }}'
-        --discovery-token-ca-cert-hash '{{ kube_bootstrap_ca_cert_hash }}'
-      args:
-        creates: /etc/kubernetes/kubelet.conf
-      register: kubeadm_join
-      no_log: true
+- name: Join the node to the cluster
+  ansible.builtin.include_tasks: join.yml
 
-  always:
-    - name: Dump output of kubeadm join to log file
-      when: kubeadm_join is changed
-      # This is not a handler by design to make sure this action runs at this point of the play.
-      ansible.builtin.copy: # noqa no-handler
-        content: "{{ kubeadm_join.stdout }}\n"
-        dest: /etc/kubernetes/kubeadm-join.log
-
-    - name: Dump error output of kubeadm join to log file
-      when: kubeadm_join.changed and kubeadm_join.stderr
-      ansible.builtin.copy:
-        content: "{{ kubeadm_join.stderr }}\n"
-        dest: /etc/kubernetes/kubeadm-join.errors
+# TODO: Upgrades, maybe set some node specific settings...?

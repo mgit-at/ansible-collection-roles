@@ -43,6 +43,7 @@ jobs:
           - molecule-base
           - molecule-kubeadm-base
           - molecule-kubeadm-controlplane
+          - molecule-kubeadm-node
           - molecule-kubernetes-base
           - molecule-upgrade-host
 

@@ -1,0 +1,111 @@
+---
+dependency:
+  name: galaxy
+  options:
+    # https://github.com/ansible/galaxy/issues/2302 - galaxy is sometimes (often?) slow to respond
+    timeout: "60"
+    # requirements-file: collections.yml
+    # ^ This fails?!
+driver:
+  name: delegated
+platforms:
+  - name: kadm-node-debian-cp-11 # control plane node
+    # Debian 11 because Ubuntu runs systemd-resolved and debian doesn't.
+    # This means on Ubuntu the in-cluster Kubelet config is hard-coded for this:
+    # https://github.com/kubernetes/kubernetes/blob/eab66a687b282266f0520b79166f7f55828ffd28/cmd/kubeadm/app/componentconfigs/kubelet.go#L200
+    # Workaround for now: Just use Debian
+    # Future: Set up CoreDNS on the host
+    image: debian-11
+    server_type: cx21 # 2 CPU, 4 GiB RAM, 40 GiB disk
+    groups:
+      - controlplane
+  # - name: kadm-node-ubuntu-16.04 # Xenial Xerus
+  # - name: kadm-node-ubuntu-18.04 # Bionic Beaver
+  # Ubuntu 18.04 has a Kernel < 4.19 which would be required for kube-proxy free installation of Cilium
+  # https://docs.cilium.io/en/v1.12/gettingstarted/kubeproxy-free/
+  # Workaround: Just test on 20.04 and newer.
+  - name: kadm-node-ubuntu-20.04 # Focal Fossa
+    image: ubuntu-20.04
+    server_type: cx21
+    groups:
+      - worker
+  - name: kadm-node-ubuntu-22.04 # Jammy Jellyfish
+    image: ubuntu-22.04
+    server_type: cx21
+    groups:
+      - worker
+  # - name: kadm-node-debian-8 # Jessie
+  # - name: kadm-node-debian-9 # Stretch
+  - name: kadm-node-debian-10 # Buster
+    image: debian-10
+    server_type: cx21
+    groups:
+      - worker
+  - name: kadm-node-debian-11 # Bullseye
+    image: debian-11
+    server_type: cx21
+    groups:
+      - worker
+# - name: kadm-node-debian-12 # Bookworm
+provisioner:
+  name: ansible
+  playbooks:
+    create: ../../../../tests/molecule/hcloud_playbooks/create.yml
+    destroy: ../../../../tests/molecule/hcloud_playbooks/destroy.yml
+  inventory:
+    hosts:
+      all:
+        children:
+          k8s_all:
+            vars:
+              kubernetes_cri_socket: unix:///run/containerd/containerd.sock
+              sysctl_config_user:
+                net.ipv4.conf.all.rp_filter: 0
+                net.ipv4.conf.default.rp_filter: 0
+            children:
+              k8s_all_control_plane_nodes:
+                vars:
+                  kubernetes_control_plane: true
+                children:
+                  k8s_all_initial_control_plane_nodes:
+                    vars:
+                      kubernetes_initial_control_plane: true
+                      kubernetes_other_control_plane: false
+                    children:
+                      k8s_node_initial_control_plane_node: {}
+                  k8s_all_other_control_plane_nodes:
+                    vars:
+                      kubernetes_initial_control_plane: false
+                      kubernetes_other_control_plane: true
+              k8s_all_worker_nodes:
+                children:
+                  k8s_node_worker_nodes: {}
+                vars:
+                  kubernetes_control_plane: false
+
+          k8s_node:
+            vars:
+              kubernetes_cluster_name: node
+              kubernetes_control_plane_nodes_group_name: k8s_node_control_plane_nodes
+              kubernetes_dedicated_control_plane: true
+              kubernetes_encryption_config_keys:
+                # example key from https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/
+                - YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY=
+              kubernetes_group_name: k8s_node
+              kubernetes_initial_control_plane_node_group_name: k8s_node_initial_control_plane_node
+              kubernetes_max_pods: 123
+              kubernetes_network_node_cidr_size: 24
+              kubernetes_network_pod_subnet: 192.168.0.0/17
+              kubernetes_network_svc_subnet: 192.168.128.0/20
+            children:
+              k8s_node_control_plane_nodes:
+                children:
+                  k8s_node_initial_control_plane_node:
+                    children:
+                      controlplane: {}
+                  k8s_node_other_control_plane_nodes: {}
+              k8s_node_worker_nodes:
+                children:
+                  worker: {}
+verifier:
+  name: ansible
