@@ -10,14 +10,13 @@ driver:
   name: delegated
 platforms:
   # - name: kadm-cp-ubuntu-16.04 # Xenial Xerus
-  - name: kadm-cp-ubuntu-18.04 # Bionic Beaver
-    image: ubuntu-18.04
-    server_type: cx21 # 2 CPU, 4 GiB RAM, 40 GiB disk
-    groups:
-      - ubuntu18
+  # - name: kadm-cp-ubuntu-18.04 # Bionic Beaver
+  # Ubuntu 18.04 has a Kernel < 4.19 which would be required for kube-proxy free installation of Cilium
+  # https://docs.cilium.io/en/v1.12/gettingstarted/kubeproxy-free/
+  # Workaround: Just test on 20.04 and newer.
   - name: kadm-cp-ubuntu-20.04 # Focal Fossa
     image: ubuntu-20.04
-    server_type: cx21
+    server_type: cx21 # 2 CPU, 4 GiB RAM, 40 GiB disk
     groups:
       - ubuntu20
   - name: kadm-cp-ubuntu-22.04 # Jammy Jellyfish
@@ -63,7 +62,6 @@ provisioner:
                       kubernetes_initial_control_plane: true
                       kubernetes_other_control_plane: false
                     children:
-                      k8s_ubuntu18_initial_control_plane_node: {}
                       k8s_ubuntu20_initial_control_plane_node: {}
                       k8s_ubuntu22_initial_control_plane_node: {}
                       k8s_debian10_initial_control_plane_node: {}
@@ -76,28 +74,6 @@ provisioner:
                 vars:
                   kubernetes_control_plane: false
 
-          k8s_ubuntu18:
-            vars:
-              kubernetes_cluster_name: ubuntu18
-              kubernetes_control_plane_nodes_group_name: k8s_ubuntu18_control_plane_nodes
-              kubernetes_dedicated_control_plane: false
-              kubernetes_encryption_config_keys:
-                # example key from https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/
-                - YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY=
-              kubernetes_group_name: k8s_ubuntu18
-              kubernetes_initial_control_plane_node_group_name: k8s_ubuntu18_initial_control_plane_node
-              kubernetes_max_pods: 123
-              kubernetes_network_node_cidr_size: 24
-              kubernetes_network_pod_subnet: 192.168.0.0/17
-              kubernetes_network_svc_subnet: 192.168.128.0/20
-            children:
-              k8s_ubuntu18_control_plane_nodes:
-                children:
-                  k8s_ubuntu18_initial_control_plane_node:
-                    children:
-                      ubuntu18: {}
-                  k8s_ubuntu18_other_control_plane_nodes: {}
-              k8s_ubuntu18_worker_nodes: {}
           k8s_ubuntu20:
             vars:
               kubernetes_cluster_name: ubuntu20

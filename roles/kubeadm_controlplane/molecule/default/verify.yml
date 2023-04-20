@@ -1,6 +1,6 @@
 ---
 - name: Verify
-  hosts: all
+  hosts: k8s_all_initial_control_plane_nodes
   gather_facts: true
   pre_tasks:
     - name: Get current kubernetes release
