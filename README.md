@@ -92,6 +92,22 @@ ansible-galaxy collection install mgit_at.roles:==0.1.0
 
 See [Ansible Using collections](https://docs.ansible.com/ansible/devel/user_guide/collections_using.html) for more details.
 
+## Testing this collection
+
+### Molecule
+
+Roles are tested weekly using molecule and ephemeral small cloud servers on Hetzner.
+
+In case you want to develop/test content locally, you can do so like this:
+
+`export HCLOUD_TOKEN=...`
+
+Change to your role of choice and run molecule commands there.
+
+In case you need to connect via SSH to a running instance, take a look at the `~/.cache/molecule/role_name_goes_here/default/inventory/ansible_inventory.yml` file, the SSH key to use is noted in there as well.
+
+e.g. you can connect like this: `ssh -o "IdentitiesOnly=yes" -i ~/.cache/molecule/role_name_goes_here/default/ssh_key root@256.256.256.256`
+
 ## Release notes
 
 See the [changelog](https://github.com/ansible-collections/REPONAMEHERE/tree/main/CHANGELOG.rst).
