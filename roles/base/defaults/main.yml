@@ -16,7 +16,10 @@ modules_blacklist:
   fs: [cramfs, freevxfs, hfs, hfsplus, jffs2]
   misc: [bluetooth, firewire-core, n_hdlc, net-pf-31, soundcore, thunderbolt, usb-midi]
 base_ubuntu_linux_hwe: false
-base_install_ethtool_setringmax: true
+# does not work with newer systems because of race-condition between interface
+#  renaming the script setting interface parameters, newer kernels also don't
+#  need this workaround anymore (increasing used buffer size to max supported)
+base_install_ethtool_setringmax: false
 # base_cpu_governor: performance
 
 base_apt_repo_zone: "{{ apt_repo_zone }}"
