@@ -21,7 +21,8 @@ base_install_ethtool_setringmax: true
 
 base_apt_uninstall_broken: false
 
-base_apt_repo_zone: "{{ apt_repo_zone }}"
+# Other valid options include azure, hetzner, intranet and raspbian
+base_apt_repo_zone: "{{ apt_repo_zone | default('internet') }}"
 
 # debian version up to which archive mirror urls are configured automatically
 #  add the following rule to apt-cacher-ng:
