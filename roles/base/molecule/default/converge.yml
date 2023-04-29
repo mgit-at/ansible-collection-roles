@@ -4,5 +4,3 @@
   gather_facts: true
   roles:
     - role: base
-      vars:
-        apt_repo_zone: hetzner
