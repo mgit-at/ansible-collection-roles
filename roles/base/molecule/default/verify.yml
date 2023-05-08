@@ -3,5 +3,24 @@
   hosts: all
   gather_facts: true
   tasks:
-    - name: Just ping
-      ansible.builtin.ping:
+    - name: Reboot
+      ansible.builtin.reboot:
+        msg: Ansible updates triggered
+        # use something more elaborate than "whoami"
+        test_command: systemctl is-system-running
+    - name: Check system state
+      ansible.builtin.command: systemctl is-system-running
+      # systemctl used deliberately for functionality not in systemd module
+      # noqa command-instead-of-module
+      register: upgrade_host_running_result
+      until: upgrade_host_running_result.rc == 0
+      retries: 10
+      delay: 1
+      changed_when: false # Read-only command
+    - name: Check service state
+      ansible.builtin.command: systemctl --failed
+      # systemctl used deliberately for functionality not in systemd module
+      # noqa command-instead-of-module
+      register: upgrade_host_failed_result
+      failed_when: "'failed' in upgrade_host_failed_result.stdout"
+      changed_when: false # Read-only command
