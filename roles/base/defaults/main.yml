@@ -19,7 +19,7 @@ base_ubuntu_linux_hwe: false
 # does not work with newer systems because of race-condition between interface
 #  renaming the script setting interface parameters, newer kernels also don't
 #  need this workaround anymore (increasing used buffer size to max supported)
-base_install_ethtool_setringmax: false
+base_install_ethtool_setringmax: true
 # base_cpu_governor: performance
 
 base_apt_repo_zone: "{{ apt_repo_zone }}"
