@@ -1,11 +1,11 @@
 [Unit]
-Description=Set Ring Parameters for Network Intefaces
+Description=Set Ring Parameters for Network Interfaces
 After=network.target
 
 [Service]
 Type=oneshot
-ExecStart=/bin/true
-ExecReload=/bin/true
+ExecStart=/usr/local/lib/ethtool-setringmax
+ExecReload=/usr/local/lib/ethtool-setringmax
 RemainAfterExit=true
 
 [Install]
