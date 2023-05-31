@@ -1,19 +1,19 @@
 #!/bin/sh
 
-if [ -z "$1" ]; then
-  echo "Usage $0 <interface>"
-  exit 1
-fi
+intf_l=$(find /sys/class/net -type l -not -lname '*virtual*' -printf '%f\n')
+for intf in $intf_l; do
+  et_out=$(ethtool -g "$intf")
+  et_code=$?
+  echo "ethtool output:"
+  echo "-------------------------------------"
+  echo "$et_out"
+  echo "-----------------------------"
+  if [ $et_code -ne 0 ]; then
+    echo "ethtool exited with code: $et_code"
+    exit $et_code
+  fi
+  echo "$et_out" | /usr/local/lib/ethtool-setringmax.awk
+  echo "-------------------------------------"
+done
 
-et_out=$(ethtool -g "$1")
-et_code=$?
-echo "ethtool output:"
-echo "-------------------------------------"
-echo "$et_out"
-echo "-----------------------------"
-if [ $et_code -ne 0 ]; then
-  echo "ethtool exited with code: $et_code"
-  exit $et_code
-fi
-echo "$et_out" | /usr/local/lib/ethtool-setringmax.awk
-echo "-------------------------------------"
+exit 0
