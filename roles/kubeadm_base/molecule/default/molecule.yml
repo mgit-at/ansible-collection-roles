@@ -10,14 +10,10 @@ driver:
   name: delegated
 platforms:
   # - name: kadm-base-ubuntu-16.04 # Xenial Xerus
-  - name: kadm-base-ubuntu-18.04 # Bionic Beaver
-    image: ubuntu-18.04
-    server_type: cx11 # 1 CPU, 2 GiB RAM, 20 GiB disk
-    groups:
-      - k8s_control_plane
+  # - name: kadm-base-ubuntu-18.04 # Bionic Beaver
   - name: kadm-base-ubuntu-20.04 # Focal Fossa
     image: ubuntu-20.04
-    server_type: cx11
+    server_type: cx11 # 1 CPU, 2 GiB RAM, 20 GiB disk
     groups:
       - k8s_control_plane
   - name: kadm-base-ubuntu-22.04 # Jammy Jellyfish
