@@ -10,12 +10,10 @@ driver:
   name: delegated
 platforms:
   # - name: base-ubuntu-16.04 # Xenial Xerus
-  - name: base-ubuntu-18.04 # Bionic Beaver
-    image: ubuntu-18.04
-    server_type: cx11 # 1 CPU, 2 GiB RAM, 20 GiB disk
+  # - name: base-ubuntu-18.04 # Bionic Beaver
   - name: base-ubuntu-20.04 # Focal Fossa
     image: ubuntu-20.04
-    server_type: cx11
+    server_type: cx11 # 1 CPU, 2 GiB RAM, 20 GiB disk
   - name: base-ubuntu-22.04 # Jammy Jellyfish
     image: ubuntu-22.04
     server_type: cx11
