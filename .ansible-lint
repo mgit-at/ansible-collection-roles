@@ -7,6 +7,8 @@ skip_list:
   - risky-file-permissions
   # TODO: Broken sanity test upstream, can't ignore individual cases of this rule...
   - sanity[cannot-ignore]
+  # TODO: Some variables are supposed to be cross-role... needs some redesign probably instead of a pure rename
+  - var-naming[no-role-prefix]
 exclude_paths:
   - changelogs/config.yaml # https://github.com/ansible/ansible-lint/issues/3226
   # defaults that get overwritten in https://github.com/ansible/ansible-lint/blob/4b260504d777a572dd333ac5922526cebbe04e2c/src/ansiblelint/cli.py#L458 if this is explicitly set:
