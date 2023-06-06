@@ -39,6 +39,7 @@
         datacenter: "{{ item.datacenter | default(omit) }}"
         user_data: "{{ item.user_data | default(omit) }}"
         api_token: "{{ lookup('env', 'HCLOUD_TOKEN') }}"
+        allow_deprecated_image: true
         state: present
       register: server
       with_items: "{{ molecule_yml.platforms }}"
