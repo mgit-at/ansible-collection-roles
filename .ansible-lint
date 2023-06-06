@@ -13,7 +13,6 @@ exclude_paths:
   - changelogs/config.yaml # https://github.com/ansible/ansible-lint/issues/3226
   # defaults that get overwritten in https://github.com/ansible/ansible-lint/blob/4b260504d777a572dd333ac5922526cebbe04e2c/src/ansiblelint/cli.py#L458 if this is explicitly set:
   - .cache
-  - .git # this also ignores the .github folder
   - .hg
   - .svn
   - .tox
