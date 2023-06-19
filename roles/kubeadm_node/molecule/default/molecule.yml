@@ -46,7 +46,11 @@ platforms:
     server_type: cx21
     groups:
       - worker
-# - name: kadm-node-debian-12 # Bookworm
+  - name: kadm-node-debian-12 # Bookworm
+    image: debian-12
+    server_type: cx21
+    groups:
+      - worker
 provisioner:
   name: ansible
   playbooks:
