@@ -36,7 +36,11 @@ platforms:
     server_type: cx21
     groups:
       - debian11
-# - name: kadm-cp-debian-12 # Bookworm
+  - name: kadm-cp-debian-12 # Bookworm
+    image: debian-12
+    server_type: cx21
+    groups:
+      - debian12
 provisioner:
   name: ansible
   playbooks:
@@ -66,6 +70,7 @@ provisioner:
                       k8s_ubuntu22_initial_control_plane_node: {}
                       k8s_debian10_initial_control_plane_node: {}
                       k8s_debian11_initial_control_plane_node: {}
+                      k8s_debian12_initial_control_plane_node: {}
                   k8s_all_other_control_plane_nodes:
                     vars:
                       kubernetes_initial_control_plane: false
@@ -162,5 +167,27 @@ provisioner:
                       debian11: {}
                   k8s_debian11_other_control_plane_nodes: {}
               k8s_debian11_worker_nodes: {}
+          k8s_debian12:
+            vars:
+              kubernetes_cluster_name: debian12
+              kubernetes_control_plane_nodes_group_name: k8s_debian12_control_plane_nodes
+              kubernetes_dedicated_control_plane: false
+              kubernetes_encryption_config_keys:
+                # example key from https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/
+                - YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY=
+              kubernetes_group_name: k8s_debian12
+              kubernetes_initial_control_plane_node_group_name: k8s_debian12_initial_control_plane_node
+              kubernetes_max_pods: 123
+              kubernetes_network_node_cidr_size: 24
+              kubernetes_network_pod_subnet: 192.168.0.0/17
+              kubernetes_network_svc_subnet: 192.168.128.0/20
+            children:
+              k8s_debian12_control_plane_nodes:
+                children:
+                  k8s_debian12_initial_control_plane_node:
+                    children:
+                      debian12: {}
+                  k8s_debian12_other_control_plane_nodes: {}
+              k8s_debian12_worker_nodes: {}
 verifier:
   name: ansible
