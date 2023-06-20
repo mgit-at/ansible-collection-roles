@@ -1,17 +1,17 @@
 # Hetzner internal mirrors
 deb http://mirror.hetzner.de/debian/packages {{ ansible_distribution_release }} {{ base_apt_repo_debian_components | join (' ') }}
 deb http://mirror.hetzner.de/debian/packages {{ ansible_distribution_release }}-updates {{ base_apt_repo_debian_components | join (' ') }}
-{% if ansible_distribution_release == "bullseye" %}
-deb http://mirror.hetzner.de/debian/security {{ ansible_distribution_release }}-security {{ base_apt_repo_debian_components | join (' ') }}
-{% else %}
+{% if ansible_distribution_major_version | int < 11 %}
 deb http://mirror.hetzner.de/debian/security {{ ansible_distribution_release }}/updates {{ base_apt_repo_debian_components | join (' ') }}
+{% else %}
+deb http://mirror.hetzner.de/debian/security {{ ansible_distribution_release }}-security {{ base_apt_repo_debian_components | join (' ') }}
 {% endif %}
 # Upstream mirrors for redundancy
 deb http://deb.debian.org/debian {{ ansible_distribution_release }} {{ base_apt_repo_debian_components | join (' ') }}
 {% if ansible_distribution_release != "jessie" %}deb http://deb.debian.org/debian {{ ansible_distribution_release }}-updates {{ base_apt_repo_debian_components | join (' ') }}
 {% endif %}
-{% if ansible_distribution_release == "bullseye" %}
-deb http://security.debian.org/ {{ ansible_distribution_release }}-security {{ base_apt_repo_debian_components | join (' ') }}
-{% else %}
+{% if ansible_distribution_major_version | int < 11 %}
 deb http://security.debian.org/ {{ ansible_distribution_release }}/updates {{ base_apt_repo_debian_components | join (' ') }}
+{% else %}
+deb http://security.debian.org/ {{ ansible_distribution_release }}-security {{ base_apt_repo_debian_components | join (' ') }}
 {% endif %}
