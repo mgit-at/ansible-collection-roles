@@ -6,12 +6,29 @@
     - name: Apt update should work without errors
       ansible.builtin.apt:
         update_cache: true
-    - name: Grep all deb entries in /etc/apt for repo
+    - name: Grep all deb entries in /etc/apt for repo (old)
       # https://askubuntu.com/questions/148932/how-can-i-get-a-list-of-all-repositories-and-ppas-from-the-command-line-into-an
       ansible.builtin.command: grep -r --include '*.list' '^deb ' /etc/apt/sources.list /etc/apt/sources.list.d/
       register: deb_entries
       changed_when: false # idempotent
       failed_when: "'https://download.docker.com/linux/' not in deb_entries['stdout']"
+      when:
+        # deb822_repository module was added in 2.15
+        - ansible_version['major'] == 2
+        - ansible_version['minor'] <= 14 or (ansible_distribution == "Debian" and ansible_distribution_major_version | int <= 11) or (ansible_distribution == "Ubuntu"
+          and ansible_distribution_major_version | int <= 20)
+    - name: Grep all deb entries in /etc/apt for repo (deb822)
+      # https://askubuntu.com/questions/148932/how-can-i-get-a-list-of-all-repositories-and-ppas-from-the-command-line-into-an
+      ansible.builtin.command: grep -r --include '*.sources' ' deb$' /etc/apt/sources.list.d/
+      register: deb822_entries
+      changed_when: false # idempotent
+      failed_when: "'https://download.docker.com/linux/' not in deb822_entries['stdout']"
+      when:
+        # deb822_repository module was added in 2.15
+        - ansible_version['major'] == 2
+        - ansible_version['minor'] >= 15
+        - (ansible_distribution == "Debian" and ansible_distribution_major_version | int >= 12) or (ansible_distribution == "Ubuntu" and ansible_distribution_major_version
+          | int >= 22)
     - name: Containerd.io should be installable
       ansible.builtin.apt:
         name:
