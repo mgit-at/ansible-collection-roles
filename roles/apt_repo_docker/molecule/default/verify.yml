@@ -19,7 +19,7 @@
           and ansible_distribution_major_version | int <= 20)
     - name: Grep all deb entries in /etc/apt for repo (deb822)
       # https://askubuntu.com/questions/148932/how-can-i-get-a-list-of-all-repositories-and-ppas-from-the-command-line-into-an
-      ansible.builtin.command: grep -r --include '*.sources' ' deb$' /etc/apt/sources.list.d/
+      ansible.builtin.command: grep -r -A 3 --include '*.sources' ' deb$' /etc/apt/sources.list.d/
       register: deb822_entries
       changed_when: false # idempotent
       failed_when: "'https://download.docker.com/linux/' not in deb822_entries['stdout']"
