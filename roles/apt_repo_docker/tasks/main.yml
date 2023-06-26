@@ -37,7 +37,7 @@
     name: docker
     types: deb
     uris:
-      - "https://download.docker.com/linux/{{ ansible_distribution | lower }}"
+      - https://download.docker.com/linux/{{ ansible_distribution | lower }}
     suites:
       - "{{ ansible_distribution_release }}"
     components:
@@ -46,6 +46,7 @@
     # Explicitly stored here instad of referring to an URL
     signed_by: |-
       -----BEGIN PGP PUBLIC KEY BLOCK-----
+
       mQINBFit2ioBEADhWpZ8/wvZ6hUTiXOwQHXMAlaFHcPH9hAtr4F1y2+OYdbtMuth
       lqqwp028AqyY+PRfVMtSYMbjuQuu5byyKR01BbqYhuS3jtqQmljZ/bJvXqnmiVXh
       38UuLa+z077PxyxQhu5BbqntTPQMfiyqEiU+BKbq2WmANUKQf+1AmZY/IruOXbnq
@@ -117,7 +118,7 @@
     name: docker
     types: deb
     uris:
-      - "https://download.docker.com/linux/{{ ansible_distribution | lower }}"
+      - https://download.docker.com/linux/{{ ansible_distribution | lower }}
     suites:
       - "{{ ansible_distribution_release }}"
     components:
@@ -127,6 +128,7 @@
     # Debian and Ubuntu keys are identical at the moment by the way, but this might change(?)
     signed_by: |-
       -----BEGIN PGP PUBLIC KEY BLOCK-----
+
       mQINBFit2ioBEADhWpZ8/wvZ6hUTiXOwQHXMAlaFHcPH9hAtr4F1y2+OYdbtMuth
       lqqwp028AqyY+PRfVMtSYMbjuQuu5byyKR01BbqYhuS3jtqQmljZ/bJvXqnmiVXh
       38UuLa+z077PxyxQhu5BbqntTPQMfiyqEiU+BKbq2WmANUKQf+1AmZY/IruOXbnq
