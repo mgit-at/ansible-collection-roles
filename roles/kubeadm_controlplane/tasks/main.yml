@@ -71,8 +71,8 @@
 
 - name: Check if control plane nodes are tainted (2/2)
   ansible.builtin.set_fact:
-    kube_node_taints: "{% set node_info = kubectl_get_node.stdout | from_json %}{%if node_info.spec.taints is defined %}{{ node_info.spec.taints | map(attribute='key')\
-      \ | list }}{% endif %}"
+    kube_node_taints: "{% set node_info = kubectl_get_node.stdout | from_json %}{%if node_info.spec.taints is defined %}{{ node_info.spec.taints | map(attribute='key')
+      | list }}{% endif %}"
 
 # TODO: Move to kubernetes.core.k8s_taint module
 - name: Remove NoSchedule taint from control plane nodes
