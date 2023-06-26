@@ -4,7 +4,8 @@
   when:
     # deb822_repository module was added in 2.15
     - ansible_version['major'] == 2
-    - ansible_version['minor'] <= 14
+    - ansible_version['minor'] <= 14 or (ansible_distribution == "Debian" and ansible_distribution_major_version | int < 11) or (ansible_distribution == "Ubuntu"
+      and ansible_distribution_major_version | int < 22)
   block:
     - name: Install docker repo key on debian hosts
       when: ansible_distribution == "Debian"
@@ -112,6 +113,8 @@
     - ansible_version['major'] >= 2
     - ansible_version['minor'] >= 15
     - ansible_distribution == "Debian"
+    # Debian 12 and above
+    - ansible_distribution_major_version | int > 11
 
 - name: Install using deb822_repository on ubuntu hosts
   ansible.builtin.deb822_repository:
@@ -194,6 +197,8 @@
     - ansible_version['major'] >= 2
     - ansible_version['minor'] >= 15
     - ansible_distribution == "Ubuntu"
+    # Ubuntu 22.04 and above
+    - ansible_distribution_major_version | int > 22
 
 - name: Run handlers to update apt cache
   ansible.builtin.meta: flush_handlers
