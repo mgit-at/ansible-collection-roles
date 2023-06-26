@@ -184,8 +184,8 @@
     owner: root
     group: root
     mode: "0644"
-  with_items: "{{ modules_blacklist.net | union(modules_blacklist.fs) | union(modules_blacklist.misc) | union(modules_blacklist_host) | union(modules_blacklist_group)\
-    \ }}"
+  with_items: "{{ modules_blacklist.net | union(modules_blacklist.fs) | union(modules_blacklist.misc) | union(modules_blacklist_host) | union(modules_blacklist_group)
+    }}"
 
 ## cron
 - name: Allow cron and at for root-only
