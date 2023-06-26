@@ -44,7 +44,7 @@
       - stable
     # Source: https://download.docker.com/linux/debian/gpg
     # Explicitly stored here instad of referring to an URL
-    signed_by: |
+    signed_by: |-
       -----BEGIN PGP PUBLIC KEY BLOCK-----
       mQINBFit2ioBEADhWpZ8/wvZ6hUTiXOwQHXMAlaFHcPH9hAtr4F1y2+OYdbtMuth
       lqqwp028AqyY+PRfVMtSYMbjuQuu5byyKR01BbqYhuS3jtqQmljZ/bJvXqnmiVXh
@@ -125,7 +125,7 @@
     # Source: https://download.docker.com/linux/ubuntu/gpg
     # Explicitly stored here instad of referring to an URL
     # Debian and Ubuntu keys are identical at the moment by the way, but this might change(?)
-    signed_by: |
+    signed_by: |-
       -----BEGIN PGP PUBLIC KEY BLOCK-----
       mQINBFit2ioBEADhWpZ8/wvZ6hUTiXOwQHXMAlaFHcPH9hAtr4F1y2+OYdbtMuth
       lqqwp028AqyY+PRfVMtSYMbjuQuu5byyKR01BbqYhuS3jtqQmljZ/bJvXqnmiVXh
