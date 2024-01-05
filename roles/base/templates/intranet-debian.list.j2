@@ -1,8 +1,16 @@
-deb {{ base_customer_mirror_protocol }}://{{ base_customer_mirror }}/debian {{ ansible_distribution_release }} {{ base_apt_repo_debian_components | join (' ') }}
-{% if ansible_distribution_release != "jessie" %}deb {{ base_customer_mirror_protocol }}://{{ base_customer_mirror }}/debian {{ ansible_distribution_release }}-updates {{ base_apt_repo_debian_components | join (' ') }}
+{% if ansible_distribution_major_version | int <= base_apt_debian_archive_version %}
+{% set base_internal_main_path = "archive" %}
+{% set base_internal_security_path = "archive-security" %}
+{% else %}
+{% set base_internal_main_path = "debian" %}
+{% set base_internal_security_path = "debian-security" %}
+{% endif %}
+deb {{ base_customer_mirror_protocol }}://{{ base_customer_mirror }}/{{ base_internal_main_path }} {{ ansible_distribution_release }} {{ base_apt_repo_debian_components | join (' ') }}
+{% if ansible_distribution_major_version | int > base_apt_debian_archive_version %}
+deb {{ base_customer_mirror_protocol }}://{{ base_customer_mirror }}/debian {{ ansible_distribution_release }}-updates {{ base_apt_repo_debian_components | join (' ') }}
 {% endif %}
 {% if ansible_distribution_major_version | int < 11 %}
-deb {{ base_customer_mirror_protocol }}://{{ base_customer_mirror }}/debian-security {{ ansible_distribution_release }}/updates {{ base_apt_repo_debian_components | join (' ') }}
+deb {{ base_customer_mirror_protocol }}://{{ base_customer_mirror }}/{{ base_internal_security_path }} {{ ansible_distribution_release }}/updates {{ base_apt_repo_debian_components | join (' ') }}
 {% else %}
-deb {{ base_customer_mirror_protocol }}://{{ base_customer_mirror }}/debian-security {{ ansible_distribution_release }}-security {{ base_apt_repo_debian_components | join (' ') }}
+deb {{ base_customer_mirror_protocol }}://{{ base_customer_mirror }}/{{ base_internal_security_path }} {{ ansible_distribution_release }}-security {{ base_apt_repo_debian_components | join (' ') }}
 {% endif %}
