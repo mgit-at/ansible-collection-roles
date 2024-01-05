@@ -21,6 +21,12 @@ base_install_ethtool_setringmax: true
 
 base_apt_repo_zone: "{{ apt_repo_zone }}"
 
+# debian version up to which archive mirror urls are configured automatically
+#  add the following rule to apt-cacher-ng:
+#    Remap-archive: /archive ; http://archive.debian.org/debian
+#    Remap-archivesecdeb: /archive-security ; http://archive.debian.org/debian-security
+base_apt_debian_archive_version: 9
+
 base_apt_repo_debian_components:
   - main
   - contrib
