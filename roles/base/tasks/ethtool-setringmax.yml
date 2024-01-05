@@ -25,10 +25,15 @@
   loop_control:
     label: "{{ item.dest }}/{{ item.src }}"
 
-- name: Set HW Ring Parameters for existing interfaces
+- name: Set HW Ring Parameters for existing interfaces - enable service
   ansible.builtin.systemd:
     name: ethtool-setringmax.service
     daemon_reload: true
-    state: restarted
     enabled: true
   changed_when: false
+
+- name: Set HW Ring Parameters for existing interfaces - restart service
+  ansible.builtin.systemd:
+    state: restarted
+  changed_when: false
+  ignore_errors: true
