@@ -21,8 +21,8 @@
   # noqa command-instead-of-module
   register: upgrade_host_running_result
   until: upgrade_host_running_result.rc == 0
-  retries: {{ upgrade_host_system_state_retries }}
-  delay: {{ upgrade_host_system_state_delay }}
+  retries: "{{ upgrade_host_system_state_retries }}"
+  delay: "{{ upgrade_host_system_state_delay }}"
   changed_when: false # Read-only command
 - name: Check service state
   ansible.builtin.command: systemctl --failed
