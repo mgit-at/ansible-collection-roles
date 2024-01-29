@@ -85,7 +85,7 @@
   when:
     - ansible_distribution == "Debian"
     - (ansible_distribution_major_version | int) >= 9
-    - base_apt_uninstall_broken | bool == false
+    - not base_apt_uninstall_broken
   block:
     - name: Apt - Uninstall base system tools (debian stretch and beyond)
       ansible.builtin.apt:
