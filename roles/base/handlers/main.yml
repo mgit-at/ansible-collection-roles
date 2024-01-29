@@ -22,6 +22,12 @@
   tags:
     - sshd
 
+- name: Restart ethtool-setringmax service
+  ansible.builtin.systemd:
+    name: ethtool-setringmax.service
+    daemon_reload: true
+    state: restarted
+
 - name: Netplan apply
   # noqa: no-changed-when - this is already in a handler
   ansible.builtin.command: netplan apply
