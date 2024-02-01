@@ -10,10 +10,12 @@
     ssh_port: 22
     ssh_user: root
     ssh_path: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/ssh_key"
+    ssh_key_type: ed25519
   tasks:
     - name: Create SSH key
       community.crypto.openssh_keypair:
         path: "{{ ssh_path }}"
+        type: "{{ ssh_key_type }}"
         force: true
       register: generated_ssh_key
 
