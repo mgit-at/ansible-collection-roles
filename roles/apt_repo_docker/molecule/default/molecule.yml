@@ -7,7 +7,7 @@ dependency:
     # requirements-file: collections.yml
     # ^ This fails?!
 driver:
-  name: delegated
+  name: default
 platforms:
   # - name: dockerrepo-ubuntu-16.04 # Xenial Xerus
   # - name: dockerrepo-ubuntu-18.04 # Bionic Beaver
