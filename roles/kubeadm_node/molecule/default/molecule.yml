@@ -7,7 +7,7 @@ dependency:
     # requirements-file: collections.yml
     # ^ This fails?!
 driver:
-  name: delegated
+  name: default
 platforms:
   - name: kadm-node-debian-cp-11 # control plane node
     # Debian 11 because Ubuntu runs systemd-resolved and debian doesn't.
