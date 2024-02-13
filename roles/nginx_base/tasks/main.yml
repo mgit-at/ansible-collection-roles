@@ -1,0 +1,84 @@
+---
+# This is necessary because to generate htpasswd within ansible
+- name: Install required packages
+  ansible.builtin.apt:
+    name:
+      - python3-passlib
+    state: present
+
+# This is necessary because the maintainers at Canonical
+# dropped support for the lua module. See:
+# https://launchpad.net/ubuntu/+source/nginx/1.24.0-1ubuntu1
+# Currently this is just a problem for ubuntu starting from 22.04
+# This is not really beautiful, but it won't let you install a
+# broken nginx-extras without lua. As it won't technically be an
+# error to have nginx-extras without lua
+- name: Check for Ubuntu 22.04 or higher
+  when:
+    - nginx_base_pkg_variant == "nginx-extras"
+    - ansible_distribution == 'Ubuntu'
+    - ansible_distribution_major_version | int > 22
+  ansible.builtin.set_fact:
+    nginx_base_ondrej_repo: true
+
+- name: Install ondrej nginx repo
+  when: nginx_base_ondrej_repo
+  ansible.builtin.include_role:
+    name: mgit_at.roles.apt_repo_nginx
+
+- name: Install nginx
+  ansible.builtin.apt:
+    name: "{{ nginx_base_pkg_variant }}"
+    state: present
+
+- name: Create folder for http auth files
+  ansible.builtin.file:
+    path: /etc/nginx/auth
+    state: directory
+    owner: root
+    group: www-data
+    mode: "0750"
+
+- name: Ensure nginx is always restarted
+  loop:
+    - [Service, Restart, always]
+    - [Service, RestartSec, "1"]
+    - [Unit, StartLimitIntervalSec, "0"]
+  community.general.ini_file:
+    path: /etc/systemd/system/nginx.service.d/override.conf
+    owner: root
+    group: root
+    mode: "0644"
+    section: "{{ item[0] }}"
+    option: "{{ item[1] }}"
+    value: "{{ item[2] }}"
+    no_extra_spaces: true
+  notify: Restart nginx with systemd reload
+
+- name: Remove nginx default site
+  ansible.builtin.file:
+    name: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Restart nginx
+
+- name: Install nginx config.d files
+  when: nginx_base_conf_d_files is defined
+  loop: "{{ nginx_base_conf_d_files }}"
+  ansible.builtin.copy:
+    src: conf.d/{{ item }}.conf
+    dest: /etc/nginx/conf.d/
+  notify: Restart nginx
+
+- name: Install nginx config snippets
+  when: nginx_base_snippets is defined
+  loop: "{{ nginx_base_snippets }}"
+  ansible.builtin.copy:
+    src: snippets/{{ item }}.conf
+    dest: /etc/nginx/snippets/
+  notify: Restart nginx
+
+- name: Generate Diffie-Hellman parameters
+  community.crypto.openssl_dhparam:
+    path: /etc/ssl/dhparams.pem
+    size: "{{ nginx_base_dhparam_size }}"
+  notify: Restart nginx

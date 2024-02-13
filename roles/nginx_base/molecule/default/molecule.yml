@@ -1,0 +1,33 @@
+---
+dependency:
+  name: galaxy
+  options:
+    # https://github.com/ansible/galaxy/issues/2302 - galaxy is sometimes (often?) slow to respond
+    timeout: "60"
+    # requirements-file: collections.yml
+    # ^ This fails?!
+driver:
+  name: default
+platforms:
+  - name: nginx-base-ubuntu-20.04 # Focal Fossa
+    image: ubuntu-20.04
+    server_type: cx11 # 1 CPU, 2 GiB RAM, 20 GiB disk
+  - name: nginx-base-ubuntu-22.04 # Jammy Jellyfish
+    image: ubuntu-22.04
+    server_type: cx11
+  - name: nginx-base-debian-10 # Buster
+    image: debian-10
+    server_type: cx11
+  - name: nginx-base-debian-11 # Bullseye
+    image: debian-11
+    server_type: cx11
+  - name: nginx-base-debian-12 # Bookworm
+    image: debian-12
+    server_type: cx11
+provisioner:
+  name: ansible
+  playbooks:
+    create: ../../../../tests/molecule/hcloud_playbooks/create.yml
+    destroy: ../../../../tests/molecule/hcloud_playbooks/destroy.yml
+verifier:
+  name: ansible

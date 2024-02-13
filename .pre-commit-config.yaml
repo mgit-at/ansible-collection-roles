@@ -123,6 +123,13 @@ repos:
         always_run: true
         pass_filenames: false
         stages: [manual]
+      - id: molecule-nginx-base
+        name: The upgrade_host role is passing molecule tests
+        entry: bash -c "cd roles/nginx_base/ && molecule test"
+        language: python
+        additional_dependencies:
+          - molecule==6.0.3
+          - hcloud
       - id: molecule-upgrade-host
         name: The upgrade_host role is passing molecule tests
         entry: bash -c "cd roles/upgrade_host/ && molecule test"
