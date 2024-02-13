@@ -1,0 +1,23 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Apt update should work without errors
+      ansible.builtin.apt:
+        update_cache: true
+    - name: Grep all deb entries in /etc/apt for repo
+      ansible.builtin.command: 'grep -r "\(^deb \|^URIs: \)" /etc/apt/sources.list /etc/apt/sources.list.d/'
+      register: deb_entries
+      changed_when: false # idempotent
+      failed_when: "'https://ppa.launchpadcontent.net/ondrej/nginx/' not in deb_entries['stdout']"
+    - name: Nginx should be installable
+      ansible.builtin.apt:
+        name:
+          - nginx
+        state: present
+    - name: Repo should show up in apt-cache policy
+      ansible.builtin.command: apt-cache policy nginx
+      register: policy
+      changed_when: false # idempotent
+      failed_when: "'https://ppa.launchpadcontent.net/ondrej/nginx/' not in policy['stdout']"

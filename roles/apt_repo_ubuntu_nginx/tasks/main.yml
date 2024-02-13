@@ -1,0 +1,51 @@
+---
+- name: Fail on non Ubuntu distributions
+  when: not ansible_distribution == "Ubuntu"
+  ansible.builtin.fail:
+    msg: "This role only supports Ubuntu"
+
+- name: Install apt repo using legacy method
+  # TODO: clean up legacy method when deb822 version is used
+  when:
+    # deb822_repository module was added in 2.15
+    - ansible_version['major'] == 2
+    - ansible_version['minor'] <= 14 or ansible_distribution_major_version | int <= 20
+  block:
+    - name: Install docker repo key on host
+      ansible.builtin.copy:
+        # Source: https://keyserver.ubuntu.com/pks/lookup?fingerprint=on&op=index&search=0x14AA40EC0831756756D7F66C4F4EA0AAE5267A6C
+        # converted using `gpg --dearmor nginx.gpg`
+        # Unfortunately, this key is only 1024 bits rsa
+        src: nginx.gpg
+        dest: /etc/apt/trusted.gpg.d/nginx.gpg
+      notify: Update apt cache
+
+    - name: Add docker apt repo
+      ansible.builtin.copy:
+        content: |
+          deb {{ nginx_apt_repo_base_url }}{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main
+        dest: /etc/apt/sources.list.d/nginx.list
+      notify: Update apt cache
+
+- name: Install using deb822_repository
+  when:
+    - ansible_version['major'] >= 2
+    - ansible_version['minor'] >= 15
+    - ansible_distribution_major_version | int > 20
+  ansible.builtin.deb822_repository:
+    name: nginx
+    types: deb
+    uris:
+      - "{{ nginx_apt_repo_base_url }}{{ ansible_distribution | lower }}"
+    suites:
+      - "{{ ansible_distribution_release }}"
+    components:
+      - main
+    # Source: https://download.docker.com/linux/ubuntu/gpg
+    # Explicitly stored here instad of referring to an URL
+    # Unfortunately, this key is only 1024 bits rsa
+    signed_by: "{{ nginx_apt_repo_gpg_key }}"
+  notify: Update apt cache
+
+- name: Run handlers to update apt cache
+  ansible.builtin.meta: flush_handlers
