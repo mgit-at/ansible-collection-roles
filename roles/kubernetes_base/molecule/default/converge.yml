@@ -3,7 +3,8 @@
   hosts: all
   gather_facts: true
   vars:
-    current_version: "v1.28.2"
+    current_version:
+      content: "v1.28.2"
   pre_tasks:
     # TODO: Enable molecule for newest kubernetes version again
     # Temporary pin to version 1.28.2,
@@ -15,6 +16,9 @@
     #     return_content: true
     #     # Returns something like "v1.23.45", kubernetes_version is expected to be without the "v"
     #   register: current_version
+    - name: Debug current_version
+      ansible.builtin.debug:
+        var: current_version
     - name: Log the version used
       ansible.builtin.debug:
         msg: The current kubernetes release used for this test is {{ current_version['content'] }}.
