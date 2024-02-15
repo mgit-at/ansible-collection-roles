@@ -39,11 +39,13 @@ jobs:
           - molecule-apt-repo-docker
           - molecule-apt-repo-helm
           - molecule-apt-repo-kubernetes
+          - molecule-apt-repo-ubuntu-nginx
           - molecule-base
           - molecule-kubeadm-base
           - molecule-kubeadm-controlplane
           - molecule-kubeadm-node
           - molecule-kubernetes-base
+          - molecule-nginx-base
           - molecule-upgrade-host
 
     steps:

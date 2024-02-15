@@ -1,0 +1,10 @@
+---
+- name: Prepare
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Just ping
+      ansible.builtin.ping:
+    - name: Apt update
+      ansible.builtin.apt:
+        update_cache: true

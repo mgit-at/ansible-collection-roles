@@ -1,0 +1,9 @@
+---
+- name: Converge
+  hosts: all
+  gather_facts: true
+  roles:
+    - role: nginx_base
+      vars:
+        nginx_base_pkg_variant: nginx-extras
+        nginx_base_dhparam_size: 1024 # for testing purposes smaller size for speed
