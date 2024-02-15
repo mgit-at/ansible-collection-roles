@@ -140,6 +140,7 @@ repos:
         additional_dependencies:
           - molecule==6.0.3
           - hcloud
+        stages: [manual]
       - id: molecule-upgrade-host
         name: The upgrade_host role is passing molecule tests
         entry: bash -c "cd roles/upgrade_host/ && molecule test"
