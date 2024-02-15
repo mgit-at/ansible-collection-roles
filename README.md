@@ -61,8 +61,8 @@ Intended to be run against a clean installation with only a default `sshd` runni
 Bundle of roles that are intended to be run in sequence to set up a minimal production ready Kubernetes cluster.
 The setup is highly opinionated (OS: latest Ubuntu LTS with HWE kernel, installation: kubeadm, CRI: containerd, CNI: Cilium) and not expected to support a lot of options in the future.
 
->>[!WARNING]  
-> Currently the kubernetes roles are only tested against the latest version of
+  [!WARNING]
+  Currently the kubernetes roles are only tested against the latest version of
   kubernetes, which is still available in the old apt repository. More infos
   [here](https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/change-package-repository/).
   Newer versions will need a partial rewrite of the roles.
