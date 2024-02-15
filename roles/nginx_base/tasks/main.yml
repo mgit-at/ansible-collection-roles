@@ -17,19 +17,25 @@
   when:
     - nginx_base_pkg_variant == "nginx-extras"
     - ansible_distribution == 'Ubuntu'
-    - ansible_distribution_major_version | int > 22
+    - ansible_distribution_major_version | int >= 22
   ansible.builtin.set_fact:
     nginx_base_ondrej_repo: true
 
 - name: Install ondrej nginx repo
-  when: nginx_base_ondrej_repo
+  when:
+    - nginx_base_ondrej_repo
+    - ansible_distribution == 'Ubuntu'
+    - ansible_distribution_major_version | int >= 20
   ansible.builtin.include_role:
-    name: mgit_at.roles.apt_repo_nginx
+    name: mgit_at.roles.apt_repo_ubuntu_nginx
 
+# The latest state will ensure that the nginx is installed from ondrej repository,
+# when the repo is activated after the installation of the nginx package
 - name: Install nginx
   ansible.builtin.apt:
     name: "{{ nginx_base_pkg_variant }}"
-    state: present
+    state: "{% if nginx_base_ondrej_repo %}latest{% else %}present{% endif %}"
+  notify: Restart nginx
 
 - name: Create folder for http auth files
   ansible.builtin.file:
