@@ -2,8 +2,6 @@
 - name: Initial setup of all nodes
   hosts: all
   gather_facts: true
-  vars:
-    current_version: "v1.28.2"
   tasks:
   pre_tasks:
     # TODO: Enable molecule for newest kubernetes version again
@@ -39,6 +37,7 @@
     - role: kubernetes_base
     - role: kubeadm_base
   vars:
+    current_version: "v1.28.2"
     kubernetes_version: "{{ current_version['content'][1:] }}"
     kubernetes_cilium_init_version: "{{ current_cilium_release['json']['tag_name'][1:] }}"
 
