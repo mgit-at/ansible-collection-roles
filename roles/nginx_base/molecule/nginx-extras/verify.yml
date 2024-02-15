@@ -25,9 +25,6 @@
       ansible.builtin.stat:
         path: /etc/nginx/{{ item }}.conf
       register: _nginx_conf_files_result
-    - name: Debug
-      ansible.builtin.debug:
-        var: _nginx_conf_files_result
     - name: Check if config files exist - fail
       when: not item.stat.exists
       loop: "{{ _nginx_conf_files_result.results }}"

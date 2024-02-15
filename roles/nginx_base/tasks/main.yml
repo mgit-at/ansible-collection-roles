@@ -88,3 +88,12 @@
     path: /etc/ssl/dhparams.pem
     size: "{{ nginx_base_dhparam_size }}"
   notify: Restart nginx
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Ensure nginx is started and enabled
+  ansible.builtin.service:
+    name: nginx
+    enabled: true
+    state: started
