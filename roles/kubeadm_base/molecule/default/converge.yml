@@ -3,7 +3,8 @@
   hosts: all
   gather_facts: true
   vars:
-    current_version: "v1.28.2"
+    current_version:
+      content: "v1.28.2"
   pre_tasks:
     # TODO: Enable molecule for newest kubernetes version again
     # Temporary pin to version 1.28.2,

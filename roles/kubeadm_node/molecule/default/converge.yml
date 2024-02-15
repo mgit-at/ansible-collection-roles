@@ -37,7 +37,8 @@
     - role: kubernetes_base
     - role: kubeadm_base
   vars:
-    current_version: "v1.28.2"
+    current_version:
+      content: "v1.28.2"
     kubernetes_version: "{{ current_version['content'][1:] }}"
     kubernetes_cilium_init_version: "{{ current_cilium_release['json']['tag_name'][1:] }}"
 
