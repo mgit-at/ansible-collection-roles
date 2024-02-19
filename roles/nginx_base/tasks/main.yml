@@ -68,7 +68,7 @@
   notify: Restart nginx
 
 - name: Install nginx config.d files
-  when: nginx_base_conf_d_files is defined
+  when: nginx_base_conf_d_files | length > 0
   loop: "{{ nginx_base_conf_d_files }}"
   ansible.builtin.copy:
     src: conf.d/{{ item }}.conf
@@ -76,7 +76,7 @@
   notify: Restart nginx
 
 - name: Install nginx config snippets
-  when: nginx_base_snippets is defined
+  when: nginx_base_snippets | length > 0
   loop: "{{ nginx_base_snippets }}"
   ansible.builtin.copy:
     src: snippets/{{ item }}.conf
