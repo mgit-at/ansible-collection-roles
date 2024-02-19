@@ -4,8 +4,8 @@ nginx_base_ondrej_repo: false
 
 nginx_base_conf_d_files:
   - connection-upgrade
-  - server_tokens
-  - hash_bucket_size
+  - server-tokens
+  - hash-bucket-size
 
 nginx_base_snippets:
   - cf-origin-pull
