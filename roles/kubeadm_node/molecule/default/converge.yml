@@ -37,6 +37,7 @@
     - role: kubernetes_base
     - role: kubeadm_base
   vars:
+    # TODO: Enable molecule for newest kubernetes version again
     current_version:
       content: "v1.28.2"
     kubernetes_version: "{{ current_version['content'][1:] }}"
@@ -48,6 +49,9 @@
     # from playbooks/k8s-mycluster.yml
     - role: kubeadm_controlplane
   vars:
+    # TODO: Enable molecule for newest kubernetes version again
+    current_version:
+      content: "v1.28.2"
     kubernetes_version: "{{ current_version['content'][1:] }}"
     kubernetes_cilium_init_version: "{{ current_cilium_release['json']['tag_name'][1:] }}"
 
@@ -57,5 +61,8 @@
     # from playbooks/k8s-mycluster.yml
     - role: kubeadm_node
   vars:
+    # TODO: Enable molecule for newest kubernetes version again
+    current_version:
+      content: "v1.28.2"
     kubernetes_version: "{{ current_version['content'][1:] }}"
     kubernetes_cilium_init_version: "{{ current_cilium_release['json']['tag_name'][1:] }}"
