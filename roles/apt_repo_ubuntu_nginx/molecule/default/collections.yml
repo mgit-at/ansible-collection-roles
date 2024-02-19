@@ -1,0 +1,16 @@
+---
+# Lists of versions used upstream:
+# https://github.com/ansible-community/ansible-build-data
+
+# This current set of versions corresponds to:
+# Ansible 8.0.0
+
+# This file just exists for molecule, real dependencies are in galaxy.yml
+
+collections:
+  - name: community.crypto
+    version: 2.13.1
+    source: https://galaxy.ansible.com
+  - name: hetzner.hcloud
+    version: 1.12.0
+    source: https://galaxy.ansible.com

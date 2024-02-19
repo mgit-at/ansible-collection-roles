@@ -1,0 +1,64 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: true
+  vars:
+    _nginx_config_files:
+      - conf.d/connection-upgrade
+      - conf.d/hash-bucket-size
+      - conf.d/server-tokens
+      - snippets/cf-origin-pull
+      - snippets/tls
+      - snippets/tls-legacy
+      - snippets/hsts
+      - snippets/security-headers
+      - snippets/proxy-nobuff
+      - snippets/proxy-forward-headers
+      - snippets/acmetool
+  tasks:
+    - name: Check if nginx is installed
+      ansible.builtin.apt:
+        name: "nginx-extras"
+        state: present
+      register: _nginx_installed
+      failed_when: _nginx_installed.changed
+    - name: Check if config files exist - stat
+      loop: "{{ _nginx_config_files }}"
+      ansible.builtin.stat:
+        path: /etc/nginx/{{ item }}.conf
+      register: _nginx_conf_files_result
+    - name: Check if config files exist - fail
+      when: not item.stat.exists
+      loop: "{{ _nginx_conf_files_result.results }}"
+      ansible.builtin.fail:
+        msg: "Config file {{ item.item }} is missing"
+    - name: Check if default site is removed
+      ansible.builtin.stat:
+        path: /etc/nginx/sites-enabled/default
+      register: _nginx_default_site
+      failed_when: _nginx_default_site.stat.exists
+    - name: Check if dhparams.pem is generated
+      ansible.builtin.stat:
+        path: /etc/ssl/dhparams.pem
+      register: _nginx_dhparams
+      failed_when: not _nginx_dhparams.stat.exists
+    - name: Check if nginx is started
+      ansible.builtin.service:
+        name: nginx
+        enabled: true
+        state: started
+      register: _nginx_service
+      failed_when: _nginx_service.changed
+    - name: Check if lua module is enabled
+      ansible.builtin.stat:
+        path: /etc/nginx/modules-enabled/50-mod-http-lua.conf
+      register: _nginx_lua_enabled
+      failed_when: not _nginx_lua_enabled.stat.exists
+    - name: Check if installed nginx-extras is from ondrej repo
+      when:
+        - ansible_distribution == 'Ubuntu'
+        - ansible_distribution_major_version | int >= 22
+      ansible.builtin.command: "apt-cache policy nginx-extras | grep '^Installed: .*sury.*'$"
+      register: _nginx_ondrej_repo_check
+      failed_when: _nginx_ondrej_repo_check.rc != 0
+      changed_when: false
