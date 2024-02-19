@@ -59,7 +59,7 @@
     option: "{{ item[1] }}"
     value: "{{ item[2] }}"
     no_extra_spaces: true
-  notify: Restart nginx with systemd reload
+  notify: Restart nginx
 
 - name: Remove nginx default site
   ansible.builtin.file:
