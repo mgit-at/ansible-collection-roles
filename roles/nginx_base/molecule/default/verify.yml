@@ -5,8 +5,8 @@
   vars:
     _nginx_config_files:
       - conf.d/connection-upgrade
-      - conf.d/hash_bucket_size
-      - conf.d/server_tokens
+      - conf.d/hash-bucket-size
+      - conf.d/server-tokens
       - snippets/cf-origin-pull
       - snippets/tls
       - snippets/tls-legacy
