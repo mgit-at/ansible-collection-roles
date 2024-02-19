@@ -20,6 +20,8 @@
       ansible.builtin.apt:
         name: "nginx-light"
         state: present
+      register: _nginx_installed
+      failed_when: _nginx_installed.changed
     - name: Check if config files exist - stat
       loop: "{{ _nginx_config_files }}"
       ansible.builtin.stat:
