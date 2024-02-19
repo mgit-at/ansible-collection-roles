@@ -8,6 +8,7 @@ dependency:
     # ^ This fails?!
 driver:
   name: default
+# No test on debian by design, this role only runs on Ubuntu
 platforms:
   - name: nginxrepo-ubuntu-20.04 # Focal Fossa
     image: ubuntu-20.04

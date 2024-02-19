@@ -1,6 +1,6 @@
 ---
-nginx_apt_repo_base_url: https://ppa.launchpadcontent.net/ondrej/nginx/
-nginx_apt_repo_gpg_key: |
+apt_repo_ubuntu_nginx_repo_base_url: https://ppa.launchpadcontent.net/ondrej/nginx/
+apt_repo_ubuntu_nginx_repo_gpg_key: |
   -----BEGIN PGP PUBLIC KEY BLOCK-----
   Comment: Hostname:
   Version: Hockeypuck 2.1.1-10-gec3b0e7
