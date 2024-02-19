@@ -45,7 +45,8 @@
         replicas: 1 # scale up in Flux once a second node is added to the cluster
       ipam:
         operator:
-          clusterPoolIPv4PodCIDR: "{{ kubernetes_network_pod_subnet }}"
+          clusterPoolIPv4PodCIDRList:
+            - "{{ kubernetes_network_pod_subnet }}"
           clusterPoolIPv4MaskSize: "{{ kubernetes_network_node_cidr_size }}"
       prometheus:
         enabled: true # emit metrics
