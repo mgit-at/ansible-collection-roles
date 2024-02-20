@@ -1,0 +1,6 @@
+# Default block returns null for SSL requests with the wrong hostname
+# This is to prevent SNI info leak. This configuration only works for nginx 1.19.4 and later.
+server {
+    listen               443 ssl;
+    ssl_reject_handshake on;
+}

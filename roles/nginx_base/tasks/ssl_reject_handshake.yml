@@ -1,0 +1,15 @@
+---
+- name: Install ssl-reject-handshake host
+  ansible.builtin.copy:
+    src: ssl-reject-handshake
+    dest: /etc/nginx/sites-available/
+  tags: ssl-reject-handshake
+
+- name: Enable ssl-reject-handshake host
+  when: nginx_base_ssl_reject_handshake_enabled
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/ssl-reject-handshake
+    dest: /etc/nginx/sites-enabled/ssl-reject-handshake
+    state: link
+  tags: ssl-reject-handshake
+  notify: Reload nginx
