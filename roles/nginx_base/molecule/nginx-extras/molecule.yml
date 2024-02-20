@@ -29,5 +29,7 @@ provisioner:
   playbooks:
     create: ../../../../tests/molecule/hcloud_playbooks/create.yml
     destroy: ../../../../tests/molecule/hcloud_playbooks/destroy.yml
+  options:
+    D: True
 verifier:
   name: ansible
