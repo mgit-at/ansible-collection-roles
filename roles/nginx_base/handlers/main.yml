@@ -8,3 +8,8 @@
     name: nginx
     state: restarted
     daemon_reload: true
+
+- name: Reload nginx
+  ansible.builtin.service:
+    name: nginx
+    state: reloaded

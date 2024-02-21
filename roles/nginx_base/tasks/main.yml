@@ -83,6 +83,9 @@
     dest: /etc/nginx/snippets/
   notify: Restart nginx
 
+- name: Install ssl-reject-handshake config
+  ansible.builtin.include_tasks: ssl_reject_handshake.yml
+
 - name: Generate Diffie-Hellman parameters
   community.crypto.openssl_dhparam:
     path: /etc/ssl/dhparams.pem

@@ -62,3 +62,13 @@
       register: _nginx_ondrej_repo_check
       failed_when: _nginx_ondrej_repo_check.rc != 0
       changed_when: false
+    - name: Check ssl-reject-handshake host
+      when:
+        - ansible_distribution == 'Ubuntu'
+        - ansible_distribution_major_version | int >= 22
+      ansible.builtin.uri:
+        url: "https://127.0.0.1"
+        method: GET
+        status_code: -1
+      register: _response
+      failed_when: not 'unrecognized name' in _response.msg

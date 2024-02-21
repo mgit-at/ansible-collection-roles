@@ -17,4 +17,7 @@ nginx_base_snippets:
   - proxy-forward-headers
   - acmetool
 
+# Only enable on a nginx version later >= 1.19.4
+nginx_base_ssl_reject_handshake_enabled: false
+
 nginx_base_dhparam_size: 2048
