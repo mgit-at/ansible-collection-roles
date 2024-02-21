@@ -1,0 +1,3 @@
+deb https://mirrors.ubuntu.com/mirrors.txt {{ ansible_distribution_release }} {{ base_apt_repo_ubuntu_components | join (' ') }}
+deb https://mirrors.ubuntu.com/mirrors.txt {{ ansible_distribution_release }}-updates {{ base_apt_repo_ubuntu_components | join (' ') }}
+deb https://mirrors.ubuntu.com/mirrors.txt {{ ansible_distribution_release }}-security {{ base_apt_repo_ubuntu_components | join (' ') }}
