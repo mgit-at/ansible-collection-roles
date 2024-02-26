@@ -12,6 +12,7 @@ nginx_base_snippets:
   - cf-origin-pull
   - tls
   - tls-legacy
+  - tls1_2
   - hsts
   - security-headers
   - proxy-nobuff
