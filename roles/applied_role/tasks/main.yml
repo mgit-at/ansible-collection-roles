@@ -1,0 +1,16 @@
+---
+- name: Print parent role name
+  ansible.builtin.debug:
+    var: ansible_parent_role_names
+
+- name: Create textcollector directories
+  ansible.builtin.file:
+    name: /etc/prometheus-node-exporter/textfile-collector/
+    mode: "0755"
+    state: directory
+
+- name: Create applied role prom file
+  ansible.builtin.template:
+    src: applied_role.prom.j2
+    dest: "/etc/prometheus-node-exporter/textfile-collector/{{ ansible_parent_role_names[0] | replace('/', '_') }}.prom"
+    mode: "0644"
