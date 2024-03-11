@@ -21,7 +21,7 @@
     - regexp: ^\s*#?\s*UseDNS
       line: UseDNS no
     - regexp: ^\s*#?\s*UsePAM
-      line: UseDNS {{ base_ssh_use_pam }}
+      line: UsePAM {{ base_ssh_use_pam }}
   loop_control:
     label: "{{ item.line }}"
   notify: Restart sshd
