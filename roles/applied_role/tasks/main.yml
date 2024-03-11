@@ -14,4 +14,6 @@
     src: applied_role.prom.j2
     dest: "/etc/prometheus-node-exporter/textfile-collector/{{ ansible_parent_role_names[0] | replace('/', '_') }}.prom"
     mode: "0644"
+  # This will never be idempotent, masking the change explicitly here
+  changed_when: false
   changed_when: false
