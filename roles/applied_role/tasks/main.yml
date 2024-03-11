@@ -16,4 +16,3 @@
     mode: "0644"
   # This will never be idempotent, masking the change explicitly here
   changed_when: false
-  changed_when: false
