@@ -20,6 +20,8 @@
       line: PermitEmptyPasswords no
     - regexp: ^\s*#?\s*UseDNS
       line: UseDNS no
+    - regexp: ^\s*#?\s*UsePAM
+      line: UsePAM {{ base_ssh_use_pam }}
   loop_control:
     label: "{{ item.line }}"
   notify: Restart sshd

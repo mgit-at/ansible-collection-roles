@@ -1,6 +1,7 @@
 ---
 base_ssh_root_login: without-password
 base_ssh_root_keys: []
+base_ssh_use_pam: "yes"
 base_sshd_extended_conf: false
 
 base_customer_mirror: apt.changeme.example.com
