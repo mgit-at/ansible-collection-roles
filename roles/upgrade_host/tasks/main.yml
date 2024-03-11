@@ -31,3 +31,7 @@
   register: upgrade_host_failed_result
   failed_when: "'failed' in upgrade_host_failed_result.stdout"
   changed_when: false # Read-only command
+- name: Include applied role
+  when: applied_role_enabled | default(false)
+  ansible.builtin.include_role:
+    name: mgit_at.roles.applied_role
