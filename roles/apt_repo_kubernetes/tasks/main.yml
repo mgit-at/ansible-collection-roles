@@ -19,7 +19,7 @@
         # e.g. https://pkgs.k8s.io/core:/stable:/v1.29/deb/
         # Slightly hacky, just use the first 4 letters in the kubernetes_version for now.
         content: |
-          deb {{ apt_repo_kubernetes_base_url }}/core:/stable:/v{{ kubernetes_version[:4] }}/deb/ /
+          deb {{ apt_repo_kubernetes_repo_base_url }}/core:/stable:/v{{ kubernetes_version[:4] }}/deb/ /
         dest: /etc/apt/sources.list.d/kubernetes.list
       notify: Update apt cache
 

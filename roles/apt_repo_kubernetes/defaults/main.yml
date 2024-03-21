@@ -1,5 +1,5 @@
 ---
-apt_repo_kubernetes_base_url: https://pkgs.k8s.io/
+apt_repo_kubernetes_repo_base_url: https://pkgs.k8s.io/
 
 apt_repo_kubernetes_repo_gpg_key: |
   -----BEGIN PGP PUBLIC KEY BLOCK-----
