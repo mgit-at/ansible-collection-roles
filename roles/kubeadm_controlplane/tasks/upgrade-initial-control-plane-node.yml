@@ -1,4 +1,8 @@
 ---
+# TODO: Fix this, this is currently broken due to trying to pin/install package names that are invalid on new mirrors.
+# Also upgrades now require switching mirrors first.
+# TODO: Write a test scenario for this.
+
 - name: Run pre-upgrade tasks on all nodes in the cluster
   delegate_to: "{{ item }}"
   loop: "{{ groups[kubernetes_group_name] }}"
@@ -67,18 +71,12 @@
   # Kubeadm will NOT care about the contents of this file, it only takes/uses what's in the cluster!
   ansible.builtin.command: kubeadm upgrade apply v{{ kubernetes_version }} -y
 
-- name: Unhold kubelet & kubectl
-  # noqa no-changed-when - yes, this is not idempotent
-  ansible.builtin.command: apt-mark unhold kubelet kubectl
 - name: Update kubelet & kubectl
   ansible.builtin.apt:
     name:
-      - kubelet={{ kubernetes_version }}-00
-      - kubectl={{ kubernetes_version }}-00
+      - kubelet
+      - kubectl
     state: present
-- name: Hold kubelet & kubectl
-  # noqa no-changed-when - yes, this is not idempotent
-  ansible.builtin.command: apt-mark hold kubelet kubectl
 
 - name: Force kubelet certificate rotation (it gets regenerated after reboot)
   ansible.builtin.file:

@@ -1,4 +1,6 @@
 ---
+# TODO: this now also requires switching apt mirrors if changing minor versions instead of only patches
+
 - name: Drain node
   # noqa no-changed-when - yes, this is not idempotent
   ansible.builtin.command: kubectl drain {{ ansible_nodename }} --ignore-daemonsets --delete-local-data --force
@@ -8,18 +10,12 @@
   # TODO: this is probably not enough to ensure the control plane doesn't go down...
   throttle: 1
 
-- name: Unhold kubelet & kubectl
-  # noqa no-changed-when - yes, this is not idempotent
-  ansible.builtin.command: apt-mark unhold kubelet kubectl
 - name: Update kubelet & kubectl
   ansible.builtin.apt:
     name:
-      - kubelet={{ kubernetes_version }}-00
-      - kubectl={{ kubernetes_version }}-00
+      - kubelet
+      - kubectl
     state: present
-- name: Hold kubelet & kubectl
-  # noqa no-changed-when - yes, this is not idempotent
-  ansible.builtin.command: apt-mark hold kubelet kubectl
 
 - name: Force kubelet certificate rotation (it gets regenerated after reboot)
   ansible.builtin.file:
