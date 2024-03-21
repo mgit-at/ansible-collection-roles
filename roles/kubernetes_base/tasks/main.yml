@@ -40,15 +40,10 @@
       # - nfs-common ## TODO: this is not needed on all hosts and is a security risk...
       - bridge-utils
       - cri-tools
-      - kubelet={{ kubernetes_version }}-00
+      - kubelet
       - open-iscsi
     state: present
     force: true
-
-- name: Disable automatic upgrades for kubelet
-  ansible.builtin.dpkg_selections:
-    name: kubelet
-    selection: hold
 
 - name: Add crictl config for shells
   loop:
