@@ -16,3 +16,8 @@
 
 - name: Run handlers to update apt cache
   ansible.builtin.meta: flush_handlers
+
+- name: Include applied role
+  when: applied_role_enabled | default(false)
+  ansible.builtin.include_role:
+    name: mgit_at.roles.applied_role

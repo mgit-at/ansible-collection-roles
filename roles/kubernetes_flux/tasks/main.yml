@@ -114,3 +114,8 @@
       To get the GitRepository file, run "ctr --address /var/run/containerd/containerd.sock --namespace k8s.io run --net-host --rm --mount type=bind,src=/root,dst=/root,options=rbind:ro --mount type=bind,src=/etc/kubernetes,dst=/etc/kubernetes,options=rbind:ro ghcr.io/fluxcd/flux-cli:v{{ kubernetes_flux_version }} fluxcontainer flux create source git mgit --namespace=flux-system --url={{ kubernetes_flux_repository_url }} --secret-ref flux-mgit-ssh --branch=master --interval=1m --export"
       To get the Kustomization file, run "ctr --address /var/run/containerd/containerd.sock --namespace k8s.io run --net-host --rm --mount type=bind,src=/root,dst=/root,options=rbind:ro --mount type=bind,src=/etc/kubernetes,dst=/etc/kubernetes,options=rbind:ro ghcr.io/fluxcd/flux-cli:v{{ kubernetes_flux_version }} fluxcontainer flux create kustomization mgit --namespace=flux-system --source=mgit --path="{{ kubernetes_flux_repository_path }}" --prune=true --interval=10m --export"
       Press return to continue. Press Ctrl+c and then "a" to abort.
+
+- name: Include applied role
+  when: applied_role_enabled | default(false)
+  ansible.builtin.include_role:
+    name: mgit_at.roles.applied_role
