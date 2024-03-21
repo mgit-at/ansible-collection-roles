@@ -278,3 +278,8 @@
 - name: Configure floating ips
   when: base_floating_ips is defined
   ansible.builtin.include_tasks: floating_ip.yml
+
+- name: Include applied role
+  when: applied_role_enabled | default(false)
+  ansible.builtin.include_role:
+    name: mgit_at.roles.applied_role

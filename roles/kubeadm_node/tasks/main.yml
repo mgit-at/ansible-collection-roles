@@ -3,3 +3,8 @@
   ansible.builtin.include_tasks: join.yml
 
 # TODO: Upgrades, maybe set some node specific settings...?
+
+- name: Include applied role
+  when: applied_role_enabled | default(false)
+  ansible.builtin.include_role:
+    name: mgit_at.roles.applied_role

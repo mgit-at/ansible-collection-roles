@@ -93,3 +93,8 @@
   ansible.builtin.command: kubectl wait --for=condition=Ready --timeout=90s node/{{ ansible_nodename }}
   check_mode: false
   changed_when: false # read-only command
+
+- name: Include applied role
+  when: applied_role_enabled | default(false)
+  ansible.builtin.include_role:
+    name: mgit_at.roles.applied_role
