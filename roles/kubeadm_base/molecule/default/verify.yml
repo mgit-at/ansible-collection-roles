@@ -2,20 +2,13 @@
 - name: Verify
   hosts: all
   gather_facts: true
-  vars:
-    current_version:
-      content: "v1.28.2"
   pre_tasks:
-    # TODO: Enable molecule for newest kubernetes version again
-    # Temporary pin to version 1.28.2,
-    # as the old repository is not working for version >= 1.29.0
-    # anymore and is deprecated.
-    # - name: Get current kubernetes release
-    #   ansible.builtin.uri:
-    #     url: https://dl.k8s.io/release/stable.txt
-    #     return_content: true
-    #     # Returns something like "v1.23.45", kubernetes_version is expected to be without the "v"
-    #   register: current_version
+    - name: Get current kubernetes release
+      ansible.builtin.uri:
+        url: https://dl.k8s.io/release/stable.txt
+        return_content: true
+        # Returns something like "v1.23.45", kubernetes_version is expected to be without the "v"
+      register: current_version
     - name: Log the version used
       ansible.builtin.debug:
         msg: The current kubernetes release used for this test is {{ current_version['content'] }}.
