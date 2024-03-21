@@ -2,20 +2,13 @@
 - name: Converge
   hosts: all
   gather_facts: true
-  vars:
-    current_version:
-      content: "v1.28.2"
   pre_tasks:
-    # TODO: Enable molecule for newest kubernetes version again
-    # Temporary pin to version 1.28.2,
-    # as the old repository is not working for version >= 1.29.0
-    # anymore and is deprecated.
-    # - name: Get current kubernetes release
-    #   ansible.builtin.uri:
-    #     url: https://dl.k8s.io/release/stable.txt
-    #     return_content: true
-    #     # Returns something like "v1.23.45", kubernetes_version is expected to be without the "v"
-    #   register: current_version
+    - name: Get current kubernetes release
+      ansible.builtin.uri:
+        url: https://dl.k8s.io/release/stable.txt
+        return_content: true
+        # Returns something like "v1.23.45", kubernetes_version is expected to be without the "v"
+      register: current_version
     - name: Debug current_version
       ansible.builtin.debug:
         var: current_version
@@ -25,6 +18,8 @@
   roles:
     - role: apt_repo_docker
     - role: apt_repo_kubernetes
+      vars:
+        kubernetes_version: "{{ current_version['content'][1:] }}"
     - role: kubernetes_base
       vars:
         kubernetes_version: "{{ current_version['content'][1:] }}"
