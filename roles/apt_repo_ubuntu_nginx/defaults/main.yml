@@ -1,5 +1,6 @@
 ---
 apt_repo_ubuntu_nginx_repo_base_url: https://ppa.launchpadcontent.net/ondrej/nginx/
+apt_repo_ubuntu_nginx_repo_priority: 700
 apt_repo_ubuntu_nginx_repo_gpg_key: |
   -----BEGIN PGP PUBLIC KEY BLOCK-----
   Comment: Hostname:

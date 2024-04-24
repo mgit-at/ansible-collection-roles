@@ -47,6 +47,15 @@
     signed_by: "{{ apt_repo_ubuntu_nginx_repo_gpg_key }}"
   notify: Update apt cache
 
+- name: Set preferences for nginx packages
+  ansible.builtin.copy:
+    content: |
+      Package: *
+      Pin: origin "{{ apt_repo_ubuntu_nginx_repo_base_url | regex_replace('^https?://', '') }}"
+      Pin-Priority: {{ apt_repo_ubuntu_nginx_repo_priority }}
+    dest: /etc/apt/preferences.d/nginx
+  notify: Update apt cache
+
 - name: Run handlers to update apt cache
   ansible.builtin.meta: flush_handlers
 
