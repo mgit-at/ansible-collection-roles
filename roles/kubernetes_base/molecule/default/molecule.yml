@@ -19,9 +19,7 @@ platforms:
     server_type: cx11
   # - name: k8s-base-debian-8 # Jessie
   # - name: k8s-base-debian-9 # Stretch
-  - name: k8s-base-debian-10 # Buster
-    image: debian-10
-    server_type: cx11
+  # - name: k8s-base-debian-10 # Buster
   - name: k8s-base-debian-11 # Bullseye
     image: debian-11
     server_type: cx11

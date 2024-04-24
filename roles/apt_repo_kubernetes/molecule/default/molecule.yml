@@ -19,9 +19,7 @@ platforms:
     server_type: cx11
   # - name: k8srepo-debian-8 # Jessie
   # - name: k8srepo-debian-9 # Stretch
-  - name: k8srepo-debian-10 # Buster
-    image: debian-10
-    server_type: cx11
+  #- name: k8srepo-debian-10 # Buster
   - name: k8srepo-debian-11 # Bullseye
     image: debian-11
     server_type: cx11
