@@ -15,9 +15,6 @@ platforms:
   - name: nginx-base-ubuntu-22.04 # Jammy Jellyfish
     image: ubuntu-22.04
     server_type: cx11
-  - name: nginx-base-debian-10 # Buster
-    image: debian-10
-    server_type: cx11
   - name: nginx-base-debian-11 # Bullseye
     image: debian-11
     server_type: cx11

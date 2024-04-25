@@ -36,11 +36,7 @@ platforms:
       - worker
   # - name: kadm-node-debian-8 # Jessie
   # - name: kadm-node-debian-9 # Stretch
-  - name: kadm-node-debian-10 # Buster
-    image: debian-10
-    server_type: cx21
-    groups:
-      - worker
+  # - name: kadm-node-debian-10 # Buster
   - name: kadm-node-debian-11 # Bullseye
     image: debian-11
     server_type: cx21

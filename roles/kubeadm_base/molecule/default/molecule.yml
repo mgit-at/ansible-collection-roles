@@ -23,11 +23,7 @@ platforms:
       - k8s_control_plane
   # - name: kadm-base-debian-8 # Jessie
   # - name: kadm-base-debian-9 # Stretch
-  - name: kadm-base-debian-10 # Buster
-    image: debian-10
-    server_type: cx11
-    groups:
-      - k8s_control_plane
+  # - name: kadm-base-debian-10 # Buster
   - name: kadm-base-debian-11 # Bullseye
     image: debian-11
     server_type: cx11

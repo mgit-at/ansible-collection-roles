@@ -19,9 +19,7 @@ platforms:
     server_type: cx11
   # - name: dockerrepo-debian-8 # Jessie
   # - name: dockerrepo-debian-9 # Stretch
-  - name: dockerrepo-debian-10 # Buster
-    image: debian-10
-    server_type: cx11
+  # - name: dockerrepo-debian-10 # Buster
   - name: dockerrepo-debian-11 # Bullseye
     image: debian-11
     server_type: cx11

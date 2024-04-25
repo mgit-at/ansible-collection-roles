@@ -19,9 +19,7 @@ platforms:
     server_type: cx11
   # - name: uhost-debian-8 # Jessie
   # - name: uhost-debian-9 # Stretch
-  - name: uhost-debian-10 # Buster
-    image: debian-10
-    server_type: cx11
+  # - name: uhost-debian-10 # Buster
   - name: uhost-debian-11 # Bullseye
     image: debian-11
     server_type: cx11
