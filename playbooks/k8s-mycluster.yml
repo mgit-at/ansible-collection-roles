@@ -11,6 +11,7 @@
     hostlist: k8s_mycluster
 
 - name: Set up control plane nodes
+  serial: 1
   hosts: k8s_mycluster_control_plane_nodes
   roles:
     - role: mgit_at.roles.kubeadm_controlplane
