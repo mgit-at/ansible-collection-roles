@@ -29,12 +29,13 @@
 
 ### The cluster version has changed
 ### TODO: Add check to disallow simultaneous config + version changes, since kubeadm upgrade might not support this
-### TODO: Ensure this gets throttled somehow!
+### Throtteling the task here is not possible, will run role in serial:1 mode
 - name: Upgrade the cluster version
   when:
     - kubeconfig_kubelet_stats.stat.exists
     - kubernetes_version is version(kubectl_cluster_git_version, '>')
   ansible.builtin.include_tasks: upgrade-other-control-plane-nodes.yml
+
 - name: Downgrade the cluster version
   when:
     - kubeconfig_kubelet_stats.stat.exists

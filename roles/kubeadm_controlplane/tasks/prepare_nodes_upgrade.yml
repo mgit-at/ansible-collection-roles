@@ -1,0 +1,41 @@
+- name: Delegate to all nodes
+  delegate_to: "{{ item }}"
+  block:
+    - name: Apt update
+      ansible.builtin.apt:
+        update_cache: true
+    - name: Unhold kubeadm
+      # noqa no-changed-when - yes, this is not idempotent
+      ansible.builtin.command: apt-mark unhold kubeadm
+    - name: Update kubeadm
+      ansible.builtin.apt:
+        name: kubeadm={{ kubernetes_version }}-1.1
+        state: present
+    - name: Hold kubeadm
+      # noqa no-changed-when - yes, this is not idempotent
+      ansible.builtin.command: apt-mark hold kubeadm
+    - name: Verify kubeadm version
+      ansible.builtin.command: kubeadm version
+      register: kubeadm_version
+      failed_when: kubernetes_version not in kubeadm_version.stdout
+      changed_when: false # Read-only command
+    - name: Pre-pull images and clean up old etcd backups etc. on control plane nodes
+      when:
+        - kubernetes_control_plane
+      block:
+        - name: Pre-pull images for new version on control plane nodes
+          ansible.builtin.command: kubeadm config images pull --kubernetes-version {{ kubernetes_version }}
+          changed_when: false # Idempotent command
+        - name: Find all folders in /etc/kubernetes/tmp that are older than 15 weeks
+          ansible.builtin.find:
+            paths: /etc/kubernetes/tmp/
+            age: 15w
+            file_type: directory
+          register: old_tempfiles
+        - name: Remove all old folders in /etc/kubernetes/tmp
+          ansible.builtin.file:
+            path: "{{ item.path }}"
+            state: absent
+          loop: "{{ old_tempfiles.files }}"
+          loop_control:
+            label: "{{ item.path }}"
