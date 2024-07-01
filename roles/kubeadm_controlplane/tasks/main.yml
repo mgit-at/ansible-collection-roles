@@ -5,6 +5,12 @@
 #     name:
 #       - k9s
 #     state: present
+- name: Check if playbook is run in serial
+  when: ansible_play_batch |length > 1
+  ansible.builtin.fail:
+    msg: |
+      "Run this role only with serial:1, otherwise all other controlplanes are updated at the same time
+      Unfortunately serial is not possible on multiple tasks, like include_tasks etc."
 
 - name: Create directory for encryption config
   ansible.builtin.file:
@@ -54,12 +60,11 @@
     - kubernetes_control_plane
     - kubernetes_initial_control_plane
 
-- name: Join/reconfigure other control plane nodes one-by-one
-  ansible.builtin.include_tasks: other-control-plane-nodes.yml
-  # throttle: 1 <-- not valid on TaskInclude :-(
+- name: Join/reconfigure other control plane nodes
   when:
     - kubernetes_control_plane
     - kubernetes_other_control_plane
+  ansible.builtin.include_tasks: other-control-plane-nodes.yml
 
 ### Deal with taints on control plane nodes
 # TODO: Use kubernetes.core.k8s_info module here and elsewhere
@@ -71,7 +76,8 @@
 
 - name: Check if control plane nodes are tainted (2/2)
   ansible.builtin.set_fact:
-    kube_node_taints: "{% set node_info = kubectl_get_node.stdout | from_json %}{%if node_info.spec.taints is defined %}{{ node_info.spec.taints | map(attribute='key')
+    kube_node_taints:
+      "{% set node_info = kubectl_get_node.stdout | from_json %}{%if node_info.spec.taints is defined %}{{ node_info.spec.taints | map(attribute='key')
       | list }}{% endif %}"
 
 # TODO: Move to kubernetes.core.k8s_taint module

@@ -4,49 +4,8 @@
 # TODO: Write a test scenario for this.
 
 - name: Run pre-upgrade tasks on all nodes in the cluster
-  delegate_to: "{{ item }}"
   loop: "{{ groups[kubernetes_group_name] }}"
-  block:
-    - name: Apt update
-      ansible.builtin.apt:
-        update_cache: true
-    - name: Unhold kubeadm
-      # noqa no-changed-when - yes, this is not idempotent
-      ansible.builtin.command: apt-mark unhold kubeadm
-    - name: Update kubeadm
-      ansible.builtin.apt:
-        name: kubeadm={{ kubernetes_version }}-00
-        state: present
-    - name: Hold kubeadm
-      # noqa no-changed-when - yes, this is not idempotent
-      ansible.builtin.command: apt-mark hold kubeadm
-    - name: Verify kubeadm version
-      ansible.builtin.command: kubeadm version
-      register: kubeadm_version
-      failed_when: kubernetes_version not in kubeadm_version.stdout
-      changed_when: false # Read-only command
-
-    - name: Pre-pull images and clean up old etcd backups etc. on control plane nodes
-      when:
-        - kubernetes_control_plane
-      block:
-        - name: Pre-pull images for new version on control plane nodes
-          ansible.builtin.command: kubeadm config images pull --kubernetes-version {{ kubernetes_version }}
-          changed_when: false # Idempotent command
-        - name: Find all folders in /etc/kubernetes/tmp that are older than 15 weeks
-          ansible.builtin.find:
-            paths: /etc/kubernetes/tmp/
-            age: 15w
-            file_type: directory
-          register: old_tempfiles
-        - name: Remove all old folders in /etc/kubernetes/tmp
-          ansible.builtin.file:
-            path: "{{ item.path }}"
-            state: absent
-          loop: "{{ old_tempfiles.files }}"
-          loop_control:
-            label: "{{ item.path }}"
-
+  ansible.builtin.include_tasks: prepare_nodes_upgrade.yml
 - name: Kudeadm upgrade plan
   ansible.builtin.command: kubeadm upgrade plan
   register: kubeadm_plan
@@ -59,6 +18,7 @@
   when: kubernetes_autoupgrade is not defined
   ansible.builtin.pause:
     prompt: Please check the last output for warnings. Confirm you if want to resume the upgrade! Press return to continue. Press Ctrl+c and then "a" to abort
+  # TODO: Drain sometimes get stuck
 - name: Drain node
   # noqa no-changed-when - yes, this is not idempotent
   ansible.builtin.command: kubectl drain {{ ansible_nodename }} --ignore-daemonsets --delete-local-data --force
@@ -71,12 +31,27 @@
   # Kubeadm will NOT care about the contents of this file, it only takes/uses what's in the cluster!
   ansible.builtin.command: kubeadm upgrade apply v{{ kubernetes_version }} -y
 
+- name: Unhold kubelet & kubectl
+  # noqa no-changed-when - yes, this is not idempotent
+  loop:
+    - kubelet
+    - kubectl
+  ansible.builtin.command: apt-mark unhold {{ item }}
+
 - name: Update kubelet & kubectl
+  # noqa no-changed-when - yes, this is not idempotent
   ansible.builtin.apt:
     name:
-      - kubelet
-      - kubectl
+      - kubelet={{ kubernetes_version }}-1.1
+      - kubectl={{ kubernetes_version }}-1.1
     state: present
+
+- name: Hold kubelet & kubectl
+  # noqa no-changed-when - yes, this is not idempotent
+  loop:
+    - kubelet
+    - kubectl
+  ansible.builtin.command: apt-mark hold {{ item }}
 
 - name: Force kubelet certificate rotation (it gets regenerated after reboot)
   ansible.builtin.file:

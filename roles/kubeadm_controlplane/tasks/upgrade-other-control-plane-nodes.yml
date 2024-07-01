@@ -1,54 +1,70 @@
 ---
-# TODO: this now also requires switching apt mirrors if changing minor versions instead of only patches
+- name: Upgrade other controlplanes
+  delegate_to: "{{ item }}"
+  loop: groups['kubernetes_other_control_plane']
+  run_once: true
+  block:
+    # TODO: this now also requires switching apt mirrors if changing minor versions instead of only patches
+    - name: Drain node
+      # noqa no-changed-when - yes, this is not idempotent
+      ansible.builtin.command: kubectl drain {{ ansible_nodename }} --ignore-daemonsets --delete-local-data --force
+    - name: Upgrade cluster node
+      # noqa no-changed-when - yes, this is not idempotent
+      ansible.builtin.command: kubeadm upgrade node
 
-- name: Drain node
-  # noqa no-changed-when - yes, this is not idempotent
-  ansible.builtin.command: kubectl drain {{ ansible_nodename }} --ignore-daemonsets --delete-local-data --force
-- name: Upgrade cluster node
-  # noqa no-changed-when - yes, this is not idempotent
-  ansible.builtin.command: kubeadm upgrade node
-  # TODO: this is probably not enough to ensure the control plane doesn't go down...
-  throttle: 1
+    - name: Unhold kubelet & kubectl
+      # noqa no-changed-when - yes, this is not idempotent
+      loop:
+        - kubelet
+        - kubectl
+      ansible.builtin.command: apt-mark unhold {{ item }}
 
-- name: Update kubelet & kubectl
-  ansible.builtin.apt:
-    name:
-      - kubelet
-      - kubectl
-    state: present
+    - name: Update kubelet & kubectl
+      ansible.builtin.apt:
+        name:
+          - kubelet={{ kubernetes_version }}-1.1
+          - kubectl={{ kubernetes_version }}-1.1
+        state: present
 
-- name: Force kubelet certificate rotation (it gets regenerated after reboot)
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: absent
-  loop:
-    - /var/lib/kubelet/pki/kubelet.crt
-    - /var/lib/kubelet/pki/kubelet.key
+    - name: Hold kubelet & kubectl
+      # noqa no-changed-when - yes, this is not idempotent
+      loop:
+        - kubelet
+        - kubectl
+      ansible.builtin.command: apt-mark hold {{ item }}
 
-- name: Upgrade and reboot host OS on other control plane node
-  ansible.builtin.import_role:
-    name: upgrade_host
+    - name: Force kubelet certificate rotation (it gets regenerated after reboot)
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /var/lib/kubelet/pki/kubelet.crt
+        - /var/lib/kubelet/pki/kubelet.key
 
-- name: Uncordon other control plane node
-  # noqa no-changed-when - yes, this is not idempotent
-  ansible.builtin.command: kubectl uncordon {{ ansible_nodename }}
-  retries: 50
-  delay: 5
-  register: uncordon_node
-  until: uncordon_node.rc == 0
-- name: Wait up to 5 minutes until all pods are ready and running on the node again
-  ansible.builtin.command: kubectl wait --for=condition=Ready --field-selector='spec.nodeName={{ ansible_nodename }}' --timeout=300s -A --all pods
-  changed_when: false # Read-only command
+    - name: Upgrade and reboot host OS on other control plane node
+      ansible.builtin.import_role:
+        name: upgrade_host
 
-# Remove apt fragments
-- name: Run apt-get autoremove
-  ansible.builtin.apt:
-    autoremove: true
+    - name: Uncordon other control plane node
+      # noqa no-changed-when - yes, this is not idempotent
+      ansible.builtin.command: kubectl uncordon {{ ansible_nodename }}
+      retries: 50
+      delay: 5
+      register: uncordon_node
+      until: uncordon_node.rc == 0
+    - name: Wait up to 5 minutes until all pods are ready and running on the node again
+      ansible.builtin.command: kubectl wait --for=condition=Ready --field-selector='spec.nodeName={{ ansible_nodename }}' --timeout=300s -A --all pods
+      changed_when: false # Read-only command
 
-- name: Run apt-get autoclean
-  ansible.builtin.apt:
-    autoclean: true
+    # Remove apt fragments
+    - name: Run apt-get autoremove
+      ansible.builtin.apt:
+        autoremove: true
 
-- name: Run apt-get clean
-  ansible.builtin.apt:
-    clean: true
+    - name: Run apt-get autoclean
+      ansible.builtin.apt:
+        autoclean: true
+
+    - name: Run apt-get clean
+      ansible.builtin.apt:
+        clean: true
