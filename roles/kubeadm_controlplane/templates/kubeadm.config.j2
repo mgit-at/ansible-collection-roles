@@ -49,3 +49,6 @@ scheduler: {}
 apiVersion: kubelet.config.k8s.io/v1beta1
 kind: KubeletConfiguration
 maxPods: {{ kubernetes_max_pods }}
+{% if kubernetes_kubeadm_kubelet_extra_config is defined %}
+{{ kubernetes_kubeadm_kubelet_extra_config | to_nice_yaml }}
+{% endif %}
