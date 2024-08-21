@@ -9,14 +9,14 @@
 
 - name: Restart sshd
   ansible.builtin.systemd:
-    name: sshd
+    name: ssh
     state: restarted
   tags:
     - sshd
 
 - name: Restart sshd with systemd reload
   ansible.builtin.systemd:
-    name: sshd
+    name: ssh
     state: restarted
     daemon_reload: true
   tags:
