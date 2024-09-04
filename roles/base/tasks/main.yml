@@ -112,6 +112,26 @@
       - fd-find
     state: present
 
+- name: Apt - Install base system tools ubuntu 24 lts
+  when: ansible_distribution == "Ubuntu" and (ansible_distribution_major_version | int) == 24
+  ansible.builtin.apt:
+    name:
+      - cgroup-tools
+    state: present
+
+- name: Cleanup ubuntu 24.04 lts services
+  when: ansible_distribution == "Ubuntu" and (ansible_distribution_major_version | int) == 24
+  loop:
+    - pmcd
+    - pmproxy
+    - pmlogger
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+  register: unused_disable
+  failed_when: unused_disable is failed and ('find' not in unused_disable.msg and 'found' not in unused_disable.msg)
+
 # screen
 - name: Remove startup message from screen
   ansible.builtin.lineinfile:
