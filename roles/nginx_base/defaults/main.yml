@@ -23,3 +23,9 @@ nginx_base_snippets:
 nginx_base_ssl_reject_handshake_enabled: false
 
 nginx_base_dhparam_size: 2048
+
+nginx_base_systemd_override:
+  - [Service, Restart, always]
+  - [Service, RestartSec, "1"]
+  - [Unit, StartLimitIntervalSec, "0"]
+  - [Service, LimitNOFILE, 200000]
