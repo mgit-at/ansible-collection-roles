@@ -13,19 +13,22 @@ platforms:
   # - name: base-ubuntu-18.04 # Bionic Beaver
   - name: base-ubuntu-20.04 # Focal Fossa
     image: ubuntu-20.04
-    server_type: cx11 # 1 CPU, 2 GiB RAM, 20 GiB disk
+    server_type: cx22
   - name: base-ubuntu-22.04 # Jammy Jellyfish
     image: ubuntu-22.04
-    server_type: cx11
+    server_type: cx22
+  - name: base-ubuntu-24.04 # Noble Numbat
+    image: ubuntu-24.04
+    server_type: cx22
   # - name: base-debian-8 # Jessie
   # - name: base-debian-9 # Stretch
   # - name: base-debian-10 # Buster
   - name: base-debian-11 # Bullseye
     image: debian-11
-    server_type: cx11
+    server_type: cx22
   - name: base-debian-12 # Bookworm
     image: debian-12
-    server_type: cx11
+    server_type: cx22
 provisioner:
   name: ansible
   playbooks:

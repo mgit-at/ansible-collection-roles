@@ -16,12 +16,17 @@ platforms:
   # Workaround: Just test on 20.04 and newer.
   - name: kadm-cp-ubuntu-20.04 # Focal Fossa
     image: ubuntu-20.04
-    server_type: cx21 # 2 CPU, 4 GiB RAM, 40 GiB disk
+    server_type: cx22
     groups:
       - ubuntu20
   - name: kadm-cp-ubuntu-22.04 # Jammy Jellyfish
     image: ubuntu-22.04
-    server_type: cx21
+    server_type: cx22
+    groups:
+      - ubuntu22
+  - name: kadm-cp-ubuntu-24.04 # Noble Numbat
+    image: ubuntu-24.04
+    server_type: cx22
     groups:
       - ubuntu22
   # - name: kadm-cp-debian-8 # Jessie
@@ -29,12 +34,12 @@ platforms:
   # - name: kadm-cp-debian-10 # Buster
   - name: kadm-cp-debian-11 # Bullseye
     image: debian-11
-    server_type: cx21
+    server_type: cx22
     groups:
       - debian11
   - name: kadm-cp-debian-12 # Bookworm
     image: debian-12
-    server_type: cx21
+    server_type: cx22
     groups:
       - debian12
 provisioner:

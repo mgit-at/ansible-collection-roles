@@ -13,19 +13,22 @@ platforms:
   # - name: helmrepo-ubuntu-18.04 # Bionic Beaver
   - name: helmrepo-ubuntu-20.04 # Focal Fossa
     image: ubuntu-20.04
-    server_type: cx11 # 1 CPU, 2 GiB RAM, 20 GiB disk
+    server_type: cx22
   - name: helmrepo-ubuntu-22.04 # Jammy Jellyfish
     image: ubuntu-22.04
-    server_type: cx11
+    server_type: cx22
+  - name: helmrepo-ubuntu-24.04 # Noble Numbat
+    image: ubuntu-24.04
+    server_type: cx22
   # - name: helmrepo-debian-8 # Jessie
   # - name: helmrepo-debian-9 # Stretch
   # - name: helmrepo-debian-10 # Buster
   - name: helmrepo-debian-11 # Bullseye
     image: debian-11
-    server_type: cx11
+    server_type: cx22
   - name: helmrepo-debian-12 # Bookworm
     image: debian-12
-    server_type: cx11
+    server_type: cx22
 provisioner:
   name: ansible
   playbooks:
