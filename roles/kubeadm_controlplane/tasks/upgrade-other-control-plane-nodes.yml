@@ -1,7 +1,5 @@
 ---
 - name: Upgrade other controlplanes
-  delegate_to: "{{ item }}"
-  loop: groups['kubernetes_other_control_plane']
   run_once: true
   block:
     # TODO: this now also requires switching apt mirrors if changing minor versions instead of only patches
