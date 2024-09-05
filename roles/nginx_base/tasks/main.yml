@@ -44,10 +44,7 @@
     mode: "0750"
 
 - name: Ensure nginx is always restarted
-  loop:
-    - [Service, Restart, always]
-    - [Service, RestartSec, "1"]
-    - [Unit, StartLimitIntervalSec, "0"]
+  loop: "{{ nginx_base_systemd_override }}"
   community.general.ini_file:
     path: /etc/systemd/system/nginx.service.d/override.conf
     owner: root

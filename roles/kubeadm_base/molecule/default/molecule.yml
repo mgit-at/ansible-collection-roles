@@ -13,12 +13,12 @@ platforms:
   # - name: kadm-base-ubuntu-18.04 # Bionic Beaver
   - name: kadm-base-ubuntu-20.04 # Focal Fossa
     image: ubuntu-20.04
-    server_type: cx11 # 1 CPU, 2 GiB RAM, 20 GiB disk
+    server_type: cx22
     groups:
       - k8s_control_plane
   - name: kadm-base-ubuntu-22.04 # Jammy Jellyfish
     image: ubuntu-22.04
-    server_type: cx11
+    server_type: cx22
     groups:
       - k8s_control_plane
   # - name: kadm-base-debian-8 # Jessie
@@ -26,12 +26,12 @@ platforms:
   # - name: kadm-base-debian-10 # Buster
   - name: kadm-base-debian-11 # Bullseye
     image: debian-11
-    server_type: cx11
+    server_type: cx22
     groups:
       - k8s_control_plane
   - name: kadm-base-debian-12 # Bookworm
     image: debian-12
-    server_type: cx11
+    server_type: cx22
     groups:
       - k8s_control_plane
 provisioner:
