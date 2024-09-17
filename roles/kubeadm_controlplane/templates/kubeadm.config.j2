@@ -43,7 +43,10 @@ apiServer:
 controllerManager:
   extraArgs:
     node-cidr-mask-size: "{{ kubernetes_network_node_cidr_size }}"
-scheduler: {}
+    bind-address: "{{ kubernetes_controller_manager_bind_address }}"
+scheduler:
+  extraArgs:
+    bind-address: "{{ kubernetes_scheduler_bind_address }}"
 
 ---
 apiVersion: kubelet.config.k8s.io/v1beta1

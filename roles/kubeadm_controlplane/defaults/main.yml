@@ -6,3 +6,5 @@ kubernetes_api_cert_sans_extra: []
 kubernetes_network_dns_domain: cluster.local
 # kubernetes_kubeadm_kubelet_extra_config:
 #   resolvConf: /etc/resolv-upstreamonly.conf
+kubernetes_controller_manager_bind_address: 0.0.0.0
+kubernetes_scheduler_bind_address: 0.0.0.0
