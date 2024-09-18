@@ -1,5 +1,5 @@
 ---
-- name: Converge
+- name: Converge I
   hosts: all
   gather_facts: true
   tasks:
@@ -34,6 +34,35 @@
         kubernetes_version: "{{ current_version['content'][1:] }}"
     - role: kubernetes_base
     - role: kubeadm_base
+    # from playbooks/k8s-mycluster.yml
+  vars:
+    kubernetes_version: "{{ current_version['content'][1:] }}"
+    kubernetes_cilium_init_version: "{{ current_cilium_release['json']['tag_name'][1:] }}"
+
+- name: Converge II
+  hosts: all
+  gather_facts: true
+  serial: 1
+  tasks:
+  pre_tasks:
+    - name: Get current kubernetes release
+      ansible.builtin.uri:
+        url: https://dl.k8s.io/release/stable.txt
+        return_content: true
+        # Returns something like "v1.23.45", kubernetes_version is expected to be without the "v"
+      register: current_version
+    - name: Log the version used
+      ansible.builtin.debug:
+        msg: The current kubernetes release used for this test is {{ current_version['content'] }}.
+    - name: Get current cilium release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/cilium/cilium/releases/latest
+        # Returns json, we use the tag_name in there which contains a "v"
+      register: current_cilium_release
+    - name: Log the version used
+      ansible.builtin.debug:
+        msg: The current cilium release used for this test is {{ current_cilium_release['json']['tag_name'] }}.
+  roles:
     # from playbooks/k8s-mycluster.yml
     - role: kubeadm_controlplane
   vars:

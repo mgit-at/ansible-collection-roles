@@ -26,7 +26,7 @@
     wait: true
     chart_version: "{{ kubernetes_cilium_init_version }}"
     release_values:
-      kubeProxyReplacement: strict
+      kubeProxyReplacement: true
       k8sServiceHost: 127.0.0.1 # provided by haproxy, not kubernetes directly!
       k8sServicePort: "{{ kubernetes_api_lb_port | default('6443') }}"
       cluster:

@@ -100,7 +100,8 @@
     name: openssl
     state: present
 - name: Get CA certificate digest
-  ansible.builtin.shell: set -o pipefail && openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256
+  ansible.builtin.shell:
+    set -o pipefail && openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256
     -hex | sed 's/^.* //'
   args:
     executable: /bin/bash
@@ -110,7 +111,8 @@
 
 - name: Set variables needed by kubernetes/nodes to join the cluster on all cluster nodes
   ansible.builtin.set_fact:
-    kube_bootstrap_token: "{% if kubeadm_token_generate.stdout is defined %}{{ kubeadm_token_generate.stdout }}{% elif kubeadm_token_create.stdout is defined %}{{
+    kube_bootstrap_token:
+      "{% if kubeadm_token_generate.stdout is defined %}{{ kubeadm_token_generate.stdout }}{% elif kubeadm_token_create.stdout is defined %}{{
       kubeadm_token_create.stdout }}{% endif %}"
     kube_bootstrap_ca_cert_hash: sha256:{{ kube_ca_openssl.stdout }}
   delegate_to: "{{ item }}"

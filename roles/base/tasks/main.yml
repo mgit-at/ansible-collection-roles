@@ -6,10 +6,25 @@
 
 ## apt
 - name: Apt - install zone and distro specific apt sources.list
+  when: not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int >= 24)
   ansible.builtin.template:
     src: "{{ base_apt_repo_zone }}-{{ ansible_distribution | lower }}.list.j2"
     dest: /etc/apt/sources.list
   register: base_sources_list
+
+- name: Apt - install zone and distro newer ubuntu apt sources
+  when:
+    - ansible_distribution == "Ubuntu"
+    - ansible_distribution_major_version | int >= 24
+  ansible.builtin.deb822_repository:
+    name: ubuntu
+    types: deb
+    uris:
+      - "{{ apt_repo_ubuntu_nginx_repo_base_url }}{{ ansible_distribution | lower }}"
+    suites:
+      - "{{ ansible_distribution_release }}"
+    components:
+      - main
 
 - name: Apt - set /etc/hosts when no dns is available
   ansible.builtin.blockinfile:
@@ -104,7 +119,8 @@
         state: present
 
 - name: Apt - Install base system tools (debian buster and ubuntu focal)
-  when: ansible_distribution == "Debian" and ansible_distribution_major_version | int >= 10 or ansible_distribution == "Ubuntu" and (ansible_distribution_major_version
+  when:
+    ansible_distribution == "Debian" and ansible_distribution_major_version | int >= 10 or ansible_distribution == "Ubuntu" and (ansible_distribution_major_version
     | int) >= 20
   ansible.builtin.apt:
     name:
@@ -205,7 +221,8 @@
     owner: root
     group: root
     mode: "0644"
-  with_items: "{{ modules_blacklist.net | union(modules_blacklist.fs) | union(modules_blacklist.misc) | union(modules_blacklist_host) | union(modules_blacklist_group)
+  with_items:
+    "{{ modules_blacklist.net | union(modules_blacklist.fs) | union(modules_blacklist.misc) | union(modules_blacklist_host) | union(modules_blacklist_group)
     }}"
 
 ## cron

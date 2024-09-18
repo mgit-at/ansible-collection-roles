@@ -9,7 +9,7 @@
       ansible.builtin.command: apt-mark unhold kubeadm
     - name: Update kubeadm
       ansible.builtin.apt:
-        name: kubeadm={{ kubernetes_version }}-1.1
+        name: kubeadm={{ kubernetes_version }}-{{ kubernetes_package_version }}
         state: present
     - name: Hold kubeadm
       # noqa no-changed-when - yes, this is not idempotent
@@ -34,8 +34,9 @@
           register: old_tempfiles
         - name: Remove all old folders in /etc/kubernetes/tmp
           ansible.builtin.file:
-            path: "{{ item.path }}"
+            path: "{{ file.path }}"
             state: absent
           loop: "{{ old_tempfiles.files }}"
           loop_control:
-            label: "{{ item.path }}"
+            label: "{{ file.path }}"
+            loop_var: file
