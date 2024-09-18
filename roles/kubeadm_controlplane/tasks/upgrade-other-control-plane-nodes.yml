@@ -20,8 +20,8 @@
     - name: Update kubelet & kubectl
       ansible.builtin.apt:
         name:
-          - kubelet={{ kubernetes_version }}-1.1
-          - kubectl={{ kubernetes_version }}-1.1
+          - kubelet={{ kubernetes_version }}-{{ kubernetes_package_version }}
+          - kubectl={{ kubernetes_version }}-{{ kubernetes_package_version }}
         state: present
 
     - name: Hold kubelet & kubectl

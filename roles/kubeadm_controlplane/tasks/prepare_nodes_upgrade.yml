@@ -9,7 +9,7 @@
       ansible.builtin.command: apt-mark unhold kubeadm
     - name: Update kubeadm
       ansible.builtin.apt:
-        name: kubeadm={{ kubernetes_version }}-1.1
+        name: kubeadm={{ kubernetes_version }}-{{ kubernetes_package_version }}
         state: present
     - name: Hold kubeadm
       # noqa no-changed-when - yes, this is not idempotent
