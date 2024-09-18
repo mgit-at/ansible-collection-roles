@@ -6,25 +6,11 @@
 
 ## apt
 - name: Apt - install zone and distro specific apt sources.list
-  when: not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int >= 24)
+  when: not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version)
   ansible.builtin.template:
     src: "{{ base_apt_repo_zone }}-{{ ansible_distribution | lower }}.list.j2"
     dest: /etc/apt/sources.list
   register: base_sources_list
-
-- name: Apt - install zone and distro newer ubuntu apt sources
-  when:
-    - ansible_distribution == "Ubuntu"
-    - ansible_distribution_major_version | int >= 24
-  ansible.builtin.deb822_repository:
-    name: ubuntu
-    types: deb
-    uris:
-      - "{{ apt_repo_ubuntu_nginx_repo_base_url }}{{ ansible_distribution | lower }}"
-    suites:
-      - "{{ ansible_distribution_release }}"
-    components:
-      - main
 
 - name: Apt - set /etc/hosts when no dns is available
   ansible.builtin.blockinfile:
@@ -195,9 +181,15 @@
 - name: Ssh - seed initial global known_hosts
   loop:
     # https://gitlab.com/gitlab-org/gitlab-foss/-/blob/master/doc/user/gitlab_com/index.md#ssh-host-keys-fingerprints
-    - [gitlab.com, ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf]
+    - [
+        gitlab.com,
+        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf,
+      ]
     # https://github.blog/2021-09-01-improving-git-protocol-security-github/#new-host-keys
-    - [github.com, ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl]
+    - [
+        github.com,
+        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl,
+      ]
   ansible.builtin.known_hosts:
     path: /etc/ssh/ssh_known_hosts
     name: "{{ item[0] }}"
