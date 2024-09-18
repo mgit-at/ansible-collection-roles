@@ -6,25 +6,11 @@
 
 ## apt
 - name: Apt - install zone and distro specific apt sources.list
-  when: not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int >= 24)
+  when: not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version)
   ansible.builtin.template:
     src: "{{ base_apt_repo_zone }}-{{ ansible_distribution | lower }}.list.j2"
     dest: /etc/apt/sources.list
   register: base_sources_list
-
-- name: Apt - install zone and distro newer ubuntu apt sources
-  when:
-    - ansible_distribution == "Ubuntu"
-    - ansible_distribution_major_version | int >= 24
-  ansible.builtin.deb822_repository:
-    name: ubuntu
-    types: deb
-    uris:
-      - "{{ apt_repo_ubuntu_nginx_repo_base_url }}{{ ansible_distribution | lower }}"
-    suites:
-      - "{{ ansible_distribution_release }}"
-    components:
-      - main
 
 - name: Apt - set /etc/hosts when no dns is available
   ansible.builtin.blockinfile:
