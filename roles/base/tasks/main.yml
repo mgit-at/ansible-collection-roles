@@ -6,7 +6,6 @@
 
 ## apt
 - name: Apt - install zone and distro specific apt sources.list
-  when: not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version)
   ansible.builtin.template:
     src: "{{ base_apt_repo_zone }}-{{ ansible_distribution | lower }}.list.j2"
     dest: /etc/apt/sources.list
