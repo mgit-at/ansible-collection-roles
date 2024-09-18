@@ -35,7 +35,6 @@
     - role: kubernetes_base
     - role: kubeadm_base
     # from playbooks/k8s-mycluster.yml
-    - role: kubeadm_controlplane
   vars:
     kubernetes_version: "{{ current_version['content'][1:] }}"
     kubernetes_cilium_init_version: "{{ current_cilium_release['json']['tag_name'][1:] }}"
