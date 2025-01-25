@@ -239,6 +239,8 @@
   with_dict: "{{ sysctl_config | combine(sysctl_config_user) }}"
   loop_control:
     label: "{{ item.key }} = {{ item.value }}"
+  tags:
+    - sysctl
 
 ## the options could be set using sysctl as well but only if the sunrpc module
 ## has been loaded which is not the case for all machines. Doing it via sysctl

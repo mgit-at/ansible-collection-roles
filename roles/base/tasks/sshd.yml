@@ -24,6 +24,8 @@
       line: UsePAM {{ base_ssh_use_pam }}
   loop_control:
     label: "{{ item.line }}"
+  tags:
+    - sshd
   notify: Restart sshd
 
 # OMG, this is broken... be VERY careful using this!
