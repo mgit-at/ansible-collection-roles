@@ -1,3 +1,4 @@
 ---
 upgrade_host_system_state_retries: 10
 upgrade_host_system_state_delay: 1
+upgrade_host_apt_cleanup: true
