@@ -6,7 +6,10 @@
   until: upgrade_host_apt_result is not failed
   retries: 60
   delay: 5
-
+- name: Include roles pre-reboot
+  when: upgrade_host_pre_reboot_role is defined
+  ansible.builtin.include_role:
+    name: "{{ upgrade_host_pre_reboot_role }}"
 - name: Reboot
   ansible.builtin.reboot:
     msg: Ansible updates triggered
@@ -24,6 +27,8 @@
   retries: "{{ upgrade_host_system_state_retries }}"
   delay: "{{ upgrade_host_system_state_delay }}"
   changed_when: false # Read-only command
+  tags:
+    - check
 - name: Check service state
   ansible.builtin.command: systemctl --failed
   # systemctl used deliberately for functionality not in systemd module
@@ -31,6 +36,26 @@
   register: upgrade_host_failed_result
   failed_when: "'failed' in upgrade_host_failed_result.stdout"
   changed_when: false # Read-only command
+  tags:
+    - check
+- name: Run apt-get autoremove
+  when: upgrade_host_apt_cleanup
+  ansible.builtin.apt:
+    autoremove: true
+  tags:
+    - cleanup
+- name: Run apt-get autoclean
+  when: upgrade_host_apt_cleanup
+  ansible.builtin.apt:
+    autoclean: true
+  tags:
+    - cleanup
+- name: Run apt-get clean
+  when: upgrade_host_apt_cleanup
+  ansible.builtin.apt:
+    clean: true
+  tags:
+    - cleanup
 - name: Include applied role
   when: applied_role_enabled | default(false)
   ansible.builtin.include_role:
