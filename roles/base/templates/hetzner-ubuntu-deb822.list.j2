@@ -1,0 +1,23 @@
+Types: deb
+URIs: https://mirror.hetzner.com/ubuntu/packages
+Suites: {{ ansible_distribution_release }} {{ ansible_distribution_release }}-updates
+Components: {{ base_apt_repo_ubuntu_components | join (' ') }}
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+Types: deb
+URIs: https://mirror.hetzner.com/ubuntu/security
+Suites: {{ ansible_distribution_release }}-security
+Components: {{ base_apt_repo_ubuntu_components | join (' ') }}
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+Types: deb
+URIs: http://de.archive.ubuntu.com/ubuntu/
+Suites: {{ ansible_distribution_release }} {{ ansible_distribution_release }}-updates
+Components: {{ base_apt_repo_ubuntu_components | join (' ') }}
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+Types: deb
+URIs: http://security.ubuntu.com/ubuntu
+Suites: {{ ansible_distribution_release }}-security
+Components: {{ base_apt_repo_ubuntu_components | join (' ') }}
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
