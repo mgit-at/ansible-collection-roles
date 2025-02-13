@@ -21,6 +21,9 @@ platforms:
     server_type: cx22
     groups:
       - k8s_control_plane
+  - name: kadm-base-ubuntu-24.04 # Noble Numbat
+    image: ubuntu-24.04
+    server_type: cx22
   # - name: kadm-base-debian-8 # Jessie
   # - name: kadm-base-debian-9 # Stretch
   # - name: kadm-base-debian-10 # Buster
