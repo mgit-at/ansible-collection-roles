@@ -1,26 +1,52 @@
 ---
-- name: Cleanup apt repo using legacy method
-  loop:
-    - trusted.gpg.d/kubernetes.gpg
-    - sources.list.d/kubernetes.list
-  ansible.builtin.file:
-    path: "/etc/apt/{{ item }}"
-    state: absent
-  notify: Update apt cache
+- name: Install apt repo using legacy method
+  when: >
+    (ansible_distribution == 'Ubuntu' and ansible_distribution_version is version('20.04', '<=')) or
+    (ansible_distribution == 'Debian' and ansible_distribution_version is version('11', '<='))
+  block:
+    - name: Install kubernetes repo key
+      ansible.builtin.copy:
+        # Source: https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key
+        # converted using `gpg --dearmor -o kubernetes.gpg Release.key`
+        src: kubernetes.gpg
+        dest: /etc/apt/trusted.gpg.d/kubernetes.gpg
+      notify: Update apt cache
+
+    - name: Add kubernetes apt repo
+      ansible.builtin.copy:
+        # e.g. https://pkgs.k8s.io/core:/stable:/v1.32/deb/
+        # Slightly hacky, just use the first 4 letters in the kubernetes_version for now.
+        content: |
+          deb {{ apt_repo_kubernetes_repo_base_url }}/core:/stable:/v{{ kubernetes_version[:4] }}/deb/ /
+        dest: /etc/apt/sources.list.d/kubernetes.list
+      notify: Update apt cache
 
 - name: Install using deb822_repository
-  ansible.builtin.deb822_repository:
-    name: "kubernetes{{ kubernetes_version[:4] }}"
-    types: deb
-    uris:
-      # e.g. https://pkgs.k8s.io/core:/stable:/v1.29/deb/
-      # Slightly hacky, just use the first 4 letters in the kubernetes_version for now.
-      - "{{ apt_repo_kubernetes_repo_base_url }}/core:/stable:/v{{ kubernetes_version[:4] }}/deb/"
-    suites:
-      - "/"
-    # Source: https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key
-    signed_by: "{{ apt_repo_kubernetes_repo_gpg_key }}"
-  notify: Update apt cache
+  when: >
+    (ansible_distribution == 'Ubuntu' and ansible_distribution_version is version('20.04', '>')) or
+    (ansible_distribution == 'Debian' and ansible_distribution_version is version('11', '>'))
+  block:
+    - name: Cleanup apt repo using legacy method
+      loop:
+        - trusted.gpg.d/kubernetes.gpg
+        - sources.list.d/kubernetes.list
+      ansible.builtin.file:
+        path: "/etc/apt/{{ item }}"
+        state: absent
+      notify: Update apt cache
+    - name: Install deb822_repository
+      ansible.builtin.deb822_repository:
+        name: "kubernetes{{ kubernetes_version[:4] }}"
+        types: deb
+        uris:
+          # e.g. https://pkgs.k8s.io/core:/stable:/v1.32/deb/
+          # Slightly hacky, just use the first 4 letters in the kubernetes_version for now.
+          - "{{ apt_repo_kubernetes_repo_base_url }}/core:/stable:/v{{ kubernetes_version[:4] }}/deb/"
+        suites:
+          - "/"
+        # Source: https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key
+        signed_by: "{{ apt_repo_kubernetes_repo_gpg_key }}"
+      notify: Update apt cache
 
 - name: Run handlers to update apt cache
   ansible.builtin.meta: flush_handlers
