@@ -1,0 +1,9 @@
+Types: deb
+URIs: {{ base_customer_mirror_protocol }}://{{ base_customer_mirror }}/ubuntu
+Suites: {{ ansible_distribution_release }} {{ ansible_distribution_release }}-updates
+Components: {{ base_apt_repo_ubuntu_components | join (' ') }}
+
+Types: deb
+URIs: {{ base_customer_mirror_protocol }}://{{ base_customer_mirror }}/ubuntu
+Suites: {{ ansible_distribution_release }}-security
+Components: {{ base_apt_repo_ubuntu_components | join (' ') }}

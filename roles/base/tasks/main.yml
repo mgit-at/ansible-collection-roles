@@ -6,9 +6,31 @@
 
 ## apt
 - name: Apt - install zone and distro specific apt sources.list
+  when:
+    - ansible_distribution != "Ubuntu" or (ansible_distribution_major_version | int) < 24
   ansible.builtin.template:
     src: "{{ base_apt_repo_zone }}-{{ ansible_distribution | lower }}.list.j2"
     dest: /etc/apt/sources.list
+  register: base_sources_list
+
+- name: Apt - cleanup old sources lists Ubuntu >= 24
+  # After an upgrade to Ubuntu 24.04 the base_apt_repo_zone other than upstream
+  # are moved to third-party.sources. This will happen with all sources in the old
+  # sources.list file. This task tries to clean it up automatically
+  when:
+    - ansible_distribution == "Ubuntu" and (ansible_distribution_major_version | int) >= 24
+    - base_apt_repo_zone != "upstream"
+  ansible.builtin.file:
+    path: /etc/apt/sources.list.d/third-party.sources
+    state: absent
+  register: base_sources_list
+
+- name: Apt - install zone and distro specific apt sources.list for Ubuntu >= 24
+  when:
+    - ansible_distribution == "Ubuntu" and (ansible_distribution_major_version | int) >= 24
+  ansible.builtin.template:
+    src: "{{ base_apt_repo_zone }}-{{ ansible_distribution | lower }}-deb822.list.j2"
+    dest: /etc/apt/sources.list.d/ubuntu.sources
   register: base_sources_list
 
 - name: Apt - set /etc/hosts when no dns is available
