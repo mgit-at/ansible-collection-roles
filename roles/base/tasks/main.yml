@@ -11,7 +11,7 @@
   ansible.builtin.template:
     src: "{{ base_apt_repo_zone }}-{{ ansible_distribution | lower }}.list.j2"
     dest: /etc/apt/sources.list
-  register: base_sources_list
+  notify: Update apt cache
 
 - name: Apt - cleanup old sources lists Ubuntu >= 24
   # After an upgrade to Ubuntu 24.04 the base_apt_repo_zone other than upstream
@@ -23,7 +23,7 @@
   ansible.builtin.file:
     path: /etc/apt/sources.list.d/third-party.sources
     state: absent
-  register: base_sources_list
+  notify: Update apt cache
 
 - name: Apt - install zone and distro specific apt sources.list for Ubuntu >= 24
   when:
@@ -31,7 +31,7 @@
   ansible.builtin.template:
     src: "{{ base_apt_repo_zone }}-{{ ansible_distribution | lower }}-deb822.list.j2"
     dest: /etc/apt/sources.list.d/ubuntu.sources
-  register: base_sources_list
+  notify: Update apt cache
 
 - name: Apt - set /etc/hosts when no dns is available
   ansible.builtin.blockinfile:
@@ -44,9 +44,7 @@
     - base_apt_repo_zone == "intranet"
 
 - name: Apt - update apt cache
-  ansible.builtin.apt:
-    update_cache: true
-  when: base_sources_list.changed # noqa no-handler - this needs to run right at this point to use the new mirrors
+  ansible.builtin.meta: flush_handlers
 
 - name: Apt - disable recommends and suggests
   ansible.builtin.copy:

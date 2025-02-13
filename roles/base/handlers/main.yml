@@ -1,4 +1,8 @@
 ---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+
 - name: Initialise persistent systemd journal (ubuntu)
   # noqa: no-changed-when - this is already in a handler
   ansible.builtin.command: systemd-tmpfiles --create --prefix /var/log/journal
