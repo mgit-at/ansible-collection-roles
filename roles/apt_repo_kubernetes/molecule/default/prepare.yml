@@ -11,6 +11,6 @@
         - sources.list.d/kubernetes.list
       ansible.builtin.copy:
         content: ""
-        path: "/etc/apt/{{ item }}"
+        dest: "/etc/apt/{{ item }}"
         force: false
         mode: "0644"
