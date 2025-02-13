@@ -32,7 +32,6 @@
       cluster:
         name: "{{ kubernetes_cluster_name }}"
       containerRuntime:
-        integration: containerd # only containerd supported in the future anyways, so no variable here
         socketPath: /run/containerd/containerd.sock
       # No Hubble on dedicated control plane nodes
       # hubble:

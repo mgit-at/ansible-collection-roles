@@ -34,6 +34,11 @@ platforms:
     server_type: cx22
     groups:
       - worker
+  - name: kadm-node-ubuntu-24.04 # Noble Numbat
+    image: ubuntu-24.04
+    server_type: cx22
+    groups:
+      - worker
   # - name: kadm-node-debian-8 # Jessie
   # - name: kadm-node-debian-9 # Stretch
   # - name: kadm-node-debian-10 # Buster

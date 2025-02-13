@@ -1,1 +1,0 @@
-roles/base/files/ethtool-setringmax.awk shebang # See https://github.com/ansible/ansible/issues/76612
