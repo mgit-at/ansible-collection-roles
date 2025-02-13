@@ -3,7 +3,7 @@
   loop:
     - trusted.gpg.d/kubernetes.gpg
     - sources.list.d/kubernetes.list
-  ansible.builtin.files:
+  ansible.builtin.file:
     path: "/etc/apt/{{ item }}"
     state: absent
   notify: Update apt cache
