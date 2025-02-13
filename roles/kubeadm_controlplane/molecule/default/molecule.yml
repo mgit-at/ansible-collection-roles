@@ -28,7 +28,7 @@ platforms:
     image: ubuntu-24.04
     server_type: cx22
     groups:
-      - ubuntu22
+      - ubuntu24
   # - name: kadm-cp-debian-8 # Jessie
   # - name: kadm-cp-debian-9 # Stretch
   # - name: kadm-cp-debian-10 # Buster
@@ -124,6 +124,28 @@ provisioner:
                       ubuntu22: {}
                   k8s_ubuntu22_other_control_plane_nodes: {}
               k8s_ubuntu22_worker_nodes: {}
+          k8s_ubuntu24:
+            vars:
+              kubernetes_cluster_name: ubuntu24
+              kubernetes_control_plane_nodes_group_name: k8s_ubuntu24_control_plane_nodes
+              kubernetes_dedicated_control_plane: false
+              kubernetes_encryption_config_keys:
+                # example key from https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/
+                - YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY=
+              kubernetes_group_name: k8s_ubuntu24
+              kubernetes_initial_control_plane_node_group_name: k8s_ubuntu24_initial_control_plane_node
+              kubernetes_max_pods: 123
+              kubernetes_network_node_cidr_size: 24
+              kubernetes_network_pod_subnet: 192.168.0.0/17
+              kubernetes_network_svc_subnet: 192.168.128.0/20
+            children:
+              k8s_ubuntu24_control_plane_nodes:
+                children:
+                  k8s_ubuntu24_initial_control_plane_node:
+                    children:
+                      ubuntu24: {}
+                  k8s_ubuntu24_other_control_plane_nodes: {}
+              k8s_ubuntu24_worker_nodes: {}
           k8s_debian11:
             vars:
               kubernetes_cluster_name: debian11
