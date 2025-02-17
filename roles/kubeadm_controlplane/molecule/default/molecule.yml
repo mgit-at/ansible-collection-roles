@@ -69,6 +69,7 @@ provisioner:
                     children:
                       k8s_ubuntu20_initial_control_plane_node: {}
                       k8s_ubuntu22_initial_control_plane_node: {}
+                      k8s_ubuntu24_initial_control_plane_node: {}
                       k8s_debian10_initial_control_plane_node: {}
                       k8s_debian11_initial_control_plane_node: {}
                       k8s_debian12_initial_control_plane_node: {}
