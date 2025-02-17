@@ -5,3 +5,12 @@
   tasks:
     - name: Just ping
       ansible.builtin.ping:
+    - name: Fake legacy repositories for cleanup
+      loop:
+        - trusted.gpg.d/kubernetes.gpg
+        - sources.list.d/kubernetes.list
+      ansible.builtin.copy:
+        content: ""
+        dest: "/etc/apt/{{ item }}"
+        force: false
+        mode: "0644"
