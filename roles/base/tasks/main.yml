@@ -146,10 +146,11 @@
     - pmcd
     - pmproxy
     - pmlogger
-  ansible.builtin.service:
+  ansible.builtin.systemd:
     name: "{{ item }}"
     state: stopped
     enabled: false
+    masked: true
   register: unused_disable
   failed_when: unused_disable is failed and ('find' not in unused_disable.msg and 'found' not in unused_disable.msg)
 
