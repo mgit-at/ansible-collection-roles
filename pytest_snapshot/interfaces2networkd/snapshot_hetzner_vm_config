@@ -1,0 +1,1 @@
+[{'intfname': 'lo', 'family': 'inet', 'type': 'loopback'}, {'intfname': 'lo', 'family': 'inet6', 'type': 'loopback'}, {'intfname': 'ens3', 'family': 'inet', 'type': 'dhcp'}, {'intfname': 'ens3', 'family': 'inet6', 'type': 'static', 'address': '2a01:4f8:c012:d80c::2', 'netmask': '64', 'gateway': 'fe80::1', 'dadattempts': '0'}]

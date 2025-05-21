@@ -1,0 +1,1 @@
+{'40-eth0.network': {'Match': {'Name': 'eth0'}, 'Network': {'Address': [], 'Gateway': ['5.9.41.129', 'fe80::1'], 'DHCP': 'no'}, 'Address': [{'Address': '5.9.41.140/27', 'Peer': '5.9.41.129'}, {'Address': '2a01:4f8:161:308e::2/64', 'DuplicateAddressDetection': 'none'}]}}
