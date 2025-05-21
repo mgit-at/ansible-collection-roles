@@ -1,0 +1,1 @@
+{'40-ens3.network': '[Match]\nName=ens3\n\n[Network]\nGateway=fe80::1\nDHCP=ipv4\n\n[Address]\nAddress=2a01:4f8:c012:d80c::2/64\nDuplicateAddressDetection=none\n'}
