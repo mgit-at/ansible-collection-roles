@@ -9,6 +9,18 @@ import argparse
 from argparse import Namespace
 from typing import Iterator, Tuple
 import os
+import fcntl
+import socket
+import struct
+
+
+# see https://stackoverflow.com/a/4789267
+def get_mac(ifname):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    info = fcntl.ioctl(
+        s.fileno(), 0x8927, struct.pack("256s", bytes(ifname, "utf-8")[:15])
+    )
+    return ":".join("%02x" % b for b in info[18:24])
 
 
 def parse_network_config(file_content):
@@ -153,8 +165,7 @@ def definitions_to_systemd_networkd(intfs, read_mac=False):
             network["DHCP"] = "no"
 
         if read_mac:
-            with open(f"/sys/class/net/{intf}/address") as f:
-                match["MACAddress"] = f.read().strip()
+            match["MACAddress"] = get_mac(intf)
         else:
             match["Name"] = intf
 
