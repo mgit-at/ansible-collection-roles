@@ -1,0 +1,4 @@
+---
+interfaces2networkd_chroot: "/"
+interfaces2networkd_disable_ifupdown: true
+interfaces2networkd_enable_networkd: true
