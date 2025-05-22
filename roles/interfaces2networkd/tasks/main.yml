@@ -1,0 +1,30 @@
+---
+- name: Check for old config
+  ansible.builtin.stat:
+    path: "{{ interfaces2networkd_chroot }}/etc/network/interfaces"
+  register: intf
+
+- name: Install interfaces2networkd script
+  ansible.builtin.copy:
+    src: interfaces2networkd/__init__.py
+    dest: /usr/bin/interfaces2networkd
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Convert configuration
+  ansible.builtin.command: interfaces2networkd --chroot "{{ interfaces2networkd_chroot }}"
+  when: intf.stat.exists
+  notify: Reload networkctl
+
+- name: Move away old configuration
+  ansible.builtin.command: mv "{{ interfaces2networkd_chroot }}/etc/network" "{{ interfaces2networkd_chroot }}/etc/network.bak"
+  when: intf.stat.exists
+
+- name: Make sure that systemd-networkd is enabled/started
+  ansible.builtin.systemd:
+    name: systemd-networkd.service
+    enabled: true
+    state: started
+  when: interfaces2networkd_enable_networkd
+  notify: Reload networkctl
