@@ -29,7 +29,7 @@ base_apt_repo_zone: "{{ apt_repo_zone | default('upstream') }}"
 #  add the following rule to apt-cacher-ng:
 #    Remap-archive: /archive ; http://archive.debian.org/debian
 #    Remap-archivesecdeb: /archive-security ; http://archive.debian.org/debian-security
-base_apt_debian_archive_version: 9
+base_apt_debian_archive_version: 10
 
 base_apt_repo_debian_components:
   - main
