@@ -1,0 +1,34 @@
+---
+name: Cleanup
+"on":
+  workflow_dispatch:
+  # Run CI daily (at 06:00 UTC)
+  schedule:
+    - cron: "0 6 * * *"
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    name: role test (${{ matrix.hook }})
+    env:
+      HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
+    strategy:
+      # Run all tests always
+      fail-fast: false
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        # with:
+        #   path: ansible_collections/${{env.NAMESPACE}}/${{env.COLLECTION_NAME}}
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+
+      - name: Install deps
+        run: pip install timeago hcloud
+
+      # Run the pre-commit hooks
+      - name: Run cleanup
+        run: python3 .github/clear-up-hetzner.py
