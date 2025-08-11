@@ -1,1 +1,1 @@
-{'eth0': {'v4': namespace(dhcp=False, gw='5.9.41.129', cidr='5.9.41.140/27', dad=True, peergw=True), 'v6': namespace(dhcp=False, gw='fe80::1', cidr='2a01:4f8:161:308e::2/64', dad=False, peergw=False)}}
+{'eth0': {'v4': namespace(dhcp=False, gw='5.9.41.129', cidr='5.9.41.140/32', dad=True, peergw=True), 'v6': namespace(dhcp=False, gw='fe80::1', cidr='2a01:4f8:161:308e::2/64', dad=False, peergw=False)}}

@@ -4,7 +4,7 @@
 # during a hetzner install or just as a general standalone tool
 
 from types import SimpleNamespace
-from ipaddress import ip_interface, ip_address
+from ipaddress import ip_interface, ip_network, ip_address
 import argparse
 from argparse import Namespace
 from typing import Iterator, Tuple
@@ -104,10 +104,16 @@ def config_to_interface_definitions(result):
             res.gw = str(ip_address(config.gateway))
             if "dadattempts" in config_:
                 res.dad = config.dadattempts != "0"
-            # hetzner static address for ipv4 has custom script to add gw as peer
-            # (gw is outside of cidr, so it won't find it otherwise)
             if "up" in config_:
-                res.peergw = True
+                # detected hetzner - we need to strip netmask from ip
+                # the old ifupdown setup uses the ipv4 netmask and a rule to route the entire range through the gateway
+                # the offical hetzner docs say to use a /32 for ipv4 with networkd, so we migrate it
+                # this takes care of the routing aswell
+                # also peergw flag gets enabled as the gateway is outside the cidr and needs to be added as a peer
+                hz = f"route add -net {str(ip_network(res.cidr, strict=False)).split("/")[0]} netmask {config.netmask} gw {config.gateway} dev {config.intfname}"
+                if config.up == hz:
+                    res.cidr = str(ip_interface(res.cidr.split("/")[0]))
+                    res.peergw = True
         elif config.type == "dhcp":
             res.dhcp = True
         else:
@@ -140,7 +146,8 @@ def definitions_to_systemd_networkd(intfs, read_mac=False):
             if not v.dhcp:
                 # TODO: handle dad
                 if v.peergw:
-                    address.append({"Address": v.cidr, "Peer": v.gw})
+                    # all IPs need a suffix, Peer also - add /32 or /128 using ip_interface
+                    address.append({"Address": v.cidr, "Peer": str(ip_interface(v.gw))})
                 # NOTE: dad also exists on ipv4 in networkd (!)
                 elif not v.dad:
                     address.append(
