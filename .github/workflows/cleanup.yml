@@ -8,7 +8,7 @@ name: Cleanup
 jobs:
   cleanup:
     runs-on: ubuntu-latest
-    name: role test (${{ matrix.hook }})
+    name: cleanup
     env:
       HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
     strategy:
@@ -18,8 +18,6 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v3
-        # with:
-        #   path: ansible_collections/${{env.NAMESPACE}}/${{env.COLLECTION_NAME}}
 
       - name: Set up Python
         uses: actions/setup-python@v3
