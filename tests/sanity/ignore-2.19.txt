@@ -1,1 +1,2 @@
 roles/base/files/ethtool-setringmax.awk shebang # See https://github.com/ansible/ansible/issues/76612
+roles/interfaces2networkd/files/interfaces2networkd/__init__.py shebang # hackarround for having a module for unit tests that gets deployed as binary

@@ -110,10 +110,10 @@ def config_to_interface_definitions(result):
                 # the offical hetzner docs say to use a /32 for ipv4 with networkd, so we migrate it
                 # this takes care of the routing aswell
                 # also peergw flag gets enabled as the gateway is outside the cidr and needs to be added as a peer
-                net = str(ip_network(res.cidr, strict=False)).split("/")[0]
+                net = str(ip_network(res.cidr, strict=False)).split("/", 1)[0]
                 hz = f"route add -net {net} netmask {config.netmask} gw {config.gateway} dev {config.intfname}"
                 if config.up == hz:
-                    res.cidr = str(ip_interface(res.cidr.split("/")[0]))
+                    res.cidr = str(ip_interface(res.cidr.split("/", 1)[0]))
                     res.peergw = True
         elif config.type == "dhcp":
             res.dhcp = True
