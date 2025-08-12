@@ -15,11 +15,13 @@
 - name: Convert configuration
   ansible.builtin.command: interfaces2networkd --chroot "{{ interfaces2networkd_chroot }}"
   when: intf.stat.exists
+  changed_when: intf.stat.exists
   notify: Reload networkctl
 
 - name: Move away old configuration
   ansible.builtin.command: mv "{{ interfaces2networkd_chroot }}/etc/network" "{{ interfaces2networkd_chroot }}/etc/network.bak"
   when: intf.stat.exists
+  changed_when: intf.stat.exists
 
 - name: Make sure that systemd-networkd is enabled/started
   ansible.builtin.systemd:

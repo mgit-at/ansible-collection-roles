@@ -1,3 +1,4 @@
 ---
 - name: Reload networkctl
   ansible.builtin.command: networkctl reload
+  changed_when: true
