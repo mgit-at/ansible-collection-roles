@@ -9,11 +9,8 @@ dependency:
 driver:
   name: default
 platforms:
-  - name: i2d-ubuntu-22.04 # Jammy Jellyfish
-    image: ubuntu-22.04
-    server_type: cx22
-  - name: i2d-ubuntu-24.04 # Noble Numbat
-    image: ubuntu-24.04
+  - name: i2d-debian-11 # Bullseye
+    image: debian-12
     server_type: cx22
   - name: i2d-debian-12 # Bookworm
     image: debian-12

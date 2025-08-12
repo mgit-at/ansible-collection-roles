@@ -3,5 +3,13 @@
   hosts: all
   gather_facts: false
   tasks:
-    - name: Just ping
-      ansible.builtin.ping:
+    - name: Mask cloud-init
+      ansible.builtin.systemd_service:
+        name: cloud-init
+        enabled: false
+        masked: true
+
+    - name: Mask networking
+      ansible.builtin.systemd_service:
+        name: networking
+        masked: true
