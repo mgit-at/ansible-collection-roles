@@ -4,9 +4,9 @@ name: Molecule CI
   # Run CI against all pushes (direct commits, also merged PRs), Pull Requests
   push:
     branches:
-      - main
-      - stable-*
-      - topic/*
+      - "main"
+      - "stable-*"
+      - "topic/**"
   pull_request:
   # Run CI on Monday (at 06:00 UTC)
   # This ensures that even if there haven't been commits that we are still testing against latest changes/packages upstream
