@@ -15,7 +15,7 @@ assert client.ssh_keys.get_by_name(MAGIC_SSH_KEY), (
 oldest_allowed = datetime.now(timezone.utc) - timedelta(hours=6)
 now = datetime.now(timezone.utc)
 
-print(f"deleting servers and keys older than {timeago.format(oldest_allowed)}...")
+print(f"deleting servers and keys older than {timeago.format(oldest_allowed, now)}...")
 
 for server in client.servers.get_all():
     if server.created < oldest_allowed:
