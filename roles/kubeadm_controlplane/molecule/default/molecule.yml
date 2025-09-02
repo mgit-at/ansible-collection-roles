@@ -14,11 +14,7 @@ platforms:
   # Ubuntu 18.04 has a Kernel < 4.19 which would be required for kube-proxy free installation of Cilium
   # https://docs.cilium.io/en/v1.12/gettingstarted/kubeproxy-free/
   # Workaround: Just test on 20.04 and newer.
-  - name: kadm-cp-ubuntu-20.04 # Focal Fossa
-    image: ubuntu-20.04
-    server_type: cx22
-    groups:
-      - ubuntu20
+  # - name: kadm-cp-ubuntu-20.04 # Focal Fossa
   - name: kadm-cp-ubuntu-22.04 # Jammy Jellyfish
     image: ubuntu-22.04
     server_type: cx22
