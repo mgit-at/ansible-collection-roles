@@ -2,9 +2,9 @@
 name: Cleanup
 "on":
   workflow_dispatch:
-  # Run CI daily (at 06:00 UTC)
+  # Run CI every 2 hours
   schedule:
-    - cron: "0 6 * * *"
+    - cron: "0 */2 * * *"
 jobs:
   cleanup:
     runs-on: ubuntu-latest
