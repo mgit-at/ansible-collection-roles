@@ -11,9 +11,7 @@ driver:
 platforms:
   # - name: base-ubuntu-16.04 # Xenial Xerus
   # - name: base-ubuntu-18.04 # Bionic Beaver
-  - name: base-ubuntu-20.04 # Focal Fossa
-    image: ubuntu-20.04
-    server_type: cx22
+  # - name: base-ubuntu-20.04 # Focal Fossa
   - name: base-ubuntu-22.04 # Jammy Jellyfish
     image: ubuntu-22.04
     server_type: cx22

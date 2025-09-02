@@ -10,9 +10,6 @@ driver:
   name: default
 # No test on debian by design, this role only runs on Ubuntu
 platforms:
-  - name: nginxrepo-ubuntu-20.04 # Focal Fossa
-    image: ubuntu-20.04
-    server_type: cx22
   - name: nginxrepo-ubuntu-22.04 # Jammy Jellyfish
     image: ubuntu-22.04
     server_type: cx22

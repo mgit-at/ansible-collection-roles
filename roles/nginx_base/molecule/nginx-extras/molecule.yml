@@ -9,9 +9,7 @@ dependency:
 driver:
   name: default
 platforms:
-  - name: nginx-base-ubuntu-20.04-extras # Focal Fossa
-    image: ubuntu-20.04
-    server_type: cx22
+  # - name: nginx-base-ubuntu-20.04-extras # Focal Fossa
   - name: nginx-base-ubuntu-22.04-extras # Jammy Jellyfish
     image: ubuntu-22.04
     server_type: cx22

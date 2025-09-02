@@ -11,9 +11,7 @@ driver:
 platforms:
   # - name: helmrepo-ubuntu-16.04 # Xenial Xerus
   # - name: helmrepo-ubuntu-18.04 # Bionic Beaver
-  - name: helmrepo-ubuntu-20.04 # Focal Fossa
-    image: ubuntu-20.04
-    server_type: cx22
+  # - name: helmrepo-ubuntu-20.04 # Focal Fossa
   - name: helmrepo-ubuntu-22.04 # Jammy Jellyfish
     image: ubuntu-22.04
     server_type: cx22

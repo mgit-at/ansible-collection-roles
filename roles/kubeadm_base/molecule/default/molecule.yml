@@ -11,11 +11,7 @@ driver:
 platforms:
   # - name: kadm-base-ubuntu-16.04 # Xenial Xerus
   # - name: kadm-base-ubuntu-18.04 # Bionic Beaver
-  - name: kadm-base-ubuntu-20.04 # Focal Fossa
-    image: ubuntu-20.04
-    server_type: cx22
-    groups:
-      - k8s_control_plane
+  # - name: kadm-base-ubuntu-20.04 # Focal Fossa
   - name: kadm-base-ubuntu-22.04 # Jammy Jellyfish
     image: ubuntu-22.04
     server_type: cx22
