@@ -42,6 +42,7 @@ jobs:
           - molecule-apt-repo-kubernetes
           - molecule-apt-repo-ubuntu-nginx
           - molecule-base
+          - molecule-interfaces2networkd
           - molecule-kubeadm-base
           - molecule-kubeadm-controlplane
           - molecule-kubeadm-node

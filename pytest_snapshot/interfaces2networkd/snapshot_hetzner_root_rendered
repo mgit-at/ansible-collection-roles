@@ -1,0 +1,1 @@
+{'40-eth0.network': '[Match]\nName=eth0\n\n[Network]\nGateway=5.9.41.129\nGateway=fe80::1\nDHCP=no\n\n[Address]\nAddress=5.9.41.140/32\nPeer=5.9.41.129/32\n\n[Address]\nAddress=2a01:4f8:161:308e::2/64\nDuplicateAddressDetection=none\n'}
