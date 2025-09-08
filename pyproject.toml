@@ -1,0 +1,26 @@
+[project]
+name = "ansible-collection-roles"
+version = "1.0.0"
+description = "This collection contains common roles in active use by mgIT GmbH"
+authors = [
+    {name = "Your Name",email = "you@example.com"}
+]
+license = {text = "Apache2"}
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+]
+
+[tool.poetry]
+packages = [{include = "interfaces2networkd", from = "roles/interfaces2networkd/files"}]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.5"
+pytest-snapshot = "^0.9.0"
+
+[tool.poetry.scripts]
+interfaces2networkd = "interfaces2networkd:main"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

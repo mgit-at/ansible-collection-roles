@@ -1,0 +1,35 @@
+---
+name: Run pytest tests
+"on":
+  # Run CI against all pushes (direct commits, also merged PRs), Pull Requests
+  push:
+    branches:
+      - main
+      - stable-*
+  pull_request:
+
+jobs:
+  pytest:
+    name: Run pytest tests
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+
+      - name: Set up poetry
+        uses: abatilo/actions-poetry@v3
+        with:
+          poetry-version: latest
+
+      - name: Install deps
+        run: poetry install
+
+      - name: Run pytest
+        run: poetry run pytest
