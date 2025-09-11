@@ -11,7 +11,7 @@
       ansible.builtin.command: grep -r --include '*.list' '^deb ' /etc/apt/sources.list /etc/apt/sources.list.d/
       register: deb_entries
       changed_when: false # idempotent
-      failed_when: "'https://baltocdn.com/helm/stable/debian/' not in deb_entries['stdout']"
+      failed_when: "'https://packages.buildkite.com/helm-linux/helm-debian/any' not in deb_entries['stdout']"
     - name: Helm should be installable
       ansible.builtin.apt:
         name:
@@ -21,4 +21,4 @@
       ansible.builtin.command: apt-cache policy helm
       register: policy
       changed_when: false # idempotent
-      failed_when: "'https://baltocdn.com/helm/stable/debian' not in policy['stdout']"
+      failed_when: "'https://packages.buildkite.com/helm-linux/helm-debian/any' not in policy['stdout']"
