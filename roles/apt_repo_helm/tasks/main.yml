@@ -10,7 +10,7 @@
 - name: Add helm apt repo
   ansible.builtin.copy:
     content: |
-      deb {{ helm_apt_repo_base_url }} all main
+      deb {{ helm_apt_repo_base_url }} any main
     dest: /etc/apt/sources.list.d/helm.list
   notify: Update apt cache
 
