@@ -147,6 +147,7 @@
     - pmproxy
     - pmlogger
     - pmie_daily
+    - pmie_daily.timer
   ansible.builtin.systemd:
     name: "{{ item }}"
     state: stopped
