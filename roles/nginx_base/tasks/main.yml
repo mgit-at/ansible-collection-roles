@@ -6,34 +6,81 @@
       - python3-passlib
     state: present
 
-# This is necessary because the maintainers at Canonical
-# dropped support for the lua module. See:
-# https://launchpad.net/ubuntu/+source/nginx/1.24.0-1ubuntu1
-# Currently this is just a problem for ubuntu starting from 22.04
-# This is not really beautiful, but it won't let you install a
-# broken nginx-extras without lua. As it won't technically be an
-# error to have nginx-extras without lua
-- name: Check for Ubuntu 22.04 or higher
-  when:
-    - nginx_base_pkg_variant == "nginx-extras"
-    - ansible_distribution == 'Ubuntu'
-    - ansible_distribution_major_version | int >= 22
-  ansible.builtin.set_fact:
-    nginx_base_ondrej_repo: true
+# ppa:ondrej/nginx was deleted upstream in 2026-04 (last series 1.28.x, see
+# https://codeberg.org/oerdnj/deb.sury.org/issues/67), so nginx comes from Ubuntu
+# again. Ubuntu's nginx-extras has no lua module from 24.04 on (dropped in
+# https://launchpad.net/ubuntu/+source/nginx/1.24.0-1ubuntu1); hosts that need
+# lua have to use something else, e.g. openresty.
+- name: Fail when the deleted ondrej nginx ppa is requested
+  when: nginx_base_ondrej_repo
+  ansible.builtin.fail:
+    msg: ppa:ondrej/nginx no longer exists, nginx_base_ondrej_repo can't be used anymore
 
-- name: Install ondrej nginx repo
-  when:
-    - nginx_base_ondrej_repo
-    - ansible_distribution == 'Ubuntu'
-    - ansible_distribution_major_version | int >= 20
-  ansible.builtin.include_role:
-    name: mgit_at.roles.apt_repo_ubuntu_nginx
+- name: Migrate away from the ondrej nginx ppa
+  when: ansible_distribution == 'Ubuntu'
+  block:
+    - name: Remove ondrej nginx ppa leftovers
+      loop:
+        - sources.list.d/nginx.sources
+        - sources.list.d/nginx.list
+        - trusted.gpg.d/nginx.gpg
+        - preferences.d/nginx
+      ansible.builtin.file:
+        path: /etc/apt/{{ item }}
+        state: absent
+      notify: Update apt cache
+
+    # priority > 1000 lets apt downgrade the newer ppa builds to Ubuntu's versions
+    - name: Prefer Ubuntu's nginx packages over ppa builds
+      ansible.builtin.copy:
+        content: |
+          Package: nginx nginx-* libnginx-mod-*
+          Pin: release o=Ubuntu
+          Pin-Priority: 1001
+        dest: /etc/apt/preferences.d/nginx-ubuntu
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Update apt cache
+
+    - name: Run handlers to update apt cache
+      ansible.builtin.meta: flush_handlers
+
+    - name: Gather installed packages
+      ansible.builtin.package_facts:
+
+    - name: Find nginx packages installed from the ppa
+      ansible.builtin.set_fact:
+        _nginx_base_ppa_packages: >-
+          {{ ansible_facts.packages | dict2items
+             | selectattr('key', 'match', '^(nginx|libnginx-mod-)')
+             | selectattr('value.0.version', 'search', 'deb\.sury\.org')
+             | map(attribute='key') | list }}
 
 - name: Install nginx
   ansible.builtin.apt:
     name: "{{ nginx_base_pkg_variant }}"
-    state: present
+    # only downgrades ppa builds, otherwise the same as state=present
+    state: "{{ 'latest' if _nginx_base_ppa_packages | default([]) else 'present' }}"
+    allow_downgrade: "{{ _nginx_base_ppa_packages | default([]) | length > 0 }}"
   notify: Restart nginx
+
+# ppa-only modules (e.g. lua) have no Ubuntu version, so they are still the ppa build
+- name: Remove nginx packages that only existed in the ppa
+  when: _nginx_base_ppa_packages | default([])
+  block:
+    - name: Gather installed packages after the downgrade
+      ansible.builtin.package_facts:
+
+    - name: Remove remaining ppa-only nginx packages
+      ansible.builtin.apt:
+        name: >-
+          {{ ansible_facts.packages | dict2items
+             | selectattr('key', 'match', '^(nginx|libnginx-mod-)')
+             | selectattr('value.0.version', 'search', 'deb\.sury\.org')
+             | map(attribute='key') | list }}
+        state: absent
+      notify: Restart nginx
 
 - name: Create folder for http auth files
   ansible.builtin.file:
