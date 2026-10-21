@@ -61,13 +61,13 @@
   ansible.builtin.apt:
     name: "{{ nginx_base_pkg_variant }}"
     # only downgrades ppa builds, otherwise the same as state=present
-    state: "{{ 'latest' if _nginx_base_ppa_packages | default([]) else 'present' }}"
+    state: "{{ 'latest' if _nginx_base_ppa_packages | default([]) | length > 0 else 'present' }}"
     allow_downgrade: "{{ _nginx_base_ppa_packages | default([]) | length > 0 }}"
   notify: Restart nginx
 
 # ppa-only modules (e.g. lua) have no Ubuntu version, so they are still the ppa build
 - name: Remove nginx packages that only existed in the ppa
-  when: _nginx_base_ppa_packages | default([])
+  when: _nginx_base_ppa_packages | default([]) | length > 0
   block:
     - name: Gather installed packages after the downgrade
       ansible.builtin.package_facts:
