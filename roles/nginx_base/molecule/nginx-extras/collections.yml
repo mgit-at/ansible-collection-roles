@@ -3,7 +3,9 @@
 # https://github.com/ansible-community/ansible-build-data
 
 # This current set of versions corresponds to:
-# the newest releases that still support ansible-core 2.16 (stable-0.9 lineage)
+# the newest releases that still support ansible-core 2.16 (stable-0.9 lineage), except
+# hetzner.hcloud: molecule runs on ansible-core 2.18 because hetzner.hcloud < 6 breaks on
+# the Hetzner API since 2026-07-01 (no datacenter in server responses) and 6.x needs 2.18
 
 # This file just exists for molecule, real dependencies are in galaxy.yml
 
@@ -18,5 +20,5 @@ collections:
     version: 11.4.9
     source: https://galaxy.ansible.com
   - name: hetzner.hcloud
-    version: 4.3.0
+    version: 6.12.0
     source: https://galaxy.ansible.com

@@ -52,7 +52,8 @@ repos:
         language: python
         additional_dependencies:
           - molecule==26.10.0
-          - ansible-core~=2.16.19
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
           - hcloud
         always_run: true # It is surprisingly hard to check if a change affects a certain role
         pass_filenames: false # molecule test is hardcoded above
@@ -63,7 +64,8 @@ repos:
         language: python
         additional_dependencies:
           - molecule==26.10.0
-          - ansible-core~=2.16.19
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
           - hcloud
         always_run: true
         pass_filenames: false
@@ -74,7 +76,8 @@ repos:
         language: python
         additional_dependencies:
           - molecule==26.10.0
-          - ansible-core~=2.16.19
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
           - hcloud
         always_run: true
         pass_filenames: false
@@ -85,7 +88,8 @@ repos:
         language: python
         additional_dependencies:
           - molecule==26.10.0
-          - ansible-core~=2.16.19
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
           - hcloud
         always_run: true
         pass_filenames: false
@@ -96,7 +100,8 @@ repos:
         language: python
         additional_dependencies:
           - molecule==26.10.0
-          - ansible-core~=2.16.19
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
           - hcloud
         always_run: true
         pass_filenames: false
@@ -107,7 +112,8 @@ repos:
         language: python
         additional_dependencies:
           - molecule==26.10.0
-          - ansible-core~=2.16.19
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
           - hcloud
         always_run: true
         pass_filenames: false
@@ -118,7 +124,8 @@ repos:
         language: python
         additional_dependencies:
           - molecule==26.10.0
-          - ansible-core~=2.16.19
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
           - hcloud
         always_run: true
         pass_filenames: false
@@ -129,7 +136,8 @@ repos:
         language: python
         additional_dependencies:
           - molecule==26.10.0
-          - ansible-core~=2.16.19
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
           - hcloud
         always_run: true
         pass_filenames: false
@@ -140,7 +148,8 @@ repos:
         language: python
         additional_dependencies:
           - molecule==26.10.0
-          - ansible-core~=2.16.19
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
           - hcloud
         always_run: true
         pass_filenames: false
@@ -151,7 +160,8 @@ repos:
         language: python
         additional_dependencies:
           - molecule==26.10.0
-          - ansible-core~=2.16.19
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
           - hcloud
         always_run: true
         pass_filenames: false
@@ -162,7 +172,8 @@ repos:
         language: python
         additional_dependencies:
           - molecule==26.10.0
-          - ansible-core~=2.16.19
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
           - hcloud
         always_run: true
         pass_filenames: false
