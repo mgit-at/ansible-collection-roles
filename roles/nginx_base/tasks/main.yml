@@ -68,13 +68,56 @@
              | selectattr('value.0.version', 'search', 'deb\.sury\.org')
              | map(attribute='key') | list }}
         state: absent
+      register: _nginx_base_ppa_removed
       notify: Restart nginx
 
+# After removing the ppa packages, nginx's postinst would start nginx before the
+# module packages are configured (their postinst restores the modules-enabled
+# links), and fail on module directives. Keep package scripts from starting
+# services during this install; the handler restarts nginx afterwards.
 - name: Install nginx
-  ansible.builtin.apt:
-    name: "{{ nginx_base_pkg_variant }}"
-    state: present
-  notify: Restart nginx
+  vars:
+    _nginx_base_migrating: "{{ _nginx_base_ppa_removed is changed }}"
+  block:
+    - name: Keep package scripts from starting services during the migration
+      when: _nginx_base_migrating
+      ansible.builtin.copy:
+        content: |
+          #!/bin/sh
+          exit 101
+        dest: /usr/sbin/policy-rc.d
+        owner: root
+        group: root
+        mode: "0755"
+        force: false  # never touch an existing policy-rc.d
+      register: _nginx_base_policy_rc_d
+
+    - name: Install nginx package
+      ansible.builtin.apt:
+        name: "{{ nginx_base_pkg_variant }}"
+        state: present
+      notify: Restart nginx
+
+    # links of ppa-only modules (e.g. lua) that the module postinst did not restore
+    - name: Find module links of removed ppa modules
+      when: _nginx_base_migrating
+      ansible.builtin.find:
+        paths: /etc/nginx/modules-enabled
+        patterns: "*.conf.removed"
+        file_type: link
+      register: _nginx_base_removed_module_links
+
+    - name: Remove module links of removed ppa modules
+      loop: "{{ _nginx_base_removed_module_links.files | default([]) | map(attribute='path') | list }}"
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+  always:
+    - name: Allow package scripts to start services again
+      when: _nginx_base_policy_rc_d is changed  # noqa no-handler - must also run when the install fails
+      ansible.builtin.file:
+        path: /usr/sbin/policy-rc.d
+        state: absent
 
 - name: Create folder for http auth files
   ansible.builtin.file:
