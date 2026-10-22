@@ -13,7 +13,6 @@ tags:
   # tags so people can search for collections https://galaxy.ansible.com/search
   # tags are all lower-case, no spaces, no dashes.
   - openssh
-  - kubernetes
   - linux
   - tools
   - application
@@ -30,5 +29,3 @@ dependencies:
   ansible.posix: ">=1.1.1"
   # ini_file
   community.general: ">=2.0.1"
-  # for the helm modules installing Cilium
-  kubernetes.core: ">=1.1.1"

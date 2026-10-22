@@ -1,2 +1,0 @@
----
-helm_apt_repo_base_url: https://packages.buildkite.com/helm-linux/helm-debian/any/
