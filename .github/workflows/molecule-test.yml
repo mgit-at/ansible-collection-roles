@@ -38,7 +38,6 @@ jobs:
         hook:
           # see .pre-commit-config.yml for hook names
           - molecule-apt-repo-docker
-          - molecule-apt-repo-ubuntu-nginx
           - molecule-base
           - molecule-interfaces2networkd
           - molecule-nginx-base

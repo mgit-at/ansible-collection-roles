@@ -1,0 +1,3 @@
+---
+removed_features:
+  - apt_repo_ubuntu_nginx - the role was removed, ppa:ondrej/nginx no longer exists.
