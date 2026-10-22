@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - base - the ethtool-setringmax cleanup removed the whole /etc/systemd/system-generators directory, including unrelated generators and masks (e.g. a masked systemd-gpt-auto-generator). It now only removes the old ethtool-setringmax-generator.
