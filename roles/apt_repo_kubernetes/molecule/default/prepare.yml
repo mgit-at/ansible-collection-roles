@@ -3,6 +3,9 @@
   hosts: all
   gather_facts: false
   tasks:
+    - name: Fix the apt sources of the Hetzner Debian 11 image
+      ansible.builtin.import_tasks: ../../../../tests/molecule/hcloud_playbooks/tasks/fix_debian11_sources.yml
+
     - name: Just ping
       ansible.builtin.ping:
     - name: Fake legacy repositories for cleanup
