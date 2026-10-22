@@ -1,4 +1,11 @@
 ---
+# https://codeberg.org/oerdnj/deb.sury.org/issues/67
+- name: Fail because the ppa was deleted upstream
+  ansible.builtin.fail:
+    msg: >-
+      ppa:ondrej/nginx was deleted upstream in 2026-04 and this role is deprecated.
+      nginx_base migrates hosts back to Ubuntu's nginx packages.
+
 - name: Fail on non Ubuntu distributions
   when: not ansible_distribution == "Ubuntu"
   ansible.builtin.fail:
