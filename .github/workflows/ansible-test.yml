@@ -18,10 +18,10 @@ name: CI
       - main
       - stable-*
   pull_request:
-  # Run CI once per day (at 06:00 UTC)
+  # Run CI every Monday (at 04:00 UTC)
   # This ensures that even if there haven't been commits that we are still testing against latest version of ansible-test for each ansible-base version
   schedule:
-    - cron: "0 6 * * *"
+    - cron: "0 4 * * 1"
 env:
   NAMESPACE: mgit_at
   COLLECTION_NAME: roles
