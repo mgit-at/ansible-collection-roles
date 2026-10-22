@@ -42,7 +42,12 @@ External views and contributions are of course very valuable to have and we appr
 
 ## Tested with Ansible
 
-This collection is intended to be used with `ansible-core>=2.10`.
+This is the `stable-0.9` maintenance lineage (releases `v0.9.x`) for hosts that stay on
+ansible-core 2.16 and older distributions (Debian 11). It only receives critical fixes;
+new development happens on `main` (v1.0.0 and later, ansible-core >= 2.19).
+
+Sanity tests run against `ansible-core` 2.16 to 2.18, the roles are tested with molecule on
+`ansible-core` 2.16 (Ubuntu 22.04/24.04, Debian 11/12).
 It only contains roles (which are a bit harder to test than plugins/modules).
 
 ## External requirements

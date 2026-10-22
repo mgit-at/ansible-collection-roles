@@ -11,12 +11,15 @@ driver:
 platforms:
   - name: i2d-debian-11 # Bullseye
     image: debian-12
-    server_type: cx22
+    server_type: cx23
   - name: i2d-debian-12 # Bookworm
     image: debian-12
-    server_type: cx22
+    server_type: cx23
 provisioner:
   name: ansible
+  env:
+    # molecule >= 25 no longer puts the roles directory on the roles path
+    ANSIBLE_ROLES_PATH: ${MOLECULE_PROJECT_DIRECTORY}/..
   playbooks:
     create: ../../../../tests/molecule/hcloud_playbooks/create.yml
     destroy: ../../../../tests/molecule/hcloud_playbooks/destroy.yml
