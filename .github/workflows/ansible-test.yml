@@ -55,6 +55,12 @@ jobs:
       # The docker container has all the pinned dependencies that are
       # required and all Python versions Ansible supports.
       - name: Perform sanity testing
+        id: sanity
+        # The test container setup of ansible-test >= 2.22 fails now and then before any test
+        # runs ("mount -o remount,rw /sys/fs/cgroup/ && pkill sleep" returned exit status 1,
+        # pkill seems to race the container's sleep), so retry once below. A real sanity
+        # failure fails the retry as well.
+        continue-on-error: true
         uses: ansible-community/ansible-test-gh-action@release/v1
         with:
           ansible-core-version: ${{ matrix.ansible }}
@@ -64,6 +70,13 @@ jobs:
           # test-deps: >-
           #   ansible.netcommon
           #   ansible.utils
+
+      - name: Perform sanity testing (retry)
+        if: steps.sanity.outcome == 'failure'
+        uses: ansible-community/ansible-test-gh-action@release/v1
+        with:
+          ansible-core-version: ${{ matrix.ansible }}
+          testing-type: sanity
 
   ###
   # pre-commit tests (using the pre-commit tool)
