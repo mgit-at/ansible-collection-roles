@@ -18,14 +18,16 @@
         skip_instances: true
       when: not instance_config_lookup.ansible_facts.instance_conf
 
+    # Also by platform name: when create fails part way (e.g. Hetzner has no capacity for one
+    # server), the instance config is never written and the servers that were created would
+    # be left over with this run's ssh key; the next run would then reuse them and fail to log in.
     - name: Destroy molecule instance(s)
-      hetzner.hcloud.hcloud_server:
-        name: "{{ item.instance }}"
+      hetzner.hcloud.server:
+        name: "{{ item }}"
         api_token: "{{ lookup('env', 'HCLOUD_TOKEN') }}"
         state: absent
       register: server
-      with_items: "{{ instance_conf }}"
-      when: not skip_instances
+      loop: "{{ (instance_conf | map(attribute='instance') | list + molecule_yml.platforms | map(attribute='name') | list) | unique }}"
       async: 7200
       poll: 0
 
@@ -36,6 +38,8 @@
       until: hetzner_jobs.finished
       retries: 300
       with_items: "{{ server.results }}"
+      # skipped items (no instances yet, e.g. the initial destroy of molecule test) have no job
+      when: item.ansible_job_id is defined
 
     # - name: Destroy volume(s)
     #   hcloud_volume:
@@ -66,13 +70,13 @@
     #   loop: "{{ instance_conf|subelements('networks', skip_missing=True) }}"
 
     - name: Remove registered SSH key
-      hetzner.hcloud.hcloud_ssh_key:
+      hetzner.hcloud.ssh_key:
         name: "{{ instance_conf[0].ssh_key_name }}"
         api_token: "{{ lookup('env', 'HCLOUD_TOKEN') }}"
         state: absent
       when:
         - not skip_instances
-        - instance_conf | length # must contain at least one instance
+        - instance_conf | length > 0
 
     - name: Populate instance config
       ansible.builtin.set_fact:
