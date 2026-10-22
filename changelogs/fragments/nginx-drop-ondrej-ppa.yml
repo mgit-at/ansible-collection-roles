@@ -1,5 +1,6 @@
 ---
 breaking_changes:
-  - nginx_base - ppa:ondrej/nginx was deleted upstream, so nginx_base no longer enables it for nginx-extras on Ubuntu >= 22.04 and fails when nginx_base_ondrej_repo is set. Existing ppa installs are downgraded to Ubuntu's nginx packages and ppa-only modules (e.g. lua) are removed. Ubuntu's nginx-extras has no lua module from 24.04 on.
+  - nginx_base - ppa:ondrej/nginx was deleted upstream, so nginx_base no longer enables it for nginx-extras on Ubuntu >= 22.04 and fails when nginx_base_ondrej_repo is set. It removes the ppa source and fails while nginx from the ppa is still installed; the README describes the manual migration to Ubuntu's nginx. Ubuntu's nginx-extras has no lua module from 24.04 on.
+  - nginx_base - fails when nginx_base_ssl_reject_handshake_enabled is set on Ubuntu <= 22.04 or Debian <= 11, whose nginx 1.18 lacks ssl_reject_handshake, and removes the enabled site when the option is off.
 deprecated_features:
   - apt_repo_ubuntu_nginx - the role fails because ppa:ondrej/nginx no longer exists.

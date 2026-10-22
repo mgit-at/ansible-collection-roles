@@ -36,88 +36,37 @@
   notify: Reload nginx
   tags: ssl-reject-handshake
 
-- name: Migrate away from the ondrej nginx ppa
+- name: Remove the deleted ondrej nginx ppa
   when: ansible_distribution == 'Ubuntu'
-  block:
-    - name: Remove ondrej nginx ppa leftovers
-      loop:
-        - sources.list.d/nginx.sources
-        - sources.list.d/nginx.list
-        - trusted.gpg.d/nginx.gpg
-        - preferences.d/nginx
-        - preferences.d/nginx-ubuntu  # from an earlier draft of this migration
-      ansible.builtin.file:
-        path: /etc/apt/{{ item }}
-        state: absent
-      notify: Update apt cache
+  loop:
+    - sources.list.d/nginx.sources
+    - sources.list.d/nginx.list
+    - trusted.gpg.d/nginx.gpg
+    - preferences.d/nginx
+  ansible.builtin.file:
+    path: /etc/apt/{{ item }}
+    state: absent
+  notify: Update apt cache
 
-    - name: Run handlers to update apt cache
-      ansible.builtin.meta: flush_handlers
+- name: Run handlers to update apt cache
+  ansible.builtin.meta: flush_handlers
 
-    - name: Gather installed packages
-      ansible.builtin.package_facts:
+- name: Gather installed packages
+  ansible.builtin.package_facts:
 
-    # Downgrading in place loses /usr/sbin/nginx: the ppa and Ubuntu ship it in
-    # different packages. Removing keeps the conffiles in /etc/nginx; nginx is
-    # down until the install below.
-    - name: Remove nginx packages installed from the ppa
-      ansible.builtin.apt:
-        name: >-
-          {{ ansible_facts.packages | dict2items
-             | selectattr('key', 'match', '^(nginx|libnginx-mod-|lua-resty-|libluajit-5\.1-)')
-             | selectattr('value.0.version', 'search', 'deb\.sury\.org')
-             | map(attribute='key') | list }}
-        state: absent
-      register: _nginx_base_ppa_removed
-      notify: Restart nginx
+# Swapping the packages takes nginx down and needs care (see README), so it is not automated
+- name: Fail when nginx from the deleted ondrej ppa is still installed
+  when: "'deb.sury.org' in ansible_facts.packages['nginx-common'][0].version | default('')"
+  ansible.builtin.fail:
+    msg: >-
+      nginx from ppa:ondrej/nginx is installed and gets no updates anymore;
+      migrate to Ubuntu's nginx packages by hand, see the nginx_base README
 
-# After removing the ppa packages, nginx's postinst would start nginx before the
-# module packages are configured (their postinst restores the modules-enabled
-# links), and fail on module directives. Keep package scripts from starting
-# services during this install; the handler restarts nginx afterwards.
 - name: Install nginx
-  vars:
-    _nginx_base_migrating: "{{ _nginx_base_ppa_removed is changed }}"
-  block:
-    - name: Keep package scripts from starting services during the migration
-      when: _nginx_base_migrating
-      ansible.builtin.copy:
-        content: |
-          #!/bin/sh
-          exit 101
-        dest: /usr/sbin/policy-rc.d
-        owner: root
-        group: root
-        mode: "0755"
-        force: false  # never touch an existing policy-rc.d
-      register: _nginx_base_policy_rc_d
-
-    - name: Install nginx package
-      ansible.builtin.apt:
-        name: "{{ nginx_base_pkg_variant }}"
-        state: present
-      notify: Restart nginx
-
-    # links of ppa-only modules (e.g. lua) that the module postinst did not restore
-    - name: Find module links of removed ppa modules
-      when: _nginx_base_migrating
-      ansible.builtin.find:
-        paths: /etc/nginx/modules-enabled
-        patterns: "*.conf.removed"
-        file_type: link
-      register: _nginx_base_removed_module_links
-
-    - name: Remove module links of removed ppa modules
-      loop: "{{ _nginx_base_removed_module_links.files | default([]) | map(attribute='path') | list }}"
-      ansible.builtin.file:
-        path: "{{ item }}"
-        state: absent
-  always:
-    - name: Allow package scripts to start services again
-      when: _nginx_base_policy_rc_d is changed  # noqa no-handler - must also run when the install fails
-      ansible.builtin.file:
-        path: /usr/sbin/policy-rc.d
-        state: absent
+  ansible.builtin.apt:
+    name: "{{ nginx_base_pkg_variant }}"
+    state: present
+  notify: Restart nginx
 
 - name: Create folder for http auth files
   ansible.builtin.file:
