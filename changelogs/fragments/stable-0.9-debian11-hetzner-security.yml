@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - base - Hetzner's mirror dropped bullseye-security after the end of Debian 11 LTS, so ``apt update`` failed on Debian 11 hosts in the ``hetzner`` apt zone. Debian 11 now takes its security updates only from security.debian.org there.
