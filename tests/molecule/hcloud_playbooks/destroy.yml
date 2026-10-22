@@ -18,14 +18,16 @@
         skip_instances: true
       when: not instance_config_lookup.ansible_facts.instance_conf
 
+    # Also by platform name: when create fails part way (e.g. Hetzner has no capacity for one
+    # server), the instance config is never written and the servers that were created would
+    # be left over with this run's ssh key; the next run would then reuse them and fail to log in.
     - name: Destroy molecule instance(s)
       hetzner.hcloud.server:
-        name: "{{ item.instance }}"
+        name: "{{ item }}"
         api_token: "{{ lookup('env', 'HCLOUD_TOKEN') }}"
         state: absent
       register: server
-      with_items: "{{ instance_conf }}"
-      when: not skip_instances
+      loop: "{{ (instance_conf | map(attribute='instance') | list + molecule_yml.platforms | map(attribute='name') | list) | unique }}"
       async: 7200
       poll: 0
 
