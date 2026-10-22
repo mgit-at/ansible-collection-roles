@@ -56,17 +56,6 @@ Any external requirements are documented in the roles themselves.
 Role to set up the base configuration of an Ubuntu/Debian server.
 Intended to be run against a clean installation with only a default `sshd` running and access to an up-to-date mirror.
 
-### roles/kubernetes/...
-
-Bundle of roles that are intended to be run in sequence to set up a minimal production ready Kubernetes cluster.
-The setup is highly opinionated (OS: latest Ubuntu LTS with HWE kernel, installation: kubeadm, CRI: containerd, CNI: Cilium) and not expected to support a lot of options in the future.
-
->[!WARNING]
->Currently the kubernetes roles are only tested against the latest version of
->kubernetes, which is still available in the old apt repository. More infos
->[here](https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/change-package-repository/).
->Newer versions will need a partial rewrite of the roles.
-
 ## Using this collection
 
 TODO: Create tests and refer as usage example (likely requires actual VMs, not containers...).
@@ -120,7 +109,7 @@ See the [changelog](https://github.com/ansible-collections/REPONAMEHERE/tree/mai
 
 ## Roadmap
 
-Start publishing roles that are in common use internally or that are required for the MVP "set up a k8s cluster with public roles".
+Start publishing roles that are in common use internally.
 
 ## More information
 

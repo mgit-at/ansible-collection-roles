@@ -38,15 +38,9 @@ jobs:
         hook:
           # see .pre-commit-config.yml for hook names
           - molecule-apt-repo-docker
-          - molecule-apt-repo-helm
-          - molecule-apt-repo-kubernetes
           - molecule-apt-repo-ubuntu-nginx
           - molecule-base
           - molecule-interfaces2networkd
-          - molecule-kubeadm-base
-          - molecule-kubeadm-controlplane
-          - molecule-kubeadm-node
-          - molecule-kubernetes-base
           - molecule-nginx-base
           - molecule-upgrade-host
 
