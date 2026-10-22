@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - nginx_base - nginx failed to start on Debian 13 and Ubuntu 26.04, whose nginx.conf sets ``server_tokens`` itself, because of the duplicate directive in ``conf.d/server-tokens.conf``. Where nginx.conf sets it, the role now removes the ``conf.d`` file and sets ``server_tokens off;`` in nginx.conf (only changed on Ubuntu 26.04, which defaults to ``build``).
