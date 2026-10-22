@@ -4,7 +4,8 @@
     path: "{{ item }}"
     state: absent
   loop:
-    - "{{ base_systemd_generators_dir }}"
+    # only the generator file: the directory also holds other generators and masks
+    - "{{ base_systemd_generators_dir }}/ethtool-setringmax-generator"
     - /etc/systemd/system/ethtool-setringmax@.service
 
 - name: Install ethtool helper
