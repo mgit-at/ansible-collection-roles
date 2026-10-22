@@ -3,11 +3,9 @@
   hosts: all
   gather_facts: true
   pre_tasks:
-    # ssl_reject_handshake needs nginx >= 1.19.4, Ubuntu 22.04 and Debian 11 ship 1.18
+    # ssl_reject_handshake needs nginx >= 1.19.4, Ubuntu 22.04 ships 1.18
     - name: Set vars for ssl reject handshake
-      when: >-
-        (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int >= 24)
-        or (ansible_distribution == 'Debian' and ansible_distribution_major_version | int >= 12)
+      when: not (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int <= 22)
       ansible.builtin.set_fact:
         nginx_base_ssl_reject_handshake_enabled: true
   roles:

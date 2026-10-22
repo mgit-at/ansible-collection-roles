@@ -16,12 +16,11 @@
   ansible.builtin.fail:
     msg: ppa:ondrej/nginx no longer exists, nginx_base_ondrej_repo can't be used anymore
 
-# ssl_reject_handshake needs nginx >= 1.19.4, these releases ship 1.18
+# ssl_reject_handshake needs nginx >= 1.19.4, Ubuntu 22.04 ships 1.18
 - name: Fail when ssl_reject_handshake is enabled but the distro nginx is too old
   when:
     - nginx_base_ssl_reject_handshake_enabled
-    - (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int <= 22)
-      or (ansible_distribution == 'Debian' and ansible_distribution_major_version | int <= 11)
+    - ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int <= 22
   ansible.builtin.fail:
     msg: >-
       nginx_base_ssl_reject_handshake_enabled needs nginx >= 1.19.4, but

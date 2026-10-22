@@ -1,0 +1,9 @@
+---
+breaking_changes:
+  - collection - ansible-core 2.19 or newer is required now. Hosts that still need older ansible-core releases or Debian 11 have to pin the collection to v0.9.0.
+  - collection - only Debian 12 and newer and Ubuntu 22.04 and newer are supported now, the code paths for older releases were removed.
+  - apt_repo_docker - the legacy ``/etc/apt/sources.list.d/docker.list`` setup for ansible-core < 2.15, Debian < 12 and Ubuntu < 22.04 was removed, the repo is always configured with ``deb822_repository`` now and uses ``docker_apt_repo_base_url``.
+removed_features:
+  - base - the ``base_apt_debian_archive_version`` variable was removed, archive.debian.org handling is not needed for supported Debian releases.
+bugfixes:
+  - base - the azure Debian sources.list used the ``<release>/updates`` security suite for all releases except bullseye, it uses ``<release>-security`` now.

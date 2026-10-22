@@ -69,9 +69,7 @@
         that: _nginx_ppa_packages | length == 0
         fail_msg: "Packages from the ondrej ppa are installed: {{ _nginx_ppa_packages | join(', ') }}"
     - name: Check ssl-reject-handshake host
-      when: >-
-        (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int >= 24)
-        or (ansible_distribution == 'Debian' and ansible_distribution_major_version | int >= 12)
+      when: not (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int <= 22)
       ansible.builtin.uri:
         url: "https://127.0.0.1"
         method: GET
@@ -79,9 +77,7 @@
       register: _response
       failed_when: not 'unrecognized name' in _response.msg
     - name: Check ssl-reject-handshake host is not enabled where nginx is too old
-      when: >-
-        (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int < 24)
-        or (ansible_distribution == 'Debian' and ansible_distribution_major_version | int < 12)
+      when: ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int <= 22
       ansible.builtin.stat:
         path: /etc/nginx/sites-enabled/default-ssl-reject-handshake
       register: _nginx_ssl_reject_link
