@@ -36,6 +36,8 @@
       until: hetzner_jobs.finished
       retries: 300
       with_items: "{{ server.results }}"
+      # skipped items (no instances yet, e.g. the initial destroy of molecule test) have no job
+      when: item.ansible_job_id is defined
 
     # - name: Destroy volume(s)
     #   hcloud_volume:
