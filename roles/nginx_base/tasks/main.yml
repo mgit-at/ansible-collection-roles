@@ -8,9 +8,9 @@
 
 # ppa:ondrej/nginx was deleted upstream in 2026-04 (last series 1.28.x, see
 # https://codeberg.org/oerdnj/deb.sury.org/issues/67), so nginx comes from Ubuntu
-# again. Ubuntu's nginx-extras has no lua module from 24.04 on (dropped in
-# https://launchpad.net/ubuntu/+source/nginx/1.24.0-1ubuntu1); hosts that need
-# lua have to use something else, e.g. openresty.
+# again. Ubuntu's nginx-extras has no lua module since 21.04 (dropped in
+# https://launchpad.net/ubuntu/+source/nginx/1.18.0-6ubuntu8), so this includes
+# 22.04; hosts that need lua have to use something else, e.g. openresty.
 - name: Fail when the deleted ondrej nginx ppa is requested
   when: nginx_base_ondrej_repo
   ansible.builtin.fail:

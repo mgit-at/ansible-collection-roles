@@ -18,7 +18,7 @@ Before you start:
   24.04 ships 1.24): `nginx -T` must not use newer directives, e.g.
   `ssl_reject_handshake` (>= 1.19.4, disable `nginx_base_ssl_reject_handshake_enabled`)
   or `http2 on;` (>= 1.25.1).
-- Ubuntu's `nginx-extras` has no lua module from 24.04 on. Hosts with
+- Ubuntu's `nginx-extras` has no lua module (dropped in 21.04, so 22.04 has none either). Hosts with
   `*_by_lua*` directives need another solution first (e.g. openresty).
 - Remove the ppa source by hand before running any playbook: every role that
   updates the apt cache fails on the deleted ppa, and nginx_base often runs late.
