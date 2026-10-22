@@ -36,6 +36,8 @@ repos:
     hooks:
       - id: ansible-lint
         name: Lint the repository with ansible-lint
+        # the hook asks for python3.14, CI and most dev machines have an older python3
+        language_version: python3
         # Only run against ansible-core so missing dependencies are discovered
         additional_dependencies:
           - .[core]
