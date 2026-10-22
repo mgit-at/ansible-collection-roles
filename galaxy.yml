@@ -3,7 +3,7 @@
 
 namespace: mgit_at
 name: roles
-version: 0.9.0
+version: 0.9.1
 readme: README.md
 authors:
   - Markus Teufelberger (github.com/MarkusTeufelberger)
