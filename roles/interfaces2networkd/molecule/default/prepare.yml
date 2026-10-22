@@ -3,11 +3,15 @@
   hosts: all
   gather_facts: false
   tasks:
-    - name: Mask cloud-init
-      ansible.builtin.systemd_service:
-        name: cloud-init
-        enabled: false
-        masked: true
+    # cloud-init would rewrite the network config on the reboot in verify; the unit names
+    # changed in cloud-init 24 (Debian 13), the disable file works with every version
+    - name: Disable cloud-init
+      ansible.builtin.copy:
+        content: ""
+        dest: /etc/cloud/cloud-init.disabled
+        owner: root
+        group: root
+        mode: "0644"
 
     - name: Mask networking
       ansible.builtin.systemd_service:

@@ -75,6 +75,8 @@
       - netcat-openbsd
       - dnsutils
       - ioping
+      - ripgrep
+      - fd-find
     state: present
 
 - name: Apt - Install base system tools (ubuntu)
@@ -85,36 +87,26 @@
     state: present
   when: ansible_distribution == "Ubuntu"
 
-- name: Apt - Install rng tools tools (ubuntu before jammy)
-  when:
-    - ansible_distribution == "Ubuntu" and (ansible_distribution_major_version | int) <= 20
-  ansible.builtin.apt:
-    name:
-      - rng-tools
-    state: present
-
-- name: Apt - Install rng tools tools (ubuntu jammy and later)
-  when:
-    - ansible_distribution == "Ubuntu" and (ansible_distribution_major_version | int) >= 22
+- name: Apt - Install rng tools (ubuntu)
+  when: ansible_distribution == "Ubuntu"
   ansible.builtin.apt:
     name:
       - rng-tools5
     state: present
 
-- name: Apt - (Un)install base system tools (debian stretch and beyond)
+- name: Apt - (Un)install base system tools (debian)
   when:
     - ansible_distribution == "Debian"
-    - (ansible_distribution_major_version | int) >= 9
     - not base_apt_uninstall_broken
   block:
-    - name: Apt - Uninstall base system tools (debian stretch and beyond)
+    - name: Apt - Uninstall base system tools (debian)
       ansible.builtin.apt:
         name:
           - rngd-rdrand
           - linux-tools
         state: absent
 
-    - name: Apt - Install base system tools (debian stretch and beyond)
+    - name: Apt - Install base system tools (debian)
       ansible.builtin.apt:
         name:
           - linux-perf
@@ -123,30 +115,21 @@
           - acl
         state: present
 
-- name: Apt - Install base system tools (debian buster and ubuntu focal)
-  when:
-    ansible_distribution == "Debian" and ansible_distribution_major_version | int >= 10 or ansible_distribution == "Ubuntu" and (ansible_distribution_major_version
-    | int) >= 20
-  ansible.builtin.apt:
-    name:
-      - ripgrep
-      - fd-find
-    state: present
-
-- name: Apt - Install base system tools ubuntu 24 lts
-  when: ansible_distribution == "Ubuntu" and (ansible_distribution_major_version | int) == 24
+- name: Apt - Install base system tools ubuntu >= 24.04
+  when: ansible_distribution == "Ubuntu" and (ansible_distribution_major_version | int) >= 24
   ansible.builtin.apt:
     name:
       - cgroup-tools
     state: present
 
-- name: Cleanup ubuntu 24.04 lts services
-  when: ansible_distribution == "Ubuntu" and (ansible_distribution_major_version | int) == 24
+- name: Cleanup ubuntu >= 24.04 services
+  when: ansible_distribution == "Ubuntu" and (ansible_distribution_major_version | int) >= 24
   loop:
     - pmcd
     - pmproxy
     - pmlogger
     - pmie_daily
+    - pmie_daily.timer
   ansible.builtin.systemd:
     name: "{{ item }}"
     state: stopped
@@ -297,9 +280,7 @@
   when: base_install_ethtool_setringmax | bool
 
 - name: Deal with cpu governor
-  when:
-    - ansible_distribution != "Debian" or (ansible_distribution_major_version | int) >= 9
-    - base_cpu_governor is defined
+  when: base_cpu_governor is defined
   block:
     - name: Install CPU governor helper
       ansible.builtin.template:

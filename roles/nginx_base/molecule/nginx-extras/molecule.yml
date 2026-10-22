@@ -9,21 +9,26 @@ dependency:
 driver:
   name: default
 platforms:
-  # - name: nginx-base-ubuntu-20.04-extras # Focal Fossa
   - name: nginx-base-ubuntu-22.04-extras # Jammy Jellyfish
     image: ubuntu-22.04
-    server_type: cx22
+    server_type: cx23
   - name: nginx-base-ubuntu-24.04-extras # Noble Numbat
     image: ubuntu-24.04
-    server_type: cx22
-  - name: nginx-base-debian-11-extras # Bullseye
-    image: debian-11
-    server_type: cx22
+    server_type: cx23
+  - name: nginx-base-ubuntu-26.04-extras # Resolute Raccoon
+    image: ubuntu-26.04
+    server_type: cx23
   - name: nginx-base-debian-12-extras # Bookworm
     image: debian-12
-    server_type: cx22
+    server_type: cx23
+  - name: nginx-base-debian-13-extras # Trixie
+    image: debian-13
+    server_type: cx23
 provisioner:
   name: ansible
+  env:
+    # molecule >= 25 no longer puts the roles directory on the roles path
+    ANSIBLE_ROLES_PATH: ${MOLECULE_PROJECT_DIRECTORY}/..
   playbooks:
     create: ../../../../tests/molecule/hcloud_playbooks/create.yml
     destroy: ../../../../tests/molecule/hcloud_playbooks/destroy.yml

@@ -18,10 +18,10 @@ name: CI
       - main
       - stable-*
   pull_request:
-  # Run CI once per day (at 06:00 UTC)
+  # Run CI every Monday (at 04:00 UTC)
   # This ensures that even if there haven't been commits that we are still testing against latest version of ansible-test for each ansible-base version
   schedule:
-    - cron: "0 6 * * *"
+    - cron: "0 4 * * 1"
 env:
   NAMESPACE: mgit_at
   COLLECTION_NAME: roles
@@ -34,15 +34,20 @@ jobs:
 
   sanity:
     name: Sanity (Ⓐ${{ matrix.ansible }})
+    # devel breaks now and then (new tests, test container changes), don't block on it
+    continue-on-error: ${{ matrix.ansible == 'devel' }}
     strategy:
+      # Test all versions, a failure on one must not hide the results of the others
+      fail-fast: false
       matrix:
         ansible:
           # It's important that Sanity is tested against all stable-X.Y branches
           # Testing against `devel` may fail as new tests are added.
           # Check https://endoflife.date/ansible-core
-          - stable-2.16
-          - stable-2.17
-          - stable-2.18
+          - stable-2.19
+          - stable-2.20
+          - stable-2.21
+          - stable-2.22
           - devel
     runs-on: ubuntu-latest
     steps:
@@ -68,8 +73,8 @@ jobs:
     runs-on: ubuntu-latest
     name: pre-commit (${{ matrix.hook }})
     strategy:
-      # As soon as the first unit test fails, cancel the others to free up the CI queue
-      fail-fast: true
+      # Run all hooks, a failure in one must not hide the results of the others
+      fail-fast: false
       matrix:
         hook:
           # see .pre-commit-config.yml for hook names
@@ -80,14 +85,14 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           path: ansible_collections/${{env.NAMESPACE}}/${{env.COLLECTION_NAME}}
 
       - name: Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v7
         with:
-          python-version: "3.10"
+          python-version: "3.13"
 
       - name: Install pre-commit
         run: pip install pre-commit

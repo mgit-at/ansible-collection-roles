@@ -16,12 +16,11 @@
   ansible.builtin.fail:
     msg: ppa:ondrej/nginx no longer exists, nginx_base_ondrej_repo can't be used anymore
 
-# ssl_reject_handshake needs nginx >= 1.19.4, these releases ship 1.18
+# ssl_reject_handshake needs nginx >= 1.19.4, Ubuntu 22.04 ships 1.18
 - name: Fail when ssl_reject_handshake is enabled but the distro nginx is too old
   when:
     - nginx_base_ssl_reject_handshake_enabled
-    - (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int <= 22)
-      or (ansible_distribution == 'Debian' and ansible_distribution_major_version | int <= 11)
+    - ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int <= 22
   ansible.builtin.fail:
     msg: >-
       nginx_base_ssl_reject_handshake_enabled needs nginx >= 1.19.4, but
@@ -95,9 +94,41 @@
     state: absent
   notify: Restart nginx
 
+# Debian >= 13 (off) and Ubuntu >= 26.04 (build) set server_tokens in nginx.conf, a
+# second one in conf.d is a duplicate directive and nginx doesn't start. Only edit
+# nginx.conf where it sets something other than off, to keep conffile changes rare.
+- name: Read nginx.conf
+  ansible.builtin.slurp:
+    src: /etc/nginx/nginx.conf
+  register: _nginx_base_nginx_conf
+
+- name: Check whether nginx.conf sets server_tokens itself
+  ansible.builtin.set_fact:
+    _nginx_base_server_tokens_in_nginx_conf: >-
+      {{ 'server-tokens' in nginx_base_conf_d_files
+         and _nginx_base_nginx_conf.content | b64decode is regex('(?m)^\s*server_tokens\s') }}
+
+- name: Set server_tokens off in nginx.conf
+  when: _nginx_base_server_tokens_in_nginx_conf
+  ansible.builtin.lineinfile:
+    path: /etc/nginx/nginx.conf
+    regexp: '^(\s*)server_tokens\s+(?!off;).*$'
+    line: '\1server_tokens off;'
+    backrefs: true
+  notify: Restart nginx
+
+- name: Remove conf.d server_tokens duplicate
+  when: _nginx_base_server_tokens_in_nginx_conf
+  ansible.builtin.file:
+    path: /etc/nginx/conf.d/server-tokens.conf
+    state: absent
+  notify: Restart nginx
+
 - name: Install nginx config.d files
   when: nginx_base_conf_d_files | length > 0
-  loop: "{{ nginx_base_conf_d_files }}"
+  loop: >-
+    {{ nginx_base_conf_d_files | reject('eq', 'server-tokens') | list
+       if _nginx_base_server_tokens_in_nginx_conf else nginx_base_conf_d_files }}
   ansible.builtin.copy:
     src: conf.d/{{ item }}.conf
     dest: /etc/nginx/conf.d/

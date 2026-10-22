@@ -6,7 +6,6 @@
     _nginx_config_files:
       - conf.d/connection-upgrade
       - conf.d/hash-bucket-size
-      - conf.d/server-tokens
       - snippets/cf-origin-pull
       - snippets/tls
       - snippets/tls-legacy
@@ -35,6 +34,13 @@
       loop: "{{ _nginx_conf_files_result.results }}"
       ansible.builtin.fail:
         msg: "Config file {{ item.item }} is missing"
+    - name: Get the effective nginx config
+      ansible.builtin.command: nginx -T
+      register: _nginx_config_dump
+      changed_when: false
+    - name: Check that server_tokens is off
+      ansible.builtin.assert:
+        that: _nginx_config_dump.stdout is regex('(?m)^\\s*server_tokens off;')
     - name: Check if default site is removed
       ansible.builtin.stat:
         path: /etc/nginx/sites-enabled/default

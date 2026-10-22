@@ -1,0 +1,3 @@
+---
+removed_features:
+  - apt_repo_helm, apt_repo_kubernetes, kubeadm_base, kubeadm_controlplane, kubeadm_node, kubernetes_base and kubernetes_flux - the Kubernetes roles were removed, together with the k8s-base/k8s-mycluster example playbooks and the example inventory. The kubernetes.core collection is no longer a dependency.
