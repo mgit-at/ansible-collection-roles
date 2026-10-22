@@ -1,0 +1,35 @@
+---
+# One fallback try for _platform in _location, skipped once a location worked
+- name: Try fallback location {{ _location ~ ' for ' ~ _platform.name }}
+  when: _fallback_server is none
+  block:
+    # a failed placement can leave the server behind, and reusing it by name would fail later
+    - name: Remove what the failed try left of {{ _platform.name }}
+      hetzner.hcloud.server:
+        name: "{{ _platform.name }}"
+        api_token: "{{ lookup('env', 'HCLOUD_TOKEN') }}"
+        state: absent
+
+    - name: Create in fallback location {{ _location ~ ' / ' ~ _platform.name }}
+      hetzner.hcloud.server:
+        name: "{{ _platform.name }}"
+        server_type: "{{ _platform.server_type }}"
+        ssh_keys:
+          - "{{ ssh_key_name }}"
+        image: "{{ _platform.image }}"
+        location: "{{ _location }}"
+        user_data: "{{ _platform.user_data | default(omit) }}"
+        api_token: "{{ lookup('env', 'HCLOUD_TOKEN') }}"
+        allow_deprecated_image: true
+        state: present
+      register: _fallback_try
+      # only a missing capacity is worth another location, everything else is a real error
+      failed_when:
+        - _fallback_try is failed
+        - "'resource_unavailable' not in _fallback_try.msg | default('')"
+
+    - name: Use fallback location {{ _location ~ ' for ' ~ _platform.name }}
+      # not "is not failed": failed_when above clears the failure for resource_unavailable
+      when: _fallback_try.hcloud_server is defined
+      ansible.builtin.set_fact:
+        _fallback_server: "{{ _fallback_try.hcloud_server }}"

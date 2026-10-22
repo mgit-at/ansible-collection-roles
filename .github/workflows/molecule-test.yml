@@ -40,7 +40,6 @@ jobs:
           - molecule-apt-repo-docker
           - molecule-apt-repo-helm
           - molecule-apt-repo-kubernetes
-          - molecule-apt-repo-ubuntu-nginx
           - molecule-base
           - molecule-interfaces2networkd
           - molecule-kubeadm-base
@@ -52,14 +51,14 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         # with:
         #   path: ansible_collections/${{env.NAMESPACE}}/${{env.COLLECTION_NAME}}
 
       - name: Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v7
         with:
-          python-version: "3.10"
+          python-version: "3.12"
 
       - name: Install pre-commit
         run: pip install pre-commit

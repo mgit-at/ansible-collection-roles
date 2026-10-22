@@ -42,7 +42,13 @@ External views and contributions are of course very valuable to have and we appr
 
 ## Tested with Ansible
 
-This collection is intended to be used with `ansible-core>=2.10`.
+This is the `stable-0.9` maintenance lineage (releases `v0.9.x`) for hosts that stay on
+ansible-core 2.16 and older distributions (Debian 11). It only receives critical fixes;
+new development happens on `main` (v1.0.0 and later, ansible-core >= 2.19).
+
+Sanity tests and ansible-lint run against `ansible-core` 2.16 (sanity also 2.17 and 2.18), the
+roles are tested with molecule on `ansible-core` 2.18 (Ubuntu 22.04/24.04, Debian 11/12):
+hetzner.hcloud < 6 breaks on the current Hetzner API and 6.x needs ansible-core >= 2.18.
 It only contains roles (which are a bit harder to test than plugins/modules).
 
 ## External requirements
