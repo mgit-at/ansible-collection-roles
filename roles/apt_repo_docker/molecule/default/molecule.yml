@@ -9,24 +9,13 @@ dependency:
 driver:
   name: default
 platforms:
-  # - name: dockerrepo-ubuntu-16.04 # Xenial Xerus
-  # - name: dockerrepo-ubuntu-18.04 # Bionic Beaver
-  # - name: dockerrepo-ubuntu-20.04 # Focal Fossa
+  # The role is only needed on Ubuntu 22.04 and Debian 12
   - name: dockerrepo-ubuntu-22.04 # Jammy Jellyfish
     image: ubuntu-22.04
-    server_type: cx22
-  - name: dockerrepo-ubuntu-24.04 # Noble Numbat
-    image: ubuntu-24.04
-    server_type: cx22
-  # - name: dockerrepo-debian-8 # Jessie
-  # - name: dockerrepo-debian-9 # Stretch
-  # - name: dockerrepo-debian-10 # Buster
-  - name: dockerrepo-debian-11 # Bullseye
-    image: debian-11
-    server_type: cx22
+    server_type: cx23
   - name: dockerrepo-debian-12 # Bookworm
     image: debian-12
-    server_type: cx22
+    server_type: cx23
 provisioner:
   name: ansible
   playbooks:

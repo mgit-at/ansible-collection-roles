@@ -24,14 +24,14 @@
         ssh_key_name: molecule-generated-{{ 12345 | random | to_uuid }}
 
     - name: Register SSH key for test instance(s)
-      hetzner.hcloud.hcloud_ssh_key:
+      hetzner.hcloud.ssh_key:
         name: "{{ ssh_key_name }}"
         public_key: "{{ generated_ssh_key.public_key }}"
         api_token: "{{ lookup('env', 'HCLOUD_TOKEN') }}"
         state: present
 
     - name: Create molecule instance(s)
-      hetzner.hcloud.hcloud_server:
+      hetzner.hcloud.server:
         name: "{{ item.name }}"
         server_type: "{{ item.server_type }}"
         ssh_keys:

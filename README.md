@@ -42,7 +42,7 @@ External views and contributions are of course very valuable to have and we appr
 
 ## Tested with Ansible
 
-This collection is intended to be used with `ansible-core>=2.10`.
+Sanity tests run against the supported `ansible-core` releases (currently 2.19 to 2.21, plus `devel`), the roles are tested with molecule on `ansible-core` 2.21.
 It only contains roles (which are a bit harder to test than plugins/modules).
 
 ## External requirements

@@ -9,19 +9,21 @@ dependency:
 driver:
   name: default
 platforms:
-  # - name: nginx-base-ubuntu-20.04 # Focal Fossa
   - name: nginx-base-ubuntu-22.04 # Jammy Jellyfish
     image: ubuntu-22.04
-    server_type: cx22
+    server_type: cx23
   - name: nginx-base-ubuntu-24.04 # Noble Numbat
     image: ubuntu-24.04
-    server_type: cx22
-  - name: nginx-base-debian-11 # Bullseye
-    image: debian-11
-    server_type: cx22
+    server_type: cx23
+  - name: nginx-base-ubuntu-26.04 # Resolute Raccoon
+    image: ubuntu-26.04
+    server_type: cx23
   - name: nginx-base-debian-12 # Bookworm
     image: debian-12
-    server_type: cx22
+    server_type: cx23
+  - name: nginx-base-debian-13 # Trixie
+    image: debian-13
+    server_type: cx23
 provisioner:
   name: ansible
   playbooks:
