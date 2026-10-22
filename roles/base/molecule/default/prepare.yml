@@ -5,3 +5,66 @@
   tasks:
     - name: Just ping
       ansible.builtin.ping:
+
+    # Simulate a host with the previous ethtool-setringmax version (before 0c9185b), whose
+    # cleanup must not touch other generators or masks in system-generators
+    - name: Create the system-generators directory
+      ansible.builtin.file:
+        path: /etc/systemd/system-generators
+        state: directory
+        mode: "0755"
+
+    - name: Mask an unrelated generator
+      ansible.builtin.file:
+        src: /dev/null
+        dest: /etc/systemd/system-generators/systemd-gpt-auto-generator
+        state: link
+        force: true
+
+    - name: Install the previous ethtool-setringmax generator
+      ansible.builtin.copy:
+        dest: /etc/systemd/system-generators/ethtool-setringmax-generator
+        mode: "0755"
+        content: |
+          #!/bin/sh
+
+          set -eu
+
+          GENDIR="$1"
+          REQUIREDIR="$GENDIR/ethtool-setringmax.service.requires"
+          SERVICEFILE="/etc/systemd/system/ethtool-setringmax@.service"
+
+          mkdir -p "$REQUIREDIR"
+
+          intf_l=$(find /sys/class/net -type l -not -lname '*virtual*' -printf '%f\n')
+          for intf in $intf_l; do
+            ln -s "$SERVICEFILE" "$REQUIREDIR/ethtool-setringmax@$intf.service"
+          done
+
+          exit 0
+
+    - name: Install the previous ethtool-setringmax template unit
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/ethtool-setringmax@.service
+        mode: "0644"
+        # the old helper is gone, only the unit names and links matter here
+        content: |
+          [Unit]
+          Description=Set Ring Parameters for Inteface %I
+
+          [Service]
+          Type=oneshot
+          ExecStart=/bin/true
+          RemainAfterExit=true
+
+    - name: Run the previous generator
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+
+    - name: Start the generated units like the previous version did
+      ansible.builtin.shell: >-
+        set -e;
+        for unit in /run/systemd/generator/ethtool-setringmax.service.requires/*; do
+        systemctl start "$(basename "$unit")"; done;
+        test -n "$(systemctl list-units --all --plain --no-legend 'ethtool-setringmax@*')"
+      changed_when: true
