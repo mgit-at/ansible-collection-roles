@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - upgrade_host - refresh the apt package lists before upgrading. Hosts without unattended-upgrades were upgraded against stale lists and kept missing updates.

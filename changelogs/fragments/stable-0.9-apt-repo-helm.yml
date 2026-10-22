@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - "apt_repo_helm - Helm moved its apt repository off baltocdn.com, the role uses the new repository (https://packages.buildkite.com/helm-linux/helm-debian/any/) and signing key (backport of PR #97)."

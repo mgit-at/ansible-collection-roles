@@ -1,0 +1,22 @@
+---
+# Create one platform in the first location that has capacity, after the first try failed
+# with resource_unavailable. Loop variable: _platform
+- name: Reset the fallback result for {{ _platform.name }}
+  ansible.builtin.set_fact:
+    _fallback_server: null
+
+- name: Try the fallback locations for {{ _platform.name }}
+  ansible.builtin.include_tasks: create_in_location.yml
+  # the first try already used the platform's own location, if it has one
+  loop: "{{ molecule_hcloud_fallback_locations | reject('eq', _platform.location | default('')) | list }}"
+  loop_control:
+    loop_var: _location
+
+- name: Fail when no location had capacity for {{ _platform.name }}
+  when: _fallback_server is none
+  ansible.builtin.fail:
+    msg: "No capacity for {{ _platform.server_type }} in any of the locations {{ molecule_hcloud_fallback_locations | join(', ') }}"
+
+- name: Remember the server created for {{ _platform.name }}
+  ansible.builtin.set_fact:
+    _fallback_servers: "{{ _fallback_servers + [_fallback_server] }}"

@@ -14,21 +14,24 @@ platforms:
   # - name: k8srepo-ubuntu-20.04 # Focal Fossa
   - name: k8srepo-ubuntu-22.04 # Jammy Jellyfish
     image: ubuntu-22.04
-    server_type: cx22
+    server_type: cx23
   - name: k8srepo-ubuntu-24.04 # Noble Numbat
     image: ubuntu-24.04
-    server_type: cx22
+    server_type: cx23
   # - name: k8srepo-debian-8 # Jessie
   # - name: k8srepo-debian-9 # Stretch
   # - name: k8srepo-debian-10 # Buster
   - name: k8srepo-debian-11 # Bullseye
     image: debian-11
-    server_type: cx22
+    server_type: cx23
   - name: k8srepo-debian-12 # Bookworm
     image: debian-12
-    server_type: cx22
+    server_type: cx23
 provisioner:
   name: ansible
+  env:
+    # molecule >= 25 no longer puts the roles directory on the roles path
+    ANSIBLE_ROLES_PATH: ${MOLECULE_PROJECT_DIRECTORY}/..
   playbooks:
     create: ../../../../tests/molecule/hcloud_playbooks/create.yml
     destroy: ../../../../tests/molecule/hcloud_playbooks/destroy.yml
