@@ -11,6 +11,8 @@
     ssh_user: root
     ssh_path: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/ssh_key"
     ssh_key_type: ed25519
+    # tried in order when Hetzner has no capacity for a server where it placed it first
+    molecule_hcloud_fallback_locations: [fsn1, nbg1, hel1]
   tasks:
     - name: Create SSH key
       community.crypto.openssh_keypair:
@@ -55,6 +57,21 @@
       until: hetzner_jobs.finished
       retries: 300
       with_items: "{{ server.results }}"
+      # no capacity for this server type there: retried in other locations below
+      failed_when:
+        - hetzner_jobs is failed
+        - "'resource_unavailable' not in hetzner_jobs.msg | default('')"
+
+    - name: Reset the servers created in fallback locations
+      ansible.builtin.set_fact:
+        _fallback_servers: []
+
+    - name: Retry instance(s) without capacity in other locations
+      ansible.builtin.include_tasks: tasks/create_fallback.yml
+      loop: "{{ hetzner_jobs.results | rejectattr('hcloud_server', 'defined') | map(attribute='item.item') | list }}"
+      loop_control:
+        loop_var: _platform
+        label: "{{ _platform.name }}"
 
     # - name: Create volume(s)
     #   hcloud_volume:
@@ -122,27 +139,26 @@
     #     state: "present"
     #   loop: "{{ molecule_yml.platforms|molecule_get_hetznercloud_networks('subnetworks') }}"
 
-    - name: Populate instance config dict
+    - name: Populate instance config
       ansible.builtin.set_fact:
-        instance_conf_dict:
-          instance: "{{ item.hcloud_server.name }}"
-          ssh_key_name: "{{ ssh_key_name }}"
-          address: "{{ item.hcloud_server.ipv4_address }}"
-          user: "{{ ssh_user }}"
-          port: "{{ ssh_port }}"
-          identity_file: "{{ ssh_path }}"
-          volumes: "{{ item.item.item.volumes | default({}) }}"
-          networks: "{{ item.item.item.networks | default({}) | dict2items(key_name='name', value_name='data') }}"
-      with_items: "{{ hetzner_jobs.results }}"
-      register: instance_config_dict
-      # noqa no-handler - this needs to run right here
-      when: server.changed | bool
-
-    - name: Convert instance config dict to a list
-      ansible.builtin.set_fact:
-        instance_conf: "{{ instance_config_dict.results | map(attribute='ansible_facts.instance_conf_dict') | list }}"
-      # noqa no-handler - this needs to run right here
-      when: server.changed | bool
+        instance_conf: >-
+          {{ instance_conf | default([]) + [{
+               'instance': _server.name,
+               'ssh_key_name': ssh_key_name,
+               'address': _server.ipv4_address,
+               'user': ssh_user,
+               'port': ssh_port,
+               'identity_file': ssh_path,
+               'volumes': item.volumes | default({}),
+               'networks': item.networks | default({}) | dict2items(key_name='name', value_name='data'),
+             }] }}
+      vars:
+        _server: >-
+          {{ (hetzner_jobs.results | selectattr('hcloud_server', 'defined') | map(attribute='hcloud_server') | list
+              + _fallback_servers) | selectattr('name', 'eq', item.name) | first }}
+      loop: "{{ molecule_yml.platforms }}"
+      loop_control:
+        label: "{{ item.name }}"
 
     - name: Dump instance config
       ansible.builtin.copy:
@@ -150,8 +166,7 @@
           # Molecule managed
           {{ instance_conf | to_json | from_json | to_yaml }}
         dest: "{{ molecule_instance_config }}"
-      # noqa no-handler - this needs to run right here
-      when: server.changed | bool
+        mode: "0600"
 
     - name: Wait for SSH
       ansible.builtin.wait_for:
