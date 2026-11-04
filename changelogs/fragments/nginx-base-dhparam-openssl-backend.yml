@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - nginx_base - the Diffie-Hellman parameters were regenerated and nginx restarted on every run on hosts with python3-cryptography 42 or newer (e.g. Debian 13) when an older community.crypto release is used. The task now uses the ``openssl`` backend, which reads the existing parameters with every community.crypto version.
