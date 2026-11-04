@@ -149,6 +149,9 @@
   community.crypto.openssl_dhparam:
     path: /etc/ssl/dhparams.pem
     size: "{{ nginx_base_dhparam_size }}"
+    # older community.crypto can't read existing params with python3-cryptography >= 42
+    # (Debian 13) and regenerates them, restarting nginx, on every run
+    select_crypto_backend: openssl
   notify: Restart nginx
 
 - name: Flush handlers
