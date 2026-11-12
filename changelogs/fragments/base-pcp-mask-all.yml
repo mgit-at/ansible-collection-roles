@@ -1,0 +1,3 @@
+---
+minor_changes:
+  - base - new ``base_pcp_mode`` (``disabled`` by default, or ``unmanaged``). ``disabled`` masks all PCP daemons and timers that ``dstat`` pulls in (it is a transitional package for ``pcp``), now also on Debian >= 13 and including ``pmie``, ``pmie_farm``, ``pmlogger_farm``, ``pmfind`` and their ``*_check``/``*_daily`` timers. ``dstat`` keeps working without them. ``unmanaged`` leaves PCP alone.

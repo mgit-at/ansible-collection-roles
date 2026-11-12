@@ -122,14 +122,35 @@
       - cgroup-tools
     state: present
 
-- name: Cleanup ubuntu >= 24.04 services
-  when: ansible_distribution == "Ubuntu" and (ansible_distribution_major_version | int) >= 24
+- name: Check base_pcp_mode
+  ansible.builtin.assert:
+    that: base_pcp_mode in ['disabled', 'unmanaged']
+    fail_msg: "base_pcp_mode must be disabled or unmanaged, not {{ base_pcp_mode }}"
+    quiet: true
+
+# dstat is a transitional package for pcp on Ubuntu >= 24.04 and Debian >= 13, which starts
+# collector daemons and timers. pcp-dstat works without them (local context).
+- name: Mask the PCP services pulled in by dstat
+  when:
+    - base_pcp_mode == 'disabled'
+    - (ansible_distribution == "Ubuntu" and (ansible_distribution_major_version | int) >= 24)
+      or (ansible_distribution == "Debian" and (ansible_distribution_major_version | int) >= 13)
   loop:
     - pmcd
     - pmproxy
     - pmlogger
+    - pmlogger_farm
+    - pmie
+    - pmie_farm
+    - pmfind
     - pmie_daily
+    - pmie_check.timer
     - pmie_daily.timer
+    - pmie_farm_check.timer
+    - pmlogger_check.timer
+    - pmlogger_daily.timer
+    - pmlogger_farm_check.timer
+    - pmfind.timer
   ansible.builtin.systemd:
     name: "{{ item }}"
     state: stopped
