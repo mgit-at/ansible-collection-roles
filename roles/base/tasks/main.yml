@@ -127,6 +127,7 @@
     that: base_pcp_mode in ['disabled', 'unmanaged']
     fail_msg: "base_pcp_mode must be disabled or unmanaged, not {{ base_pcp_mode }}"
     quiet: true
+  tags: base_pcp
 
 # dstat is a transitional package for pcp on Ubuntu >= 24.04 and Debian >= 13, which starts
 # collector daemons and timers. pcp-dstat works without them (local context).
@@ -158,6 +159,7 @@
     masked: true
   register: unused_disable
   failed_when: unused_disable is failed and ('find' not in unused_disable.msg and 'found' not in unused_disable.msg)
+  tags: base_pcp
 
 # screen
 - name: Remove startup message from screen
