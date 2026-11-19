@@ -21,6 +21,16 @@
       register: _base_old_generated
       changed_when: false
       failed_when: _base_old_generated.rc != 0 or _base_old_generated.stdout | length > 0
+    - name: Check that no PCP daemon or timer is active (default base_pcp_mode disabled)
+      when: >-
+        (ansible_distribution == "Ubuntu" and (ansible_distribution_major_version | int) >= 24)
+        or (ansible_distribution == "Debian" and (ansible_distribution_major_version | int) >= 13)
+      ansible.builtin.command: systemctl list-units --plain --no-legend --state=active 'pm*'
+      # systemctl used deliberately for functionality not in systemd module
+      # noqa command-instead-of-module
+      register: _base_pcp_active
+      changed_when: false
+      failed_when: _base_pcp_active.stdout | length > 0
     - name: Reboot
       ansible.builtin.reboot:
         msg: Ansible updates triggered

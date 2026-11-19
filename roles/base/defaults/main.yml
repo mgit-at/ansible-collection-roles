@@ -41,3 +41,9 @@ base_apt_repo_no_dns_hack: false
 ## this normally defaults to 2 which is totally fine
 # base_sunrpc_tcp_slot_table_entries: 128
 base_sunrpc_tcp_max_slot_table_entries: 128
+
+# PCP, which dstat pulls in on Ubuntu >= 24.04 and Debian >= 13 (dstat is a transitional package):
+#   disabled:  stop and mask all PCP daemons and timers; dstat keeps working (local context)
+#   unmanaged: leave PCP alone, e.g. when the host is monitored with PCP (units masked by an
+#              earlier run stay masked, unmask them yourself)
+base_pcp_mode: disabled
