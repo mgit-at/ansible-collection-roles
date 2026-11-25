@@ -35,21 +35,26 @@ jobs:
   sanity:
     name: Sanity (Ⓐ${{ matrix.ansible }})
     strategy:
+      # Test all versions, a failure on one must not hide the results of the others
+      fail-fast: false
       matrix:
         ansible:
-          # It's important that Sanity is tested against all stable-X.Y branches
-          # Testing against `devel` may fail as new tests are added.
-          # Check https://endoflife.date/ansible-core
+          # stable-0.9 is the maintenance lineage for hosts that stay on ansible-core 2.16
+          # (the avl ansible repo); main tests the current releases
           - stable-2.16
           - stable-2.17
           - stable-2.18
-          - devel
     runs-on: ubuntu-latest
     steps:
       # Run sanity tests inside a Docker container.
       # The docker container has all the pinned dependencies that are
       # required and all Python versions Ansible supports.
       - name: Perform sanity testing
+        id: sanity
+        # The ansible-test container setup fails now and then before any test runs
+        # ("mount -o remount,rw /sys/fs/cgroup/ && pkill sleep" returned exit status 1), so retry
+        # once below. A real sanity failure fails the retry as well.
+        continue-on-error: true
         uses: ansible-community/ansible-test-gh-action@release/v1
         with:
           ansible-core-version: ${{ matrix.ansible }}
@@ -60,6 +65,13 @@ jobs:
           #   ansible.netcommon
           #   ansible.utils
 
+      - name: Perform sanity testing (retry)
+        if: steps.sanity.outcome == 'failure'
+        uses: ansible-community/ansible-test-gh-action@release/v1
+        with:
+          ansible-core-version: ${{ matrix.ansible }}
+          testing-type: sanity
+
   ###
   # pre-commit tests (using the pre-commit tool)
   #
@@ -68,8 +80,8 @@ jobs:
     runs-on: ubuntu-latest
     name: pre-commit (${{ matrix.hook }})
     strategy:
-      # As soon as the first unit test fails, cancel the others to free up the CI queue
-      fail-fast: true
+      # Run all hooks, a failure in one must not hide the results of the others
+      fail-fast: false
       matrix:
         hook:
           # see .pre-commit-config.yml for hook names
@@ -80,14 +92,14 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           path: ansible_collections/${{env.NAMESPACE}}/${{env.COLLECTION_NAME}}
 
       - name: Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v7
         with:
-          python-version: "3.10"
+          python-version: "3.12"
 
       - name: Install pre-commit
         run: pip install pre-commit

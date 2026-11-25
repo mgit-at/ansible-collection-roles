@@ -16,7 +16,7 @@ repos:
         exclude: ^\.pre-commit-config\.yaml$
 
   - repo: https://github.com/adrienverge/yamllint
-    rev: v1.35.1
+    rev: v1.38.0
     hooks:
       - id: yamllint
         # Treat warnings as errors, or pre-commit will hide them
@@ -24,7 +24,7 @@ repos:
         name: All yaml files pass the yamllint linter
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.10.0.1
+    rev: v0.11.0.1-1
     hooks:
       - id: shellcheck
         name: All shell files pass the shellcheck linter
@@ -32,13 +32,16 @@ repos:
   ## Manual checks (these are not fast or specific enough to be run on every commit)
 
   - repo: https://github.com/ansible/ansible-lint
-    rev: v24.2.1
+    rev: v26.10.1
     hooks:
       - id: ansible-lint
         name: Lint the repository with ansible-lint
-        # Only run against ansible-core so missing dependencies are discovered
+        # the hook asks for python3.14, ansible-core 2.16 supports at most python 3.12
+        language_version: python3
+        # Only run against ansible-core so missing dependencies are discovered;
+        # the version this lineage supports
         additional_dependencies:
-          - .[core]
+          - ansible-core~=2.16.19
         stages: [manual]
 
   - repo: local
@@ -48,7 +51,9 @@ repos:
         entry: bash -c "cd roles/apt_repo_docker/ && molecule test"
         language: python
         additional_dependencies:
-          - molecule==6.0.3
+          - molecule==26.10.0
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
           - hcloud
         always_run: true # It is surprisingly hard to check if a change affects a certain role
         pass_filenames: false # molecule test is hardcoded above
@@ -58,7 +63,9 @@ repos:
         entry: bash -c "cd roles/apt_repo_helm/ && molecule test"
         language: python
         additional_dependencies:
-          - molecule==6.0.3
+          - molecule==26.10.0
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
           - hcloud
         always_run: true
         pass_filenames: false
@@ -68,17 +75,9 @@ repos:
         entry: bash -c "cd roles/apt_repo_kubernetes/ && molecule test"
         language: python
         additional_dependencies:
-          - molecule==6.0.3
-          - hcloud
-        always_run: true
-        pass_filenames: false
-        stages: [manual]
-      - id: molecule-apt-repo-ubuntu-nginx
-        name: The apt_repo_kubernetes role is passing molecule tests
-        entry: bash -c "cd roles/apt_repo_ubuntu_nginx/ && molecule test"
-        language: python
-        additional_dependencies:
-          - molecule==6.0.3
+          - molecule==26.10.0
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
           - hcloud
         always_run: true
         pass_filenames: false
@@ -88,7 +87,9 @@ repos:
         entry: bash -c "cd roles/base/ && molecule test"
         language: python
         additional_dependencies:
-          - molecule==6.0.3
+          - molecule==26.10.0
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
           - hcloud
         always_run: true
         pass_filenames: false
@@ -98,7 +99,9 @@ repos:
         entry: bash -c "cd roles/interfaces2networkd/ && molecule test"
         language: python
         additional_dependencies:
-          - molecule==6.0.3
+          - molecule==26.10.0
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
           - hcloud
         always_run: true
         pass_filenames: false
@@ -108,7 +111,9 @@ repos:
         entry: bash -c "cd roles/kubeadm_base/ && molecule test"
         language: python
         additional_dependencies:
-          - molecule==6.0.3
+          - molecule==26.10.0
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
           - hcloud
         always_run: true
         pass_filenames: false
@@ -118,7 +123,9 @@ repos:
         entry: bash -c "cd roles/kubeadm_controlplane/ && molecule test"
         language: python
         additional_dependencies:
-          - molecule==6.0.3
+          - molecule==26.10.0
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
           - hcloud
         always_run: true
         pass_filenames: false
@@ -128,7 +135,9 @@ repos:
         entry: bash -c "cd roles/kubeadm_node/ && molecule test"
         language: python
         additional_dependencies:
-          - molecule==6.0.3
+          - molecule==26.10.0
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
           - hcloud
         always_run: true
         pass_filenames: false
@@ -138,17 +147,21 @@ repos:
         entry: bash -c "cd roles/kubernetes_base/ && molecule test"
         language: python
         additional_dependencies:
-          - molecule==6.0.3
+          - molecule==26.10.0
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
           - hcloud
         always_run: true
         pass_filenames: false
         stages: [manual]
       - id: molecule-nginx-base
-        name: The upgrade_host role is passing molecule tests
+        name: The nginx_base role is passing molecule tests
         entry: bash -c "cd roles/nginx_base/ && molecule test --all"
         language: python
         additional_dependencies:
-          - molecule==6.0.3
+          - molecule==26.10.0
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
           - hcloud
         always_run: true
         pass_filenames: false
@@ -158,7 +171,9 @@ repos:
         entry: bash -c "cd roles/upgrade_host/ && molecule test"
         language: python
         additional_dependencies:
-          - molecule==6.0.3
+          - molecule==26.10.0
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
           - hcloud
         always_run: true
         pass_filenames: false

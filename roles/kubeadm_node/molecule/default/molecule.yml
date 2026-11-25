@@ -16,7 +16,7 @@ platforms:
     # Workaround for now: Just use Debian
     # Future: Set up CoreDNS on the host
     image: debian-11
-    server_type: cx22
+    server_type: cx23
     groups:
       - controlplane
   # - name: kadm-node-ubuntu-16.04 # Xenial Xerus
@@ -27,12 +27,12 @@ platforms:
   # - name: kadm-node-ubuntu-20.04 # Focal Fossa
   - name: kadm-node-ubuntu-22.04 # Jammy Jellyfish
     image: ubuntu-22.04
-    server_type: cx22
+    server_type: cx23
     groups:
       - worker
   - name: kadm-node-ubuntu-24.04 # Noble Numbat
     image: ubuntu-24.04
-    server_type: cx22
+    server_type: cx23
     groups:
       - worker
   # - name: kadm-node-debian-8 # Jessie
@@ -40,16 +40,19 @@ platforms:
   # - name: kadm-node-debian-10 # Buster
   - name: kadm-node-debian-11 # Bullseye
     image: debian-11
-    server_type: cx22
+    server_type: cx23
     groups:
       - worker
   - name: kadm-node-debian-12 # Bookworm
     image: debian-12
-    server_type: cx22
+    server_type: cx23
     groups:
       - worker
 provisioner:
   name: ansible
+  env:
+    # molecule >= 25 no longer puts the roles directory on the roles path
+    ANSIBLE_ROLES_PATH: ${MOLECULE_PROJECT_DIRECTORY}/..
   playbooks:
     create: ../../../../tests/molecule/hcloud_playbooks/create.yml
     destroy: ../../../../tests/molecule/hcloud_playbooks/destroy.yml
