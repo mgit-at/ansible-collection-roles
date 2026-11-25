@@ -264,9 +264,25 @@
     state: present
     reload: true
     ignoreerrors: true
+    sysctl_file: "{{ base_sysctl_file }}"
   with_dict: "{{ sysctl_config | combine(sysctl_config_user) }}"
   loop_control:
     label: "{{ item.key }} = {{ item.value }}"
+  tags:
+    - sysctl
+
+# Older versions wrote to /etc/sysctl.conf. On Debian < 13 it is still read via
+# 99-sysctl.conf, after base_sysctl_file, so leftover values would win.
+- name: Remove the base sysctl-settings from /etc/sysctl.conf
+  when: base_sysctl_file != "/etc/sysctl.conf"
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    state: absent
+    reload: false
+    sysctl_file: /etc/sysctl.conf
+  with_dict: "{{ sysctl_config | combine(sysctl_config_user) }}"
+  loop_control:
+    label: "{{ item.key }}"
   tags:
     - sysctl
 
