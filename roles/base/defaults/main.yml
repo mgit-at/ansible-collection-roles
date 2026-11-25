@@ -9,6 +9,8 @@ base_customer_mirror_ip: 1.2.3.4
 base_customer_mirror_protocol: http
 
 sysctl_config_user: {}
+# Debian 13 no longer reads /etc/sysctl.conf at boot
+base_sysctl_file: /etc/sysctl.d/90-mgit-ansible-base.conf
 # should be moved to an extended base role
 modules_blacklist_host: []
 modules_blacklist_group: []
