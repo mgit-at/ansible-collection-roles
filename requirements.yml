@@ -20,3 +20,6 @@ collections:
   - name: hetzner.hcloud
     version: 4.3.0
     source: https://galaxy.ansible.com
+  - name: kubernetes.core
+    version: 6.6.0
+    source: https://galaxy.ansible.com

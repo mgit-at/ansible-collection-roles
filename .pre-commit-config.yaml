@@ -58,6 +58,30 @@ repos:
         always_run: true # It is surprisingly hard to check if a change affects a certain role
         pass_filenames: false # molecule test is hardcoded above
         stages: [manual]
+      - id: molecule-apt-repo-helm
+        name: The apt_repo_helm role is passing molecule tests
+        entry: bash -c "cd roles/apt_repo_helm/ && molecule test"
+        language: python
+        additional_dependencies:
+          - molecule==26.10.0
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
+          - hcloud
+        always_run: true
+        pass_filenames: false
+        stages: [manual]
+      - id: molecule-apt-repo-kubernetes
+        name: The apt_repo_kubernetes role is passing molecule tests
+        entry: bash -c "cd roles/apt_repo_kubernetes/ && molecule test"
+        language: python
+        additional_dependencies:
+          - molecule==26.10.0
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
+          - hcloud
+        always_run: true
+        pass_filenames: false
+        stages: [manual]
       - id: molecule-base
         name: The base role is passing molecule tests
         entry: bash -c "cd roles/base/ && molecule test"
@@ -73,6 +97,54 @@ repos:
       - id: molecule-interfaces2networkd
         name: The interfaces2networkd role is passing molecule tests
         entry: bash -c "cd roles/interfaces2networkd/ && molecule test"
+        language: python
+        additional_dependencies:
+          - molecule==26.10.0
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
+          - hcloud
+        always_run: true
+        pass_filenames: false
+        stages: [manual]
+      - id: molecule-kubeadm-base
+        name: The kubeadm_base role is passing molecule tests
+        entry: bash -c "cd roles/kubeadm_base/ && molecule test"
+        language: python
+        additional_dependencies:
+          - molecule==26.10.0
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
+          - hcloud
+        always_run: true
+        pass_filenames: false
+        stages: [manual]
+      - id: molecule-kubeadm-controlplane
+        name: The kubeadm_controlplane role is passing molecule tests
+        entry: bash -c "cd roles/kubeadm_controlplane/ && molecule test"
+        language: python
+        additional_dependencies:
+          - molecule==26.10.0
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
+          - hcloud
+        always_run: true
+        pass_filenames: false
+        stages: [manual]
+      - id: molecule-kubeadm-node
+        name: The kubeadm_node role is passing molecule tests
+        entry: bash -c "cd roles/kubeadm_node/ && molecule test"
+        language: python
+        additional_dependencies:
+          - molecule==26.10.0
+          # 2.18: no hetzner.hcloud release supports 2.16 and the current Hetzner API
+          - ansible-core~=2.18.0
+          - hcloud
+        always_run: true
+        pass_filenames: false
+        stages: [manual]
+      - id: molecule-kubernetes-base
+        name: The kubernetes_base role is passing molecule tests
+        entry: bash -c "cd roles/kubernetes_base/ && molecule test"
         language: python
         additional_dependencies:
           - molecule==26.10.0
