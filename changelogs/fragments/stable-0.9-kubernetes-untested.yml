@@ -1,0 +1,3 @@
+---
+deprecated_features:
+  - apt_repo_helm, apt_repo_kubernetes, kubeadm_base, kubeadm_controlplane, kubeadm_node, kubernetes_base and kubernetes_flux - the Kubernetes roles are no longer used or tested (their molecule CI jobs were removed) and will be removed from the repository in the near future. They are already removed on main.

@@ -64,6 +64,12 @@ Intended to be run against a clean installation with only a default `sshd` runni
 
 ### roles/kubernetes/...
 
+>[!CAUTION]
+>On the 0.9 release branch the kubernetes roles (`apt_repo_helm`,
+>`apt_repo_kubernetes`, `kubeadm_*`, `kubernetes_base`, `kubernetes_flux`) are
+>no longer used and no longer tested. They will be removed from the repository
+>in the near future (they are already removed on `main`).
+
 Bundle of roles that are intended to be run in sequence to set up a minimal production ready Kubernetes cluster.
 The setup is highly opinionated (OS: latest Ubuntu LTS with HWE kernel, installation: kubeadm, CRI: containerd, CNI: Cilium) and not expected to support a lot of options in the future.
 
