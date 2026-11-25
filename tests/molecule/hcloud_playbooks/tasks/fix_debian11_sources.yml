@@ -1,11 +1,12 @@
 ---
-# Hetzner's internal mirror dropped bullseye-security (Debian 11 LTS ended 2026-08), but the
-# Hetzner debian-11 image still points there, so apt update fails. Use the official mirror.
+# bullseye-security left Hetzner's internal mirror and security.debian.org after Debian 11 LTS
+# ended (2026-08), but the Hetzner debian-11 image still points there, so installs fail. Use
+# archive.debian.org, like the base role does.
 - name: Gather the distribution of the test instance
   ansible.builtin.setup:
     gather_subset: [min]
 
-- name: Use security.debian.org instead of Hetzner's mirror on Debian 11
+- name: Use archive.debian.org for the security updates on Debian 11
   when:
     - ansible_distribution == 'Debian'
     - ansible_distribution_major_version == '11'
@@ -16,9 +17,9 @@
         patterns: ["sources.list", "*.list", "*.sources"]
       register: _debian11_apt_sources
 
-    - name: Point the Hetzner security mirror to security.debian.org
+    - name: Point the security sources to archive.debian.org
       loop: "{{ _debian11_apt_sources.files | map(attribute='path') | list }}"
       ansible.builtin.replace:
         path: "{{ item }}"
-        regexp: 'https?://mirror\.hetzner\.(com|de)/debian/security/?'
-        replace: http://security.debian.org/debian-security
+        regexp: 'https?://(mirror\.hetzner\.(com|de)/debian/security|security\.debian\.org(/debian-security)?|deb\.debian\.org/debian-security)/?(?=\s)'
+        replace: http://archive.debian.org/debian-security
