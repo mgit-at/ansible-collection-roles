@@ -2,3 +2,5 @@
 upgrade_host_system_state_retries: 10
 upgrade_host_system_state_delay: 1
 upgrade_host_apt_cleanup: true
+# every post-reboot `systemctl is-system-running` attempt, shown when the reboot times out
+upgrade_host_reboot_test_log: /var/tmp/upgrade_host-reboot-test.log
