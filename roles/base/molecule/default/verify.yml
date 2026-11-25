@@ -52,3 +52,19 @@
       register: upgrade_host_failed_result
       failed_when: "'failed' in upgrade_host_failed_result.stdout"
       changed_when: false # Read-only command
+    # Settings that are only applied at runtime are lost on reboot, e.g. when
+    # they are written to a file the distribution no longer reads at boot.
+    - name: Load the sysctl-settings of the base role
+      ansible.builtin.include_vars:
+        file: "{{ playbook_dir }}/../../vars/main.yml"
+    - name: Check that all sysctl-settings of the base role survive the reboot
+      ansible.builtin.command: sysctl -n {{ item.key }}
+      register: _base_sysctl_live
+      # keys unknown to this kernel are skipped, like the role does (ignoreerrors)
+      failed_when: >-
+        _base_sysctl_live.rc == 0
+        and (_base_sysctl_live.stdout.split() | join(' ')) != (item.value | string)
+      changed_when: false # Read-only command
+      with_dict: "{{ sysctl_config | combine(sysctl_config_user | default({})) }}"
+      loop_control:
+        label: "{{ item.key }} = {{ item.value }}"
