@@ -1,7 +1,9 @@
 deb http://debian-archive.trafficmanager.net/debian {{ ansible_distribution_release }} {{ base_apt_repo_debian_components | join (' ') }}
 {% if ansible_distribution_release != "jessie" %}deb http://debian-archive.trafficmanager.net/debian {{ ansible_distribution_release }}-updates {{ base_apt_repo_debian_components | join (' ') }}
 {% endif %}
-{% if ansible_distribution_release == "bullseye" %}
+{% if ansible_distribution_major_version | int >= 11 and ansible_distribution_major_version | int <= base_apt_debian_security_archive_version %}
+deb http://archive.debian.org/debian-security {{ ansible_distribution_release }}-security {{ base_apt_repo_debian_components | join (' ') }}
+{% elif ansible_distribution_release == "bullseye" %}
 deb http://debian-archive.trafficmanager.net/debian-security {{ ansible_distribution_release }}-security {{ base_apt_repo_debian_components | join (' ') }}
 {% else %}
 deb http://debian-archive.trafficmanager.net/debian-security {{ ansible_distribution_release }}/updates {{ base_apt_repo_debian_components | join (' ') }}

@@ -9,6 +9,8 @@ base_customer_mirror_ip: 1.2.3.4
 base_customer_mirror_protocol: http
 
 sysctl_config_user: {}
+# Debian 13 no longer reads /etc/sysctl.conf at boot
+base_sysctl_file: /etc/sysctl.d/90-mgit-ansible-base.conf
 # should be moved to an extended base role
 modules_blacklist_host: []
 modules_blacklist_group: []
@@ -30,6 +32,9 @@ base_apt_repo_zone: "{{ apt_repo_zone | default('upstream') }}"
 #    Remap-archive: /archive ; http://archive.debian.org/debian
 #    Remap-archivesecdeb: /archive-security ; http://archive.debian.org/debian-security
 base_apt_debian_archive_version: 10
+# debian version up to which security updates come from archive.debian.org
+# (hetzner, upstream and azure zones), set when a release's LTS ends
+base_apt_debian_security_archive_version: 11
 
 base_apt_repo_debian_components:
   - main

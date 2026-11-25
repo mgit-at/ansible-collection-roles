@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - base - after the end of Debian 11 LTS (2026-08), bullseye-security left Hetzner's mirror and the pool of security.debian.org (its index still lists the packages, the downloads return 404), so ``apt update`` or installs failed on Debian 11 hosts. Debian 11 now takes its security updates from archive.debian.org in the ``hetzner``, ``upstream`` and ``azure`` apt zones. The new ``base_apt_debian_security_archive_version`` (default ``11``) sets up to which Debian version this applies.

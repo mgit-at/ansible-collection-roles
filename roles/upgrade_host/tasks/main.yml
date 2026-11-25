@@ -2,6 +2,8 @@
 - name: Apt upgrade
   ansible.builtin.apt:
     upgrade: dist
+    # without it hosts lacking unattended-upgrades are upgraded against stale package lists
+    update_cache: true
   register: upgrade_host_apt_result
   until: upgrade_host_apt_result is not failed
   retries: 60

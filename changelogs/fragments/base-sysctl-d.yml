@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - base - the sysctl settings were written to ``/etc/sysctl.conf``, which Debian 13 no longer reads at boot (procps dropped it and the ``/etc/sysctl.d/99-sysctl.conf`` link), so they were lost after a reboot. They are now written to ``base_sysctl_file`` (default ``/etc/sysctl.d/90-mgit-ansible-base.conf``) and removed from ``/etc/sysctl.conf``.
