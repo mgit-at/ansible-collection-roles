@@ -1,0 +1,3 @@
+---
+minor_changes:
+  - upgrade_host - every post-reboot ``systemctl is-system-running`` attempt is logged on the host (``upgrade_host_reboot_test_log``, default ``/var/tmp/upgrade_host-reboot-test.log``). When the reboot times out, the error includes the last 60 lines with the system state, pending jobs and failed units, since the reboot module itself only reports the timeout.

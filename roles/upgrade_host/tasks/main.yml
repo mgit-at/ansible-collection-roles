@@ -12,14 +12,39 @@
   when: upgrade_host_pre_reboot_role is defined
   ansible.builtin.include_role:
     name: "{{ upgrade_host_pre_reboot_role }}"
-- name: Reboot
-  ansible.builtin.reboot:
-    msg: Ansible updates triggered
-    # use something more elaborate than "whoami"
-    test_command: systemctl is-system-running
+- name: Reboot and wait until the system is running
   tags:
     # This will never be idempotent, but it makes no sense to lie about not changing state either
     - molecule-idempotence-notest
+  block:
+    - name: Remove the log of previous post-reboot tests
+      ansible.builtin.file:
+        path: "{{ upgrade_host_reboot_test_log }}"
+        state: absent
+    - name: Reboot
+      ansible.builtin.reboot:
+        msg: Ansible updates triggered
+        # use something more elaborate than "whoami"; every attempt is logged,
+        # the reboot module itself only reports a timeout
+        test_command: >-
+          s=$(systemctl is-system-running 2>&1); rc=$?;
+          { echo "$(date +%T) rc=$rc state=$s";
+          if [ $rc -ne 0 ]; then systemctl list-jobs --no-pager; systemctl --failed --no-pager --plain; fi; }
+          >> {{ upgrade_host_reboot_test_log | quote }} 2>&1;
+          exit $rc
+  rescue:
+    - name: Read the log of the post-reboot tests
+      ansible.builtin.command: tail -n 60 {{ upgrade_host_reboot_test_log | quote }}
+      register: _upgrade_host_reboot_test_log
+      changed_when: false # Read-only command
+      failed_when: false
+      ignore_unreachable: true
+    - name: Fail with the log of the post-reboot tests
+      ansible.builtin.fail:
+        msg: |-
+          {{ ansible_failed_result.msg | default('Reboot failed') }}
+          post-reboot tests ({{ upgrade_host_reboot_test_log }}, last 60 lines):
+          {{ _upgrade_host_reboot_test_log.stdout | default('(not readable)', true) }}
 - name: Check system state
   ansible.builtin.command: systemctl is-system-running
   # systemctl used deliberately for functionality not in systemd module
